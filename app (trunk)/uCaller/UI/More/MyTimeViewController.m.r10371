@@ -1,0 +1,250 @@
+//
+//  MyTimeViewController.m
+//  uCaller
+//
+//  Created by 张新花花花 on 15/6/29.
+//  Copyright (c) 2015年 yfCui. All rights reserved.
+//
+
+#import "MyTimeViewController.h"
+#import "MoreTableViewCell.h"
+#import "ExchangeViewController.h"
+#import "PayViewController.h"
+#import "MyBillViewController.h"
+#import "TabBarViewController.h"
+#import "UIUtil.h"
+@interface MyTimeViewController ()<UITableViewDataSource,UITableViewDelegate>
+{
+    UIImageView *rightImgView;
+}
+@end
+
+@implementation MyTimeViewController
+@synthesize time;
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+   
+    self.view.backgroundColor = PAGE_BACKGROUND_COLOR;
+    [self.navigationController setNavigationBarHidden:YES];
+    
+    
+    UIImageView *backImgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth, 374.0/2*KHeightCompare6)];
+    backImgView.image = [UIImage imageNamed:@"myTimeBackImg"];
+    backImgView.userInteractionEnabled = YES;
+    [self.view addSubview:backImgView];
+    
+    
+    UIImageView *backBtnView = [[UIImageView alloc]initWithFrame:CGRectMake(12, 30, 12, 22)];
+    backBtnView.image = [UIImage imageNamed:@"moreBack_nor"];
+    [backImgView addSubview:backBtnView];
+    UIButton *backBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 20, 40, 40)];
+    backBtn.backgroundColor = [UIColor clearColor];
+    [backBtn addTarget:self action:@selector(returnLastPage) forControlEvents:UIControlEventTouchUpInside];
+    [backImgView addSubview:backBtn];
+    
+    UILabel *titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(KDeviceWidth/2-150/2, 20, 150, 44)];
+    titleLabel.text = @"我的时长";
+    titleLabel.font = [UIFont systemFontOfSize:20];
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.backgroundColor = [UIColor clearColor];
+    titleLabel.textColor = [UIColor colorWithRed:254/255.0 green:254/255.0 blue:254/255.0 alpha:1.0];
+    [backImgView addSubview:titleLabel];
+    
+    
+    UIButton *infoButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 64, KDeviceWidth, 123*KHeightCompare6)];
+    infoButton.backgroundColor = [UIColor clearColor];
+    [infoButton addTarget:self action:@selector(MyBill) forControlEvents:UIControlEventTouchUpInside];
+    [backImgView addSubview:infoButton];
+    
+    
+    UIFont *timeFont = [UIFont systemFontOfSize:30];
+    NSString *timeStr = [NSString stringWithFormat:@"%d",self.time];
+    CGSize size = [[NSString stringWithFormat:@"%d",self.time] sizeWithFont:timeFont constrainedToSize:CGSizeMake(400.0f, 1000.0f) lineBreakMode:NSLineBreakByWordWrapping];
+    
+    UILabel *timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(27*KWidthCompare6,30*KHeightCompare6,size.width,size.height)];
+    timeLabel.text = timeStr;
+    timeLabel.font = timeFont;
+    timeLabel.textColor = [UIColor colorWithRed:254/255.0 green:254/255.0 blue:254/255.0 alpha:1.0];
+    timeLabel.textAlignment = NSTextAlignmentLeft;
+    timeLabel.backgroundColor = [UIColor clearColor];
+    [infoButton addSubview:timeLabel];
+    
+    
+    UILabel *infoLabel = [[UILabel alloc]initWithFrame:CGRectMake(timeLabel.frame.size.width+timeLabel.frame.origin.x,timeLabel.frame.origin.y,size.width,size.height)];
+    infoLabel.text = @"分钟";
+    infoLabel.font = [UIFont systemFontOfSize:15];
+    infoLabel.textAlignment = NSTextAlignmentLeft;
+    infoLabel.textColor = [UIColor colorWithRed:254/255.0 green:254/255.0 blue:254/255.0 alpha:1.0];
+    infoLabel.backgroundColor = [UIColor clearColor];
+    [infoButton addSubview:infoLabel];
+    
+    UIImage *rightImage = [UIImage imageNamed:@"moreMyTime_nor"];
+    rightImgView = [[UIImageView alloc]initWithFrame:CGRectMake(KDeviceWidth-15-10,30*KHeightCompare6+timeLabel.frame.size.height/2-16/2, 10, 16)];
+    rightImgView.image = rightImage;
+    [infoButton addSubview:rightImgView];
+
+
+    
+    
+    UITableView *timeTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 374.0/2*KHeightCompare6, KDeviceWidth,200.0/2) style:UITableViewStylePlain];
+    timeTableView.delegate = self;
+    timeTableView.dataSource = self;
+    timeTableView.separatorStyle = UITableViewCellSelectionStyleNone;
+    timeTableView.scrollEnabled = NO;
+    
+    [self.view addSubview:timeTableView];
+    
+    
+    UILabel *extitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(12,timeTableView.frame.origin.y+210.0/2, KDeviceWidth-12,26)];
+    extitleLabel.text = @"时长秘籍";
+    extitleLabel.textColor = [UIColor colorWithRed:153/255.0 green:153/255.0 blue:153/255.0 alpha:1.0];
+    extitleLabel.font = [UIFont systemFontOfSize:13];
+    extitleLabel.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:extitleLabel];
+    
+    NSArray *explainArr = [[NSArray alloc]initWithObjects:@"1.使用呼应拨打国内电话，不扣手机话费，只消耗呼应时长。",@"2.呼应好友之间通话，永久免费。",@"3.在发现界面签到，做任务可获得更多时长。", nil];
+    for (int i = 0; i < 3; i++) {
+        UILabel *explainLabel = [[UILabel alloc]init];
+            if (IPHONE6||IPHONE6plus) {
+                explainLabel.frame = CGRectMake(12, extitleLabel.frame.origin.y+26*(i+1), KDeviceWidth-12, 26);
+                explainLabel.text = explainArr[i];
+            }
+            else{
+                if (i == 0) {
+                    explainLabel.frame = CGRectMake(12, extitleLabel.frame.origin.y+26*i+26, KDeviceWidth-12-15, 50);
+                    explainLabel.backgroundColor = [UIColor clearColor];
+                    //自动折行设置
+                    explainLabel.lineBreakMode = UILineBreakModeWordWrap;
+                    explainLabel.numberOfLines = 0;
+                    
+                    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:explainArr[0]];
+                    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+                    
+                    [paragraphStyle setLineSpacing:8];//调整行间距
+                    
+                    [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [explainArr[0] length])];
+                    explainLabel.attributedText = attributedString;
+                    [explainLabel sizeToFit];
+                }
+                else{
+                     explainLabel.frame = CGRectMake(12, extitleLabel.frame.origin.y+26*i+50, KDeviceWidth-12-15, 26);
+                     explainLabel.text = explainArr[i];
+                }
+            }
+                explainLabel.textColor = [UIColor colorWithRed:153/255.0 green:153/255.0 blue:153/255.0 alpha:1.0];
+                explainLabel.font = [UIFont systemFontOfSize:13];
+                explainLabel.textAlignment = UITextAlignmentLeft;
+//                explainLabel.backgroundColor = [UIColor clearColor];
+        
+        [self.view addSubview:explainLabel];
+    }
+    //添加右滑返回
+    [UIUtil addBackGesture:self andSel:@selector(returnLastPage)];
+    
+}
+-(void)returnLastPage
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:YES];
+    [self.navigationController setNavigationBarHidden:YES];
+    [uApp.rootViewController hideTabBar:YES];
+}
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 2;
+}
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    if (section == 0) {
+        return 0.0;
+    }
+    return 12;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;
+{
+    
+    UIView *bgView = [[UIView alloc] initWithFrame:CGRectMake(-1, -1, tableView.frame.size.width+2, 25)];
+    bgView.backgroundColor = [UIColor colorWithRed:240/255.0 green:240/255.0 blue:246/255.0 alpha:1.0];
+    bgView.layer.borderColor = [UIColor colorWithRed:240/255.0 green:243/255.0 blue:246/255.0 alpha:1.0].CGColor;
+    bgView.layer.borderWidth = 0.5;
+    
+    return bgView;
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    return 44;
+
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *cellName = @"cellName";
+    MoreTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName];
+    if(nil == cell)
+    {
+        cell = [[MoreTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellName];
+    }
+    //右边带小箭头
+//    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+
+    if (indexPath.section == 0){
+        UIImage *img = [UIImage imageNamed:@"exchange_nor"];
+        [cell setIcon:img
+                Title:@"兑换"
+          Description:@""
+            StatusImg:@"info_photoTime" TimeLabel:nil HotImage:nil Point:nil];
+        cell.backgroundColor = [UIColor clearColor];
+
+        
+    }else if(indexPath.section == 1){
+        UIImage *img = [UIImage imageNamed:@"pay_nor"];
+        [cell setIcon:img
+                Title:@"充值"
+          Description:@""
+            StatusImg:@"info_photoTime" TimeLabel:nil HotImage:nil Point:nil];
+         cell.backgroundColor = [UIColor clearColor];
+    }
+    return cell;
+}
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+   
+    if (indexPath.section == 0){
+        
+        [self exchangeFunction];
+    }else{
+        
+        [self payFunction];
+    }
+}
+//兑换
+-(void)exchangeFunction
+{
+    ExchangeViewController  *exchangeViewController = [[ExchangeViewController alloc]init];
+    [self.navigationController pushViewController:exchangeViewController animated:YES];
+}
+//在付
+-(void)payFunction
+{
+    PayViewController *payviewController = [[PayViewController alloc] init];
+    [self.navigationController pushViewController:payviewController animated:YES];
+}
+//时长详情
+-(void)MyBill
+{
+    rightImgView.image = [UIImage imageNamed:@"moreMyTime_sel"];
+    MyBillViewController *myBillViewController = [[MyBillViewController alloc] init];
+    [self.navigationController pushViewController:myBillViewController animated:YES];
+}
+
+@end

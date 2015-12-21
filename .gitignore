@@ -16,6 +16,10 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+*.svn
+*.svn-base
+.svn/
+.svn
 
 # CocoaPods
 #
