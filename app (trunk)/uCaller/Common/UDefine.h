@@ -86,7 +86,7 @@ typedef enum
 #define UCLIENT_UPDATE_CHANNEL  @"800"
 #define UCLIENT_VER_CODE 2
 
-#define UCLIENT_INFO_CLIENT_INSIDE ([NSString stringWithFormat:@"uCaller for iOS V%@.%@-b100",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
+#define UCLIENT_INFO_CLIENT_INSIDE ([NSString stringWithFormat:@"uCaller for iOS V%@.%@-b101",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 #define UCLIENT_INFO ([NSString stringWithFormat:@"uCaller for iOS V%@.%@",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 #define UCLIENT_UPDATE_VER ([NSString stringWithFormat:@"%@.%@",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 

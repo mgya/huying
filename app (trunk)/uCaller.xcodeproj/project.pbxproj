@@ -1886,6 +1886,8 @@
 		C8C8940B1BDDE3A3009DFCAB /* BaiduMapAPI_Search.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8C894071BDDE3A3009DFCAB /* BaiduMapAPI_Search.framework */; settings = {ASSET_TAGS = (); }; };
 		C8C8940F1BDDF68B009DFCAB /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C8C8940E1BDDF68B009DFCAB /* MapViewController.m */; settings = {ASSET_TAGS = (); }; };
 		C8C894111BDE0D87009DFCAB /* mapapi.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C8C894101BDE0D87009DFCAB /* mapapi.bundle */; settings = {ASSET_TAGS = (); }; };
+		C8DD9F8C1C27E55000CFFD59 /* tingyunApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8DD9F8B1C27E55000CFFD59 /* tingyunApp.framework */; settings = {ASSET_TAGS = (); }; };
+		C8DD9F8E1C27E6F900CFFD59 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C8DD9F8D1C27E6F900CFFD59 /* libz.tbd */; };
 		C8FCA8831BE72E1C00104A34 /* location_off.png in Resources */ = {isa = PBXBuildFile; fileRef = C8FCA87D1BE72E1C00104A34 /* location_off.png */; settings = {ASSET_TAGS = (); }; };
 		C8FCA8841BE72E1C00104A34 /* location_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C8FCA87E1BE72E1C00104A34 /* location_off@2x.png */; settings = {ASSET_TAGS = (); }; };
 		C8FCA8851BE72E1C00104A34 /* location_off@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C8FCA87F1BE72E1C00104A34 /* location_off@3x.png */; settings = {ASSET_TAGS = (); }; };
@@ -4274,6 +4276,8 @@
 		C8C8940D1BDDF68B009DFCAB /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		C8C8940E1BDDF68B009DFCAB /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		C8C894101BDE0D87009DFCAB /* mapapi.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = mapapi.bundle; path = uCaller/ThirdSource/baiduSDK/BaiduMapAPI_Map.framework/Resources/mapapi.bundle; sourceTree = SOURCE_ROOT; };
+		C8DD9F8B1C27E55000CFFD59 /* tingyunApp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tingyunApp.framework; sourceTree = "<group>"; };
+		C8DD9F8D1C27E6F900CFFD59 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		C8FCA87D1BE72E1C00104A34 /* location_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = location_off.png; path = CallLogChatCell/location_off.png; sourceTree = "<group>"; };
 		C8FCA87E1BE72E1C00104A34 /* location_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "location_off@2x.png"; path = "CallLogChatCell/location_off@2x.png"; sourceTree = "<group>"; };
 		C8FCA87F1BE72E1C00104A34 /* location_off@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "location_off@3x.png"; path = "CallLogChatCell/location_off@3x.png"; sourceTree = "<group>"; };
@@ -4399,12 +4403,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8C894031BDDE37F009DFCAB /* libstdc++.6.0.9.tbd in Frameworks */,
-				3FC5FC3B196B9A1A008DBCA9 /* CoreTelephony.framework in Frameworks */,
-				C8C894011BDDE350009DFCAB /* libsqlite3.0.tbd in Frameworks */,
-				8486C4CA1B677D84000BA53E /* Security.framework in Frameworks */,
-				3FD7958B18C95EB8001AA386 /* CoreGraphics.framework in Frameworks */,
+				C8DD9F8E1C27E6F900CFFD59 /* libz.tbd in Frameworks */,
 				3FC9DB0518D1993C0046168C /* SystemConfiguration.framework in Frameworks */,
+				8486C4CA1B677D84000BA53E /* Security.framework in Frameworks */,
+				3FC5FC3B196B9A1A008DBCA9 /* CoreTelephony.framework in Frameworks */,
+				C8C894031BDDE37F009DFCAB /* libstdc++.6.0.9.tbd in Frameworks */,
+				C8C894011BDDE350009DFCAB /* libsqlite3.0.tbd in Frameworks */,
+				3FD7958B18C95EB8001AA386 /* CoreGraphics.framework in Frameworks */,
 				C8C893FF1BDDE317009DFCAB /* OpenGLES.framework in Frameworks */,
 				3F285FF818FD304A00A8F2F7 /* QuartzCore.framework in Frameworks */,
 				C8C893FD1BDDE2FC009DFCAB /* CoreLocation.framework in Frameworks */,
@@ -4423,6 +4428,7 @@
 				C8C894081BDDE3A3009DFCAB /* BaiduMapAPI_Base.framework in Frameworks */,
 				C8C8940A1BDDE3A3009DFCAB /* BaiduMapAPI_Map.framework in Frameworks */,
 				3FC9DB0318D1992E0046168C /* libz.dylib in Frameworks */,
+				C8DD9F8C1C27E55000CFFD59 /* tingyunApp.framework in Frameworks */,
 				844426E01AD6914F0095131B /* libopencore-amrwb.a in Frameworks */,
 				848C96311AC94E190040753B /* libTCWeiboSDK.a in Frameworks */,
 				3F2EBF2518D6F4AB0017958E /* libiconv.dylib in Frameworks */,
@@ -5876,6 +5882,7 @@
 		3FB21C2C18D196FA009B6010 /* ThirdSource */ = {
 			isa = PBXGroup;
 			children = (
+				C8DD9F8B1C27E55000CFFD59 /* tingyunApp.framework */,
 				C8C893F31BDDE180009DFCAB /* baiduSDK */,
 				847741CB1AFB9E3000EACD6E /* VoIPSDK-Bundle.xcodeproj */,
 				84A3FB1F1AC26DAF00B2CA83 /* VoIPSDK.xcodeproj */,
@@ -6459,6 +6466,7 @@
 		3FD7958718C95EB8001AA386 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C8DD9F8D1C27E6F900CFFD59 /* libz.tbd */,
 				C8C894021BDDE37F009DFCAB /* libstdc++.6.0.9.tbd */,
 				C8C894001BDDE350009DFCAB /* libsqlite3.0.tbd */,
 				C8C893FE1BDDE317009DFCAB /* OpenGLES.framework */,
@@ -9783,6 +9791,8 @@
 					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks",
 					"$(PROJECT_DIR)/uCaller/ThirdSource/Pay/Alipay",
 					"$(PROJECT_DIR)/uCaller/ThirdSource/baiduSDK",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/uCaller/ThirdSource",
 				);
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -9880,6 +9890,8 @@
 					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks",
 					"$(PROJECT_DIR)/uCaller/ThirdSource/Pay/Alipay",
 					"$(PROJECT_DIR)/uCaller/ThirdSource/baiduSDK",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/uCaller/ThirdSource",
 				);
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
