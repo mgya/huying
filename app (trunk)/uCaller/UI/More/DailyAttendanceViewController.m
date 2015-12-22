@@ -142,7 +142,7 @@ typedef enum{
     //轮播广告
     adView = [[UIView alloc]init];
     adView.backgroundColor = PAGE_BACKGROUND_COLOR;
-    adView.frame = CGRectMake(0, 0, KDeviceWidth,125*KWidthCompare6-10);
+    adView.frame = CGRectMake(0, 0, KDeviceWidth,138);
     adView.backgroundColor = [UIColor clearColor];
     
     if ([UConfig getSignType]) {
@@ -304,7 +304,6 @@ typedef enum{
         isShowDailyMsg = NO;
     }
     
-    [self showSignAdsContents:[GetAdsContentDataSource sharedInstance].signArray];
 
 }
 - (void)viewWillDisappear:(BOOL)animated
@@ -355,7 +354,10 @@ typedef enum{
                 }
             }
         }
-        self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 250.0/2*KWidthCompare6 -20) animationDuration:3];
+        if (!self.mainScorllView) {
+            self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 236/2) animationDuration:3];
+        }
+
         self.mainScorllView.backgroundColor = [UIColor clearColor];
         [adView addSubview:self.mainScorllView];
         
@@ -365,7 +367,7 @@ typedef enum{
             self.automaticallyAdjustsScrollViewInsets = NO;//解决scrollView不从左上角显示
         }
         for (int i = 0; i < self.adImgArr.count; ++i) {
-            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 250.0/2*KWidthCompare6)];
+            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 236/2)];
             tempImgView.image = (UIImage *)[self.adImgArr objectAtIndex:i];
             [viewsArray addObject:tempImgView];
         }
@@ -443,6 +445,7 @@ typedef enum{
 
 -(void)returnLastPage
 {
+    [self.mainScorllView stopTimer];
     [self.navigationController popViewControllerAnimated:YES];
 }
 

@@ -38,6 +38,11 @@
 {
     self = [self initWithFrame:frame];
     if (animationDuration > 0.0) {
+        
+        if (self.animationTimer) {
+            [self.animationTimer invalidate];
+        }
+        
         self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:(self.animationDuration = animationDuration)
                                                                target:self
                                                              selector:@selector(animationTimerDidFired:)
@@ -177,6 +182,8 @@
     [self.scrollView setContentOffset:newOffset animated:YES];
    
     self.pageControl.currentPage = self.currentPageIndex;
+    
+    NSLog(@"time");
    
 }
 
@@ -184,6 +191,12 @@
 {
     if (self.TapActionBlock) {
         self.TapActionBlock(self.currentPageIndex);
+    }
+}
+
+-(void)stopTimer{
+    if (self.animationTimer) {
+        [self.animationTimer invalidate];
     }
 }
 

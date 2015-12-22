@@ -36,4 +36,6 @@
 @property (nonatomic , copy) void (^TapActionBlock)(NSInteger pageIndex);
 
 - (void)configContentViews;
+
+-(void)stopTimer;
 @end

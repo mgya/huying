@@ -289,7 +289,10 @@ typedef enum{
                 }
             }
         }
-        self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 250.0/2*KWidthCompare6) animationDuration:3];
+        if (!self.mainScorllView) {
+                self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 250.0/2*KWidthCompare6) animationDuration:3];
+        }
+
         self.mainScorllView.backgroundColor = [UIColor clearColor];
         [adView addSubview:self.mainScorllView];
         
