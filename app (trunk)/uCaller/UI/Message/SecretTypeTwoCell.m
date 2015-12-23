@@ -23,6 +23,7 @@
     
     MYLabel *titleLabel;
     UIImageView *picImgView;
+    UIImageView *defaultPicImageView;
     UIButton *linkBtn;
     MYLabel *nameLabel;
     
@@ -75,6 +76,15 @@
         [bgImageView addSubview:titleLabel];
         
         picImgView = [[UIImageView alloc]initWithFrame:CGRectMake(18*KWidthCompare6, 60*KWidthCompare6, 426.0/2*KWidthCompare6, 183.0/2*KWidthCompare6)];
+        picImgView.backgroundColor =  [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
+
+        UIImage * defImage = [UIImage imageNamed:@"sendPhotoImg"];
+        defaultPicImageView = [[UIImageView alloc]initWithFrame:CGRectMake((picImgView.frame.size.width - defImage.size.width/2)/2, (picImgView.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
+        defaultPicImageView.image = defImage;
+        [picImgView addSubview:defaultPicImageView];
+
+    
+        
         [bgImageView addSubview:picImgView];
        
         
@@ -160,6 +170,12 @@
     if(msgLog.isRecv)
     {
         ContentInfo *msgInfo = msgLog.contentInfoItems[0];
+        
+        
+        if (msgInfo.pic) {
+            defaultPicImageView.hidden = YES;
+        }
+        
         picImgView.image = msgInfo.pic;
         link = msgInfo.link;
         jumpType = msgInfo.jump;

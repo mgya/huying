@@ -98,12 +98,19 @@
                     contentInfo.pic = [UIImage imageWithContentsOfFile:filePaths];
                 }
                 if (contentInfo.pic == nil) {
-                    NSURL *url = [NSURL URLWithString:pic_url];
-                    NSData *imageData = [NSData dataWithContentsOfURL:url];
-                    if (imageData) {
-                        contentInfo.pic  = [UIImage imageWithData:imageData];
-                        [fileManager createFileAtPath:[[Util cachePhotoFolder] stringByAppendingFormat:@"/%@.%@",md5,@"png"] contents:imageData attributes:nil];
-                    } 
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            NSURL *url = [NSURL URLWithString:pic_url];
+                            NSData *imageData = [NSData dataWithContentsOfURL:url];
+                            [fileManager createFileAtPath:[[Util cachePhotoFolder] stringByAppendingFormat:@"/%@.%@",md5,@"png"] contents:imageData attributes:nil];
+                            dispatch_async(dispatch_get_main_queue(), ^{        
+                            if (imageData) {
+                                contentInfo.pic  = [UIImage imageWithData:imageData];
+                                NSNotification *notification =[NSNotification notificationWithName:UpdataCellPicture object:nil userInfo:nil];
+                                [[NSNotificationCenter defaultCenter] postNotification:notification];
+                            }
+                        });
+                    });
+                       
                 }
             }
         }

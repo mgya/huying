@@ -278,12 +278,26 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
                                                    object:nil];
         
         
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(reloadCell:)
+                                                     name:UpdataCellPicture
+                                                   object:nil];
+        
+        
+        
+        
         [self addContactObserver];
         
         device = [UIDevice currentDevice];
     }
     return self;
 }
+
+- (void)reloadCell:(NSNotification *)notification{
+    [chatTableView reloadData];
+}
+
 
 #pragma mark - 界面行为
 - (void)loadView
@@ -1638,7 +1652,11 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
                 
                 ContentInfo *msgInfo = msg.contentInfoItems[0];
                 UIImage *picImg = msgInfo.pic;
-                if (picImg.size.width < 70*KWidthCompare6) {
+                
+                
+                if (picImg == nil) {
+                    height = 87;
+                }else if (picImg.size.width < 70*KWidthCompare6) {
                     height = 180.0/2*KWidthCompare6 + picImg.size.height *(70*KWidthCompare6/picImg.size.width);
                 }else if (picImg.size.width > 211*KWidthCompare6){
                     height = 180.0/2*KWidthCompare6 + picImg.size.height *(211*KWidthCompare6/picImg.size.width);
@@ -3299,7 +3317,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NResetEditState object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:KAdsContent object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UpdataBigPicture object:self];
-    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UpdataCellPicture object:self];
 }
 
 #pragma mark---HttpManagerDelegate---

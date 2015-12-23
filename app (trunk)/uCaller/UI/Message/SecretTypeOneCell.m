@@ -25,6 +25,8 @@
     
     UIButton *picBtn;
     UIImage *picImage;
+    UIImageView *defaultPicImageView;
+    UIImage * defImage;
 }
 
 @synthesize myPhoto;
@@ -61,8 +63,14 @@
         [mainView addSubview:bgImageView];
     
         picBtn = [[UIButton alloc]init];
-        picBtn.backgroundColor = [UIColor clearColor];
+        picBtn.backgroundColor = [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
         picBtn.adjustsImageWhenHighlighted = NO;
+        
+        defImage = [UIImage imageNamed:@"sendPhotoImg"];
+        defaultPicImageView = [[UIImageView alloc]initWithFrame:CGRectMake((picBtn.frame.size.width - defImage.size.width/2)/2, (picBtn.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
+        defaultPicImageView.image = defImage;
+        [picBtn addSubview:defaultPicImageView];
+
         [bgImageView addSubview:picBtn];
         
         myLabel = [[MYLabel alloc]initWithFrame:CGRectMake(18*KWidthCompare6,0, 220*KWidthCompare6, 60*KWidthCompare6)];
@@ -148,6 +156,12 @@
         myLabel.text = msgInfo.title;       
         picImage = msgInfo.pic;
 
+        if (picImage == nil) {
+            picImage = [UIImage imageNamed:@"sendPhotoImg"];
+        }else{
+            defaultPicImageView.hidden = YES;
+            [picBtn setBackgroundImage: picImage forState:UIControlStateNormal];
+        }
         
         if (picImage.size.width < 70*KWidthCompare6)
         {
@@ -161,10 +175,11 @@
         {
             picBtn.frame = CGRectMake(18*KWidthCompare6, myLabel.frame.origin.y+myLabel.frame.size.height, picImage.size.width, picImage.size.height);
         }
-        
+
+        [defaultPicImageView setFrame:CGRectMake((picBtn.frame.size.width - defImage.size.width/2)/2, (picBtn.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
+    
         mainSize.height = picBtn.frame.size.height + myLabel.frame.origin.y+myLabel.frame.size.height + 12*KWidthCompare6;
                 
-        [picBtn setBackgroundImage: picImage forState:UIControlStateNormal];
         
         [picBtn addTarget:self action:@selector(maxPhotoImg:) forControlEvents:UIControlEventTouchUpInside];
         

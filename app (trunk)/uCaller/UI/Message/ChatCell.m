@@ -345,7 +345,7 @@
 
         if(!msgLog.contentView)
         {
-            msgContentView = [[TextAndMoodMsgContentView alloc] initWithMaxWidth:255*KWidthCompare6-24-6];
+            msgContentView = [[TextAndMoodMsgContentView alloc] initWithMaxWidth:230*KWidthCompare6-24-6];
             [msgContentView setTextFont:[UIFont systemFontOfSize:15]];
             msgContentView.shadowOffset = CGSizeMake(0, 0.5f);
             msgContentView.backgroundColor = [UIColor clearColor];
@@ -401,7 +401,6 @@
         mainSize.width = 511.0/2*KWidthCompare6;
         mainSize.height = 195.0/2*KWidthCompare6;
     }
-
     else
     {
         mainSize.width += 34;//CHATCELL_PADDING_Y*1.5;

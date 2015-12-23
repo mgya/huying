@@ -32,6 +32,9 @@
     NSMutableArray *linkUrlArr;
     NSMutableArray *jumpTypeArr;
     NSMutableArray *infoTitleArr;
+    
+    UIImageView *defaultPicImageView;
+    UIImage * defImage;
 }
 
 @synthesize myPhoto;
@@ -77,6 +80,13 @@
 
        
         picImgView = [[UIImageView alloc]initWithFrame:CGRectMake(15*KWidthCompare6, 9, 218*KWidthCompare6, 127*KWidthCompare6)];
+        picImgView.backgroundColor = [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
+        
+        defImage = [UIImage imageNamed:@"sendPhotoImg"];
+        defaultPicImageView = [[UIImageView alloc]initWithFrame:CGRectMake((picImgView.frame.size.width - defImage.size.width/2)/2, (picImgView.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
+        defaultPicImageView.image = defImage;
+        [picImgView addSubview:defaultPicImageView];
+
         picImgView.userInteractionEnabled = YES;
         picLabel = [[MYLabel alloc]initWithFrame:CGRectMake(0, 90*KWidthCompare6, 218*KWidthCompare6, 36*KWidthCompare6)];
         picLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7];
@@ -175,7 +185,12 @@
         [self.contentView addSubview:contactPhotoView];
   
         ContentInfo *msgInfoBig = msgLog.contentInfoItems[0];
-        picImgView.image = msgInfoBig.pic;
+
+        
+        if (msgInfoBig.pic) {
+            picImgView.image = msgInfoBig.pic;
+            defaultPicImageView.hidden = YES;
+        }
         picLabel.text = msgInfoBig.title;
         [linkUrlArr addObject: msgInfoBig.link];
         [jumpTypeArr addObject: msgInfoBig.jump];
@@ -195,11 +210,20 @@
             nameLabel.backgroundColor = [UIColor clearColor];
             [infoView addSubview:nameLabel];
             infoImgView = [[UIImageView alloc]initWithFrame:CGRectMake(183*KWidthCompare6, 6*KWidthCompare6, 45*KWidthCompare6, 45*KWidthCompare6)];
+            infoImgView.backgroundColor =  [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
+            
             [infoView addSubview:infoImgView];
             UIView *dividView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 468.0/2*KWidthCompare6, 1)];
             dividView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
             [infoView addSubview:dividView];
-            infoImgView.image = msgInfo.pic;
+            
+            
+            if (msgInfo.pic == nil) {
+                infoImgView.image = defImage;
+            }else{
+                infoImgView.image = msgInfo.pic;
+            }
+
             nameLabel.text = msgInfo.title;
             [linkUrlArr addObject:msgInfo.link];
             [jumpTypeArr addObject: msgInfo.jump];
