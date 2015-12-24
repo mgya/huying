@@ -281,7 +281,11 @@
 {
     NSString *result = [sender objectForKey:@"releaseNotes"];
     
-    if (![UCLIENT_APP_VER  isEqualToString: [sender objectForKey:@"version"]] && ![UConfig getVersionReview]) {
+    NSString *versionOnLine = [[ sender objectForKey:@"version"]stringByReplacingOccurrencesOfString:@"." withString:@""];
+    
+    NSString *versionUser = [UCLIENT_APP_VER stringByReplacingOccurrencesOfString:@"." withString:@""];
+    
+    if ([versionUser intValue] < [versionOnLine intValue]) {
         XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"发现新版本" message:result delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"立即更新", nil];
         alertView.tag = 3;
         

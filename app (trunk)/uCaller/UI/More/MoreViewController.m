@@ -763,6 +763,8 @@ typedef enum{
                     }
                     
                     [[NSNotificationCenter defaultCenter] postNotificationName:KEventTaskTime object:nil];
+                    
+                    dailyViewController.firstDaily = YES;
                 }
                 else
                 {

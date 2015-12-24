@@ -1841,6 +1841,7 @@
 		C85CBA1C1B969E44000CA367 /* nopackage.png in Resources */ = {isa = PBXBuildFile; fileRef = C85CBA191B969E44000CA367 /* nopackage.png */; };
 		C85CBA1D1B969E44000CA367 /* nopackage@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C85CBA1A1B969E44000CA367 /* nopackage@2x.png */; };
 		C85CBA1E1B969E44000CA367 /* nopackage@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C85CBA1B1B969E44000CA367 /* nopackage@3x.png */; };
+		C86A126F1C2BA082004A1E8E /* DailyGuideView.m in Sources */ = {isa = PBXBuildFile; fileRef = C86A126E1C2BA082004A1E8E /* DailyGuideView.m */; settings = {ASSET_TAGS = (); }; };
 		C898136F1B87013800018615 /* hot.png in Resources */ = {isa = PBXBuildFile; fileRef = C89813691B87013800018615 /* hot.png */; };
 		C89813701B87013800018615 /* hot@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C898136A1B87013800018615 /* hot@2x.png */; };
 		C89813711B87013800018615 /* hot@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C898136B1B87013800018615 /* hot@3x.png */; };
@@ -4219,6 +4220,8 @@
 		C85CBA191B969E44000CA367 /* nopackage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nopackage.png; sourceTree = "<group>"; };
 		C85CBA1A1B969E44000CA367 /* nopackage@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nopackage@2x.png"; sourceTree = "<group>"; };
 		C85CBA1B1B969E44000CA367 /* nopackage@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nopackage@3x.png"; sourceTree = "<group>"; };
+		C86A126D1C2BA082004A1E8E /* DailyGuideView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DailyGuideView.h; sourceTree = "<group>"; };
+		C86A126E1C2BA082004A1E8E /* DailyGuideView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DailyGuideView.m; sourceTree = "<group>"; };
 		C87D74D51BFAF1C000DE15C8 /* WBHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WBHttpRequest.h; sourceTree = "<group>"; };
 		C87D74D61BFAF1C000DE15C8 /* WBHttpRequest+WeiboGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WBHttpRequest+WeiboGame.h"; sourceTree = "<group>"; };
 		C87D74D71BFAF1C000DE15C8 /* WBHttpRequest+WeiboShare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WBHttpRequest+WeiboShare.h"; sourceTree = "<group>"; };
@@ -5389,6 +5392,8 @@
 				3D68227A1A2D5845009BD60B /* ExchangeLogViewController.m */,
 				3D6822801A2D6E1A009BD60B /* ExchangeLogTableViewCell.h */,
 				3D6822811A2D6E1A009BD60B /* ExchangeLogTableViewCell.m */,
+				C86A126D1C2BA082004A1E8E /* DailyGuideView.h */,
+				C86A126E1C2BA082004A1E8E /* DailyGuideView.m */,
 			);
 			path = More;
 			sourceTree = "<group>";
@@ -9356,6 +9361,7 @@
 				3D33270D1ABFF68000020535 /* MoodTableViewCell.m in Sources */,
 				84868F5D1AB6D83100742857 /* NSNumber+XMPP.m in Sources */,
 				846726DE1B2EA04600D25102 /* ContactViewController.m in Sources */,
+				C86A126F1C2BA082004A1E8E /* DailyGuideView.m in Sources */,
 				4762C4B11B15B3E8004193B9 /* AddXMPPViewController.m in Sources */,
 				3FF634F41920C2570028DCF0 /* SDWebImageManager.m in Sources */,
 				3FB21D0C18D196FB009B6010 /* ASINetworkQueue.m in Sources */,

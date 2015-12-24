@@ -17,4 +17,6 @@
 
 - (void)showSignAdsContents:(NSArray *)signAdsArr;
 
+@property(nonatomic,assign)BOOL firstDaily;
+
 @end

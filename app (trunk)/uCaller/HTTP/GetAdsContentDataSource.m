@@ -62,6 +62,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     NSMutableArray *signArray = [[NSMutableArray alloc] init];
     NSMutableArray *taskArray = [[NSMutableArray alloc] init];
     NSMutableArray *ivrArray = [[NSMutableArray alloc]init];
+     NSMutableArray *signCenterArray = [[NSMutableArray alloc]init];
 
     
     DDXMLElement *itemsElement = [rspElement elementForName:@"items"];
@@ -117,6 +118,14 @@ static GetAdsContentDataSource * sharedInstance = nil;
             NSString *adsUrl    = [itemsObj elementForName:@"url"].stringValue;
             NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:adsImgUrl,@"ImageUrl",adsUrl,@"Url", nil];
             [signArray addObject:adsDict];
+        }else if([typeName isEqualToString:@"sign"] &&
+                 [subtypeName isEqualToString:@"center"]){
+            
+            NSString *adsImgUrl = [itemsObj elementForName:@"imgurl"].stringValue;
+            NSString *adsUrl    = [itemsObj elementForName:@"url"].stringValue;
+            NSString *jumptype = [itemsObj elementForName:@"jumptype"].stringValue;
+            NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:adsImgUrl,@"ImageUrl",adsUrl,@"Url", jumptype,@"jumptype",nil];
+            [signCenterArray addObject:adsDict];
             
         }else if([typeName isEqualToString:@"tasklist"] &&
                  [subtypeName isEqualToString:@"top"]){
@@ -133,6 +142,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     _signArray = signArray;
     _taskArray = taskArray;
     _ivrArray = ivrArray;
+    _signCenterArray = signCenterArray;
 
     
 }

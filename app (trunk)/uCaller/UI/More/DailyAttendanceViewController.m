@@ -25,6 +25,7 @@
 #import "CycleScrollView.h"
 #import "GetAdsContentDataSource.h"
 #import "WebViewController.h"
+#import "DailyGuideView.h"
 
 @interface DailyAttendanceViewController ()
 {
@@ -82,6 +83,7 @@ typedef enum{
         [dailyInfoHttpManager getUserTaskDetail:@"4" Subtype:@"12"];
         
         isShowDailyMsg = YES;
+        _firstDaily = NO;
     }
     return self;
 }
@@ -284,6 +286,11 @@ typedef enum{
     [signView addSubview:statementLabelBody];
     
     [getShareHttp getShareMsg];
+    
+    
+    //if (_firstDaily) {
+        [self showDailyGuide];
+    //}
     
     //添加右滑返回
     [UIUtil addBackGesture:self andSel:@selector(returnLastPage)];
@@ -541,6 +548,11 @@ typedef enum{
             [sampleView drawRect:CGRectMake(20, dailyDaysLabel.frame.origin.y+dailyDaysLabel.frame.size.height+19, self.view.frame.size.width-40, 238)];
         }
     }
+}
+
+-(void)showDailyGuide{
+    DailyGuideView * guideView = [[DailyGuideView alloc]initWithFrame:self.view.bounds];
+    [self.view addSubview:guideView];
 }
 
 @end

@@ -43,7 +43,6 @@
         timeLabel.textColor = [UIColor lightGrayColor];
                 
         myPhotoView = [[UIImageView alloc] initWithFrame:CGRectMake(KDeviceWidth-49, timeLabel.frame.origin.y+timeLabel.frame.size.height, 37, 37)];
-        
         contactPhotoView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 10+18*kKHeightCompare6, 37, 37)];
         UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onPhotoTapped)];
         [contactPhotoView addGestureRecognizer:tapGesture];
@@ -124,7 +123,7 @@
     else {
         //设置内容区域view
         msgContentView = [[TextAndMoodMsgContentView alloc] initWithMaxWidth:180];
-        [msgContentView setTextFont:[UIFont systemFontOfSize:13]];
+        [msgContentView setTextFont:[UIFont systemFontOfSize:15]];
         msgContentView.shadowOffset = CGSizeMake(0, 0.5f);
         msgContentView.backgroundColor = [UIColor clearColor];
         
