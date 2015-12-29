@@ -34,7 +34,7 @@
         statusImgView = [[UIImageView alloc] initWithFrame:CGRectMake(10,4,img.size.width,img.size.height) ];
        // [self.cellView addSubview:statusImgView];
         
-        nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(statusImgView.frame.origin.x+statusImgView.frame.size.width+12, 4, 160, 25)];
+        nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(statusImgView.frame.origin.x+statusImgView.frame.size.width+12, 10, 160, 20)];
         nameLabel.backgroundColor = [UIColor clearColor];
         nameLabel.textColor = [UIColor blackColor];
         nameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -45,7 +45,7 @@
         countLabel.lineBreakMode = NSLineBreakByCharWrapping;
        // [self.cellView addSubview:countLabel];
         
-        areaLabel = [[UILabel alloc] initWithFrame:CGRectMake(nameLabel.frame.origin.x, nameLabel.frame.origin.y+nameLabel.frame.size.height, 200, 25)];
+        areaLabel = [[UILabel alloc] initWithFrame:CGRectMake(nameLabel.frame.origin.x, nameLabel.frame.origin.y+nameLabel.frame.size.height, 200, 18)];
         areaLabel.backgroundColor = [UIColor clearColor];
         areaLabel.textColor = TEXT_COLOR;
         areaLabel.font = [UIFont systemFontOfSize:13];
@@ -55,7 +55,9 @@
         timeLabel.backgroundColor = [UIColor clearColor];
         timeLabel.textAlignment = NSTextAlignmentRight;
         timeLabel.font = [UIFont systemFontOfSize:13];
-        timeLabel.textColor = TEXT_COLOR;
+ 
+        [timeLabel setTextColor:[UIColor colorWithRed:209/255.0 green:209/255.0 blue:209/255.0 alpha:1.0]];
+;
      //   [self.cellView addSubview:timeLabel];
         
         
@@ -133,6 +135,7 @@
         nameLabel.text = aCallLog.number;
         nameIsNumber = YES;
     }
+    nameLabel.font = [UIFont systemFontOfSize:16];
     CGSize size = [nameLabel.text sizeWithFont:nameLabel.font];
     if(size.width > 160)
         size.width = 160;

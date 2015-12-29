@@ -21,6 +21,7 @@
 @property(nonatomic,assign) double endsec;//结束倒计时
 
 @property(nonatomic,assign)float original;//原价
+@property(nonatomic,assign)NSInteger sort;//排序
 
 
 

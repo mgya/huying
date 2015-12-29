@@ -411,8 +411,10 @@ POrdinalToString::Initialiser UMPTagNamesInit[] = {
 	V_AND_N(e_ele_userPasswd)
 	V_AND_N(e_ele_userBalance)
 	V_AND_N(e_ele_userFlag)
-	V_AND_N(e_ele_groupID)
-	V_AND_N(e_ele_groupName)
+	//V_AND_N(e_ele_groupID)//deleted by liyr 2015-12-03
+	//V_AND_N(e_ele_groupName)//deleted by liyr 2015-12-03
+    V_AND_N(e_ele_CID)//added by liyr 2015-12-03
+    V_AND_N(e_ele_AID)//added by liyr 2015-12-03
 	V_AND_N(e_ele_resultIndicator)
 	V_AND_N(e_ele_userMainState)
 	V_AND_N(e_ele_userSubState)

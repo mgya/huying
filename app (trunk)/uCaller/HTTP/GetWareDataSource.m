@@ -9,6 +9,7 @@
 #import "GetWareDataSource.h"
 #import "DDXML.h"
 #import "NSXMLElement+XMPP.h"
+#import "UConfig.h"
 
 @implementation WareInfo
 
@@ -101,14 +102,20 @@
         DDXMLElement *original = [itemObj elementForName:@"original_price"];
         wareInfo.original = [original.stringValue floatValue];
         
+        DDXMLElement *sort = [itemObj elementForName:@"sort"];
+        wareInfo.sort = [sort.stringValue integerValue];
+
+        
         
         DDXMLElement *endsec = [itemObj elementForName:@"expire_time"];
         if ([endsec.stringValue doubleValue] > 0) {
             wareInfo.endsec = ([endsec.stringValue doubleValue] - cur)/1000;
         }
-       
-        [itemList addObject:wareInfo];
         
+        
+        if ([UConfig getVersionReview] || wareInfo.sort < 1000) {
+            [itemList addObject:wareInfo];
+        }
       
     }
     
@@ -117,3 +124,4 @@
 
 
 @end
+

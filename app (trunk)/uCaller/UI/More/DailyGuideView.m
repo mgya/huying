@@ -12,6 +12,11 @@
 #import "WebViewController.h"
 #import "MainViewController.h"
 #import "UAppDelegate.h"
+#import "TimeBiViewController.h"
+#import "PackageShopViewController.h"
+#import "MyTimeViewController.h"
+#import "TaskViewController.h"
+
 
 @implementation DailyGuideView{
     UIView * bgView;
@@ -20,9 +25,14 @@
     UILabel * titleLabel;
     UILabel * infoLabel;
     UIButton * taskButton;
-    UITapGestureRecognizer *tapgr;
+    UITapGestureRecognizer *tapClose;
+    UITapGestureRecognizer *tapJump;
+
+    
     NSString * jumpUrl;
     NSString * jumpType;
+    
+    HTTPManager* httpGiveGift;
 }
 
 - (id)initWithFrame:(CGRect)frame{
@@ -42,7 +52,10 @@
         mainView.backgroundColor = [UIColor whiteColor];
         
         adView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, mainView.frame.size.width, 300/2*KHeightCompare6)];
-        adView.image = [UIImage imageNamed:@"mybill_switch_leftsel"];
+        tapJump = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(jumpButton)];
+        [adView addGestureRecognizer:tapJump];
+        adView.userInteractionEnabled = YES;
+        
         [mainView addSubview:adView];
         
         titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 400*KHeightCompare6/2, mainView.frame.size.width, 16*KHeightCompare6)];
@@ -72,25 +85,30 @@
         UIImage * offImage = [UIImage imageNamed:@"call_offBtn_nor"];
         UIImageView *offButton = [[UIImageView alloc]initWithFrame:(CGRectMake(mainView.frame.size.width +mainView.frame.origin.x - offImage.size.width/2, mainView.frame.origin.y-offImage.size.height/2, offImage.size.width, offImage.size.height))];
         offButton.image = offImage;
-        tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(offGuide)];
+        tapClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(offGuide)];
         offButton.userInteractionEnabled = YES;
-        [offButton addGestureRecognizer:tapgr];
+        [offButton addGestureRecognizer:tapClose];
         [self addSubview:offButton];
         
         NSArray * adData = [GetAdsContentDataSource sharedInstance].signCenterArray;
-        jumpUrl = [adData[0] objectForKey:@"Url"];
-        jumpType = [adData[0] objectForKey:@"jumptype"];
-
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            // 耗时的操作
-            NSURL *url = [NSURL URLWithString:[adData[0] objectForKey:@"ImageUrl"]];
-            NSData *imageData = [NSData dataWithContentsOfURL:url];
-            UIImage *image = [UIImage imageWithData:imageData];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                // 更新界面
-                   adView.image = image;
+        if (adData.count > 0) {
+            jumpUrl = [adData[0] objectForKey:@"Url"];
+            jumpType = [adData[0] objectForKey:@"jumptype"];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                // 耗时的操作
+                NSURL *url = [NSURL URLWithString:[adData[0] objectForKey:@"ImageUrl"]];
+                NSData *imageData = [NSData dataWithContentsOfURL:url];
+                UIImage *image = [UIImage imageWithData:imageData];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // 更新界面
+                    adView.image = image;
+                });
             });
-        });
+
+        }else{
+            self.hidden = YES;
+        }
     
 
     
@@ -102,15 +120,46 @@
     self.hidden = YES;
 }
 
+
+
+
 -(void)jumpButton{
-    //        WebViewController *webVC = [[WebViewController alloc]init];
-    //        webVC.webUrl = [adData[0] objectForKey:@"ImageUrl"];
-    //        [[UAppDelegate uApp].rootViewController.navigationController pushViewController:webVC animated:YES];
-    //        webVC.title = @"111";
     
-    //    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[adData[0] objectForKey:@"ImageUrl"]]];
+
+    if (jumpUrl == nil) {
+        return;
+    }
+    
+    if (jumpType == nil || [jumpType isEqualToString:@"inner"]) {
+            WebViewController *webVC = [[WebViewController alloc]init];
+            webVC.webUrl = jumpUrl;
+            [[UAppDelegate uApp].rootViewController.navigationController pushViewController:webVC animated:YES];
+    }else if([jumpType isEqualToString:@"out"]){
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:jumpUrl]];
+    }else if([jumpType isEqualToString:@"app"]){
+        
+            id jumpViewController;
+            if ([jumpUrl isEqualToString:YINGBI]) {
+                jumpViewController = [[TimeBiViewController alloc] initWithTitle:@"应币商店"];
+            }else if([jumpUrl isEqualToString:TIME]){
+                jumpViewController = [[TimeBiViewController alloc] initWithTitle:@"时长商店"];
+            }else if([jumpUrl rangeOfString:PACKAGE].length > 0){
+                jumpViewController = [[PackageShopViewController alloc]init];//套餐商店
+            }else if([jumpUrl rangeOfString:BILL].length > 0){
+                //     jumpViewController = [[BillMainViewController alloc]init];//充值
+            }else if([jumpUrl isEqualToString:DURINFO]){
+                jumpViewController = [[MyTimeViewController alloc] init]; //账户
+            }else if([jumpUrl isEqualToString:TASK]){
+                jumpViewController = [[TaskViewController alloc] init];//任务
+            }
+        
+    [[UAppDelegate uApp].rootViewController.navigationController pushViewController:jumpViewController animated:YES];
+            return;
+        
+    }
     
 }
+
 
 
 @end

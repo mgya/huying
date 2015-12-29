@@ -379,11 +379,9 @@
                         wareList = dataSource.wareList;
                         maskLabel.hidden = YES;
                         
-                        [titleLabel setFrame:CGRectMake(0, LocationY, KDeviceWidth, 69*KHeightCompare6 + ((wareList.count-1)/2 + 1)*63*KHeightCompare6)];
+                        [titleLabel setFrame:CGRectMake(0, LocationY, KDeviceWidth, 69*KHeightCompare6 + (( (wareList.count -1 < 7) ? (wareList.count - 1):7)/2 + 1)*63*KHeightCompare6)];
                     
                        [ infoLabel setFrame:CGRectMake(0, titleLabel.frame.origin.y + titleLabel.frame.size.height + 10, KDeviceWidth, KDeviceHeight - textLabel.frame.size.height - LocationY)];
-                        
-                        
                         
                         [self reloadData];
                     }

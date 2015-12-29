@@ -230,6 +230,10 @@ WORD UPPSession::GetPayloadType()
 	{
 		pt = 18;
 	}
+    else if(_cap == e_chc_isac_16k)
+    {
+        pt=103;
+    }
 	return pt;
 }
 
@@ -503,11 +507,26 @@ PBOOL UPPSession::HandleCallSetup(const Sig::CallSetup & callSetup)
 	_uppStateMonitor.SetState(e_upps_proceed);
 	
 	HandleCallSignal(callSetup);
+    
+    //select cap
+    E_ChannelCapability selectCap = e_chc_null;
+    for(int i=0;i< _remoteInfo._capabilityArray.size();i++)
+    {
+        E_ChannelCapability cap =_remoteInfo._capabilityArray[i];
+        {
+            if(_capabilityMap.find(cap) != _capabilityMap.end()){
+                selectCap = cap;
+                break;
+            }
+        }
+    }
 	
 	UMPSignal sig_callAlert(e_sig_callAlert);
 	Sig::CallAlert callAlert(sig_callAlert);
 	
-	callAlert.SetCapabilities(_capabilityArray);
+    ChannelCapabilityArray tmpArray;
+    tmpArray.push_back(selectCap);
+	callAlert.SetCapabilities(tmpArray);
 	callAlert.SetVersion(upp_version);
 	callAlert.SetAcceptInbandDTMF(TRUE);
 	if(_noRouter)
@@ -519,7 +538,8 @@ PBOOL UPPSession::HandleCallSetup(const Sig::CallSetup & callSetup)
 	
 	_uppStateMonitor.SetState(e_upps_alert);
 
-	WriteOpenChannel();
+//	WriteOpenChannel();
+    WriteOpenChannel(selectCap);
 
 	_uppsEventSink.OnSetup(*this);
     
@@ -531,6 +551,20 @@ PBOOL UPPSession::HandleCallAlert(const Sig::CallAlert & callAlert)
 	_uppStateMonitor.GetConnectTimeout().Reset();
 	
 	HandleCallSignal(callAlert);
+    
+    //select cap
+    E_ChannelCapability selectCap = e_chc_null;
+    for(int i=0;i< _remoteInfo._capabilityArray.size();i++)
+    {
+        E_ChannelCapability cap =_remoteInfo._capabilityArray[i];
+        {
+            if(_capabilityMap.find(cap) != _capabilityMap.end()){
+                selectCap = cap;
+                break;
+            }
+        }
+    }
+    _cap = selectCap;
 	
 	_uppStateMonitor.SetState(e_upps_alert);
 	

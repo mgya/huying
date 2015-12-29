@@ -222,6 +222,7 @@ enum E_ChannelCapability {
 	e_chc_speex_wb		= 70,
 	e_chc_g7221_16k		= 80,
 	e_chc_g7221_32k		= 81,
+    e_chc_isac_16k      = 103,
     
 	e_chc_end_audio		= 199,
 	e_chc_begin_video	= 200,
@@ -284,8 +285,10 @@ enum E_UMPTag {
 	e_ele_userPasswd,
 	e_ele_userBalance,
 	e_ele_userFlag,
-	e_ele_groupID,
-	e_ele_groupName,
+	//e_ele_groupID, //deleted by liyr 2015-12-03
+	//e_ele_groupName,//deleted by liyr 2015-12-03
+    e_ele_CID,//added by liyr 2015-12-03
+    e_ele_AID,//added by liyr 2015-12-03
 	e_ele_resultIndicator,
 	e_ele_userMainState,
 	e_ele_userSubState,

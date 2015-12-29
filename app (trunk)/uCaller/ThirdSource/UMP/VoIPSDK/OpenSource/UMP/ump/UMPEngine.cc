@@ -104,6 +104,74 @@ private:
 
 static ServerList gServerList;
 
+//added by liyr 2015-12-03
+
+#define ValidForwarderServerTime 600   //10 min
+
+class ForwarderServerList {
+public:
+    ForwarderServerList(){
+    }
+    
+    virtual ~ForwarderServerList() {
+        _serversQueue.clear();
+    }
+    
+    void Clear() {
+        _serversQueue.clear();
+    }
+    
+    void AddServer(const PStringArray& forwardList) {
+        PWaitAndSignal lock(_mutex);
+        Clear();
+        U_DBG("add server");
+        for(PINDEX i = 0;i<forwardList.GetSize();i++){
+            PString fw = PString(forwardList[i]);
+            U_DBG("fw:"<<fw);
+            
+            if(!fw.IsEmpty())
+                _serversQueue.push_back(forwardList[i]);
+        }
+        _time=PTime();
+    }
+    
+    PString GetFirstServer() {
+        PWaitAndSignal lock(_mutex);
+        //time_t  now = PTime().GetTimeInSeconds();
+        if((PTime().GetTimeInSeconds() - _time.GetTimeInSeconds()) > ValidForwarderServerTime){
+            Clear();
+            return "";
+        }
+        if (_serversQueue.size() > 0) {
+            return _serversQueue[0];
+            
+        }
+        return "";
+    }
+    
+    void DelFirstServer() {
+        PWaitAndSignal lock(_mutex);
+        if (_serversQueue.size() > 0) {
+            _serversQueue.erase(_serversQueue.begin());
+        }
+    }
+    
+    UINT GetServerListCount() {
+        PWaitAndSignal lock(_mutex);
+        return _serversQueue.size();
+    }
+    
+private:
+    typedef std::vector<PString> ServersQueue;
+    ServersQueue _serversQueue;
+    PTime _time;
+    PMutex _mutex;
+};
+
+static ForwarderServerList gForwarderServerList;
+
+//added by liyr 2015-12-03
+
 struct LoginInfo {
 	BaseUserInfo _userInfo;
 	PString _password;
@@ -222,11 +290,17 @@ void UMPEngine::SetClientInfo(const char* localIP, const char* devID,
 }
 
 int UMPEngine::Login(const char* user, const char* password,
-		const char* server) {
+		const char* server, const char* cid) {//modified by liyr 2015-12-03 for adding cid
 	gLoginInfo._password = password;
 	gLoginInfo._forceLogin = false;
 	gLoginInfo._userInfo.SetName("");
 	gLoginInfo._userInfo.SetNumber("");
+    
+    //added by liyr 2015-12-03
+    PUInt64 i_cid = PString(cid).AsUnsigned64();
+    gLoginInfo._userInfo.SetCID(i_cid);
+    U_INFO("cid=" << i_cid);
+    //added by liyr 2015-12-03
 
 	gLoginInfo._curLoginServer = server;
 	if (gLoginInfo._curLoginServer.IsEmpty()) {
@@ -249,11 +323,35 @@ int UMPEngine::Login(const char* user, const char* password,
 			gLoginInfo._userInfo, gLoginInfo._forceLogin, false);
 }
 
+//deleted by liyr 2015-12-03
+/*
 void UMPEngine::TryNextLoginServer() {
 	gLoginInfo._curLoginServer = gServerList.GetNextServer();
 	umpSession->Login(gLoginInfo._curLoginServer, gLoginInfo._password,
 			gLoginInfo._userInfo, gLoginInfo._forceLogin, false);
 }
+ */
+//deleted by liyr 2015-12-03
+
+//added by liyr 2015-12-03
+E_ResultReason UMPEngine::TryNextLoginServer() {
+    E_ResultReason reason = e_r_ok;
+    gForwarderServerList.DelFirstServer();
+    PString forwarderServer = gForwarderServerList.GetFirstServer();
+    if(forwarderServer.IsEmpty()){
+        gLoginInfo._curLoginServer = gServerList.GetNextServer();
+        U_INFO("start login to curLoginServer [TryNextLogin] " << gLoginInfo._curLoginServer);
+        reason = umpSession->Login(gLoginInfo._curLoginServer, gLoginInfo._password,
+                                   gLoginInfo._userInfo, gLoginInfo._forceLogin, false);
+    }else{
+        U_INFO("start login to forwarderServer [TryNextLogin] " << forwarderServer);
+        reason = umpSession->Login(forwarderServer, gLoginInfo._password,
+                                   gLoginInfo._userInfo, gLoginInfo._forceLogin, true);
+    }
+    
+    return reason;
+}
+//added by liyr 2015-12-03
 
 void UMPEngine::Logout(PBOOL async) {
 	umpSession->Logout(e_r_ok, async);
@@ -640,6 +738,13 @@ void UMPEngine::HandleInteractMessage(const Sig::Interact & interact) {
 	from.Get(e_ele_userID, from_uid);
 	interact.GetBody(body);
 	body.Get(e_ele_content, content);
+    
+    //added by liyr 2015-12-03 for sending message ack to as
+    if (umpSession){
+        time_t time = interact.GetTime();
+        umpSession->SendMessageAck(body, time);
+    }
+    //added by liyr 2015-12-03 for sending message ack to as
 
 #ifdef VOIPBASE_ANDROID
 	JNIEnv* jniEnv;
@@ -857,10 +962,18 @@ void UMPEngine::OnBaseGroupInfo(UMPSession & session,
 void UMPEngine::OnLogin(UMPSession & session, E_ResultReason result) {
 	if (result == e_r_transportError || result == e_r_timeout
 			|| result == e_r_connectFail || result == e_r_invalidAddress) {
-		if (gServerList.GetServerListCount() > 0) {
+        //deleted by liyr 2015-12-03
+		/*if (gServerList.GetServerListCount() > 0) {
 			TryNextLoginServer();
 			return;
-		}
+		}*/
+        //deleted by liyr 2015-12-03
+        //added by liyr 2015-12-03
+        if (gServerList.GetServerListCount() > 0 || gForwarderServerList.GetServerListCount() > 0) {
+            if(TryNextLoginServer() == e_r_ok)
+                return;
+        }
+        //added by liyr 2015-12-03
 	}
 
 #ifdef VOIPBASE_ANDROID
@@ -883,6 +996,11 @@ void UMPEngine::OnLogin(UMPSession & session, E_ResultReason result) {
         _umpEngineEventSink->onLoginResult((int)result);
 #endif
 }
+
+//added by liyr 2015-12-03
+void UMPEngine::OnForwardTo(const PStringArray& forwardList){
+    gForwarderServerList.AddServer(forwardList);
+}//added by liyr 2015-12-03
 
 void UMPEngine::OnLogout(UMPSession & session, E_ResultReason reason) {
     
@@ -1420,6 +1538,8 @@ void UMPEngine::OnDurationLimit(UPPSession & upps, DWORD second) {
 
 void UMPEngine::OnGetCodecCapabilities(UPPSession & upps,
 		ChannelCapabilityArray & caps) {
+    
+    caps.push_back(e_chc_isac_16k);
 	caps.push_back(e_chc_g729);
 	//caps.push_back(e_chc_g711a);
 	//caps.push_back(e_chc_g711u);

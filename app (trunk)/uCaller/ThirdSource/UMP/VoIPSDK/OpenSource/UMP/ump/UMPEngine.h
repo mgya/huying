@@ -87,7 +87,7 @@ public:
     
     void AddServer(const char* server,bool clear);
     void SetClientInfo(const char* localIP,const char* mac,const char* osinfo);
-    int Login(const char* user,const char* password,const char* server);
+    int Login(const char* user,const char* password,const char* server,const char* cid);//modified by liyr 2015-12-03 for adding cid
     void Logout(PBOOL async = TRUE);
     
     void Call(const char* number);
@@ -104,7 +104,7 @@ public:
 private:
     bool MatchGUID(const PBYTEArray & guid) const;
     void CreateSession(bool master);
-    void TryNextLoginServer();
+    E_ResultReason TryNextLoginServer(); //modified by liyr 2015-12-03 void->E_ResultReason
     void SetPeerUser(const BaseUserInfo &bui);
     
     void StartCall(const BaseUserInfo & to,const PString & peerIP,const PBYTEArray & guid);
@@ -149,6 +149,10 @@ private:
     
     void OnReadRoundTrip(const Sig::RoundTrip & rt);
     void OnReadRoundTripAck(const Sig::RoundTripAck & rta);
+    
+    //added by liyr 2015-12-03
+    void OnForwardTo(const PStringArray& forwardList);
+    //added by liyr 2015-12-03
     
     void ForceEndCall(UMPSession & session,E_ResultReason reason);
     

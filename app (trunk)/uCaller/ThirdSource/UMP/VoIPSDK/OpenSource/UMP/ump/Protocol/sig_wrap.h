@@ -70,6 +70,14 @@ _NAMESPACE Sig
 		
 		PString GetUserNumber() const;
 		void SetUserNumber(const PString& unumber);
+        
+        //added by liyr 2015-12-03
+        PUInt64 GetAID() const;
+        void SetAID(const PUInt64 & uid);
+        
+        PUInt64 GetCID() const;
+        void SetCID(const PUInt64 & uid);
+        //added by liyr 2015-12-03
 	};
 	
 	typedef GetBaseUserInfo BaseUserInfo;
@@ -155,7 +163,12 @@ _NAMESPACE Sig
 		
 		PString GetForwardTo() const;
 		void SetForwardTo(const PString& to);
-		
+        
+        //added by liyr 2015-12-03
+        PString GetForwardToList() const;
+        void SetForwardToList(const PString& tolist);
+        //added by liyr 2015-12-03
+        
 		PString GetURL() const;
 		void SetURL(const PString& url);
 	};

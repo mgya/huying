@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HTTPManager.h"
 
 @interface DailyGuideView : UIView
 

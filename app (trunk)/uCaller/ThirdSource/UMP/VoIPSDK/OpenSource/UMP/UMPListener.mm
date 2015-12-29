@@ -157,12 +157,12 @@ void UMPListener::onCallEnd(int code){
 }
 void UMPListener::onURTPReady(const char * remoteIP,unsigned short remotePort,const char * localIP,unsigned short localPort,unsigned short pt){
     NSLog(@"onURTPReady remoteIP:%s remotePort:%d localIP:%s localPort:%d pt:%d",remoteIP,remotePort,localIP,localPort,pt);
-    if(!compare(IP(remoteIP),remotePort,IP(localIP),localPort,pt)){
-        NSLog(@"onURTPReady startVoiceEngine");
-        set(IP(remoteIP),remotePort,IP(localIP),localPort,pt);
-        webrtcDelegate * webrtc = [webrtcDelegate getWebrtcDelegate];
-        [webrtc startVoiceEngine:localPort IP:remoteIP port:remotePort payloadtype:pt];
-    }
+//    if(!compare(IP(remoteIP),remotePort,IP(localIP),localPort,pt)){
+//        NSLog(@"onURTPReady startVoiceEngine");
+//        set(IP(remoteIP),remotePort,IP(localIP),localPort,pt);
+//        webrtcDelegate * webrtc = [webrtcDelegate getWebrtcDelegate];
+//        [webrtc startVoiceEngine:localPort IP:remoteIP port:remotePort payloadtype:pt];
+//    }
 }
 void UMPListener::onKeepAlive(){
     NSLog(@"onKeepAlive");

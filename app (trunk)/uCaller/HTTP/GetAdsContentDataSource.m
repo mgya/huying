@@ -62,7 +62,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     NSMutableArray *signArray = [[NSMutableArray alloc] init];
     NSMutableArray *taskArray = [[NSMutableArray alloc] init];
     NSMutableArray *ivrArray = [[NSMutableArray alloc]init];
-     NSMutableArray *signCenterArray = [[NSMutableArray alloc]init];
+    NSMutableArray *signCenterArray = [[NSMutableArray alloc]init];
 
     
     DDXMLElement *itemsElement = [rspElement elementForName:@"items"];

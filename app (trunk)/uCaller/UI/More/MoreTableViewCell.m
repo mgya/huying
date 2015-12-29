@@ -57,7 +57,7 @@
         [self addSubview:doubleView];
         
         
-        UIImageView *moreCellArrow = [[UIImageView alloc]initWithFrame:CGRectMake(KDeviceWidth-15-7, 45.0/2-21/2/2, 7, 21.0/2)];
+        UIImageView *moreCellArrow = [[UIImageView alloc]initWithFrame:CGRectMake(KDeviceWidth-15-7, 45.0/2-24/2/2, 7, 24.0/2)];
         moreCellArrow.image = [UIImage imageNamed:@"moreCell"];
         [self addSubview:moreCellArrow];
     

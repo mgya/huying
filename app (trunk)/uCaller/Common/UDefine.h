@@ -86,7 +86,7 @@ typedef enum
 #define UCLIENT_UPDATE_CHANNEL  @"800"
 #define UCLIENT_VER_CODE 2
 
-#define UCLIENT_INFO_CLIENT_INSIDE ([NSString stringWithFormat:@"uCaller for iOS V%@.%@-b102",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
+#define UCLIENT_INFO_CLIENT_INSIDE ([NSString stringWithFormat:@"uCaller for iOS V%@.%@-b103",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 #define UCLIENT_INFO ([NSString stringWithFormat:@"uCaller for iOS V%@.%@",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 #define UCLIENT_UPDATE_VER ([NSString stringWithFormat:@"%@.%@",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 
@@ -134,7 +134,7 @@ typedef enum
 #define NAV 64.0f
 #define NAVI_HEIGHT 44
 #define NAVI_MARGINS (12)
-#define NAVI_BACK_FRAME (CGRectMake(NAVI_MARGINS, 0, 26, 44))
+#define NAVI_BACK_FRAME (CGRectMake(NAVI_MARGINS, 0, 12, 44))
 
 #define SCHOOLNUMBERMAX 20 //学校上传字数限制
 

@@ -288,9 +288,9 @@ typedef enum{
     [getShareHttp getShareMsg];
     
     
-    //if (_firstDaily) {
+    if (_firstDaily) {
         [self showDailyGuide];
-    //}
+    }
     
     //添加右滑返回
     [UIUtil addBackGesture:self andSel:@selector(returnLastPage)];

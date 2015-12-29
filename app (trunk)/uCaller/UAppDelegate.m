@@ -284,6 +284,10 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:KAPPEnterForeground object:nil];
     
     [[UIApplication sharedApplication] clearKeepAliveTimeout];
+    
+    
+    callBackGroundPlayer.currentTime = 0;
+    [callBackGroundPlayer stop];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -485,7 +489,7 @@
     NSString *callBackGroundSoundPath = [[NSBundle mainBundle] pathForResource:@"msg" ofType:@"mp3"];
     if ([Util isEmpty:callBackGroundSoundPath] == NO)
     {
-        NSURL *callBackGroundSoundURL = [NSURL fileURLWithPath:callBackGroundSoundPath];
+        NSURL *callBackGroundSoundURL = [NSURL fileURLWithPath:callSoundPath];
         callBackGroundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:callBackGroundSoundURL error:nil];
     }
     
@@ -929,18 +933,18 @@
     }
     
 //后台播放长铃声
-//    if (uCore.backGround) {
-//        [callBackGroundPlayer prepareToPlay];
-//        [callBackGroundPlayer setVolume:1];
-//        callBackGroundPlayer.numberOfLoops = 0;
-//        [callBackGroundPlayer play];
-//    }
-//    else {
+    if (uCore.backGround) {
+        [callBackGroundPlayer prepareToPlay];
+        [callBackGroundPlayer setVolume:1];
+        callBackGroundPlayer.numberOfLoops = -1;
+        [callBackGroundPlayer play];
+    }
+    else {
         [callSoundPlayer prepareToPlay];
         [callSoundPlayer setVolume:1];
         callSoundPlayer.numberOfLoops = -1;
         [callSoundPlayer play];
- //   }
+    }
 }
 
 -(void)stopRing
@@ -949,6 +953,9 @@
         return;
     callSoundPlayer.currentTime = 0;
     [callSoundPlayer stop];
+    callBackGroundPlayer.currentTime = 0;
+    [callBackGroundPlayer stop];
+
 }
 
 +(UAppDelegate *)uApp

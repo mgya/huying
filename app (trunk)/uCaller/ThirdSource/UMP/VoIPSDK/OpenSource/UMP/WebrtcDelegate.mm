@@ -88,15 +88,27 @@ static webrtcDelegate * wdSingleton = nil;
     audioChannel = voeBase->CreateChannel();
     
     voeApm->SetAgcStatus(true);
-    voeApm->SetEcStatus(true,kEcAecm);
-    voeApm->SetNsStatus(true,kNsModerateSuppression);
+//    voeApm->SetEcStatus(true,kEcAecm);
+    voeApm->SetEcStatus(true,kEcAec);
+    voeApm->SetNsStatus(true,kNsHighSuppression);
 }
 
-- (int32_t)login :(NSString*)username passwd:(NSString*)pwd{
+//deleted by liyr 2015-12-03
+//- (int32_t)login :(NSString*)username passwd:(NSString*)pwd{
+    //const char * username_in =[username UTF8String];
+    //const char * pwd_in =[pwd UTF8String];
+    //return umpEngine->Login(username_in, pwd_in,"");
+//}
+//deleted by liyr 2015-12-03
+
+//added by liyr 2015-12-03
+- (int32_t)login :(NSString*)username passwd:(NSString*)pwd c_id:(NSString*)cid{
     const char * username_in =[username UTF8String];
     const char * pwd_in =[pwd UTF8String];
-    return umpEngine->Login(username_in, pwd_in,"");
+    const char * cid_in =[cid UTF8String];
+    return umpEngine->Login(username_in, pwd_in,"",cid_in);
 }
+//added by liyr 2015-12-03
 
 - (void)logout:(BOOL)isAsync{
     umpEngine->Logout(isAsync);
@@ -252,13 +264,20 @@ static webrtcDelegate * wdSingleton = nil;
         }
         //NSLog(@"VoE Codec list %s, pltype=%d\n", codecToList.plname, codecToList.pltype);
     }
-    NSLog(@"Select Codec list %s, pltype=%d\n", codecToList.plname, codecToList.pltype);
+    NSLog(@"Select Codec list %s, pltype=%d,plfreq=%d,pacsize=%d,channels=%d,rate=%d\n", codecToList.plname, codecToList.pltype,codecToList.plfreq,codecToList.pacsize,codecToList.channels,codecToList.rate);
     voeCodec->SetSendCodec(audioChannel, codecToList);
     voeBase->StartReceive(audioChannel);
     voeBase->StartPlayout(audioChannel);
     voeBase->StartSend(audioChannel);
     
-    voeVolume->SetChannelOutputVolumeScaling(audioChannel, 3.0);
+//    if(pt==103){
+//        NSLog(@"set fec true");
+//        voeCodec->SetFECStatus(audioChannel, true);
+//    }
+    
+    if(pt==18){
+        voeVolume->SetChannelOutputVolumeScaling(audioChannel, 3.0);
+    }
     
     
 }

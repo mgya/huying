@@ -145,7 +145,6 @@
     }
     if (msgLog.type == MSG_AUDIOMAIL_RECV_CONTACT|| msgLog.type == MSG_AUDIOMAIL_RECV_STRANGER) {
         radioLabel.text = @"[留言]";
-        contact = [contactManager getContactByUID:@"102706139"];
     }
     else{
         radioLabel.text = @"[语音]";

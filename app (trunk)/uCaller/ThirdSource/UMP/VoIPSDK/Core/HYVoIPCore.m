@@ -285,7 +285,9 @@ static HYVoIPCore *sharedInstance = nil;
     md5Pwd = md5PWD;
     
     [self setServerIP:nil];
-    [webrtc login:account passwd:md5Pwd];
+    //[webrtc login:account passwd:md5Pwd];//deleted by liyr 2015-12-03
+    [webrtc login:account passwd:md5Pwd c_id:@""];//added by liyr 2015-12-03
+    
 }
 
 -(void)loginSyncWithMD5Psw:(NSDictionary *)data
@@ -298,8 +300,8 @@ static HYVoIPCore *sharedInstance = nil;
     md5Pwd = passwd;
     
     [self setServerIP:nil];
-    [webrtc login:account passwd:md5Pwd];
-    
+    //[webrtc login:account passwd:md5Pwd];//deleted by liyr 2015-12-03
+    [webrtc login:account passwd:md5Pwd c_id:@""];//added by liyr 2015-12-03
 }
 
 
@@ -322,7 +324,8 @@ static HYVoIPCore *sharedInstance = nil;
     count++;
     
     [self setServerIP:domainUrls];
-    [webrtc login:account passwd:md5Pwd];
+    //[webrtc login:account passwd:md5Pwd];//deleted by liyr 2015-12-03
+    [webrtc login:account passwd:md5Pwd c_id:@""];//added by liyr 2015-12-03
 }
 
 -(void)logoutSync

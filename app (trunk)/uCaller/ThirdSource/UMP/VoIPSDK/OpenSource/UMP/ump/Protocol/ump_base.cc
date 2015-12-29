@@ -529,6 +529,10 @@ void UMPSignal::PrintOn(ostream& strm) const
 BaseUserInfo::BaseUserInfo()
 {
 	SetID(0);
+    //added by liyr 2015-12-03
+    SetCID(0);
+    SetAID(0);
+    //added by liyr 2015-12-03
 }
 
 BaseUserInfo::BaseUserInfo(const UMPSignal& signal)
@@ -554,16 +558,28 @@ PBOOL BaseUserInfo::GetFrom(const UMPSignal& signal)
 	PUInt64 id= 0 ;
 	PString name;
 	PString number;
+    //added by liyr 2015-12-03
+    PUInt64 cid= 0 ;
+    PUInt64 aid= 0 ;
+    //added by liyr 2015-12-03
     
 	PBOOL ret = FALSE;
     
 	ret = signal.Get(e_ele_userID, id) || ret;
 	ret = signal.Get(e_ele_userName, name) || ret;
 	ret = signal.Get(e_ele_userNumber, number) || ret;
+    //added by liyr 2015-12-03
+    ret = signal.Get(e_ele_CID, cid) || ret;
+    ret = signal.Get(e_ele_AID, aid) || ret;
+    //added by liyr 2015-12-03
     
 	SetID(id);
 	SetName(name);
 	SetNumber(number);
+    //added by liyr 2015-12-03
+    SetCID(cid);
+    SetAID(aid);
+    //added by liyr 2015-12-03
 	return ret;
 }
 
@@ -575,6 +591,12 @@ PBOOL BaseUserInfo::SetTo(UMPSignal& signal) const
 		signal.Set(e_ele_userName, _name);
 	if (!_number.IsEmpty())
 		signal.Set(e_ele_userNumber, _number);
+    //added by liyr 2015-12-03
+    if (_cid)
+        signal.Set(e_ele_CID, _cid);
+    if (_aid)
+        signal.Set(e_ele_AID, _aid);
+    //added by liyr 2015-12-03
 	return TRUE;
 }
 
@@ -585,11 +607,15 @@ BaseUserInfo::BaseUserInfo(const BaseUserInfo& other)
 }
 
 BaseUserInfo::BaseUserInfo(const PUInt64 & uid, const PString& uname,
-                           const PString& unumber)
+                           const PString& unumber, const PUInt64 & cid,const PUInt64 & aid)//modified by liyr 2015-12-03 for adding cid&aid
 {
 	SetID(uid);
 	SetName(uname);
 	SetNumber(unumber);
+    //added by liyr 2015-12-03
+    SetCID(cid);
+    SetAID(aid);
+    //added by liyr 2015-12-03
 }
 
 
@@ -656,8 +682,8 @@ PBOOL BaseGroupInfo::GetFrom(const UMPSignal& signal)
 	PString name;
 	
 	PBOOL ret = FALSE;
-	ret = signal.Get(e_ele_groupID, id) || ret;
-	ret = signal.Get(e_ele_groupName, name) || ret;
+	//ret = signal.Get(e_ele_groupID, id) || ret;   //deleted by liyr 2015-12-03
+	//ret = signal.Get(e_ele_groupName, name) || ret;   //deleted by liyr 2015-12-03
     
 	SetID(id);
 	SetName(name);
@@ -666,10 +692,12 @@ PBOOL BaseGroupInfo::GetFrom(const UMPSignal& signal)
 
 PBOOL BaseGroupInfo::SetTo(UMPSignal& signal) const
 {
-	if (_id)
-		signal.Set(e_ele_groupID, _id);
-	if (!_name.IsEmpty())
-		signal.Set(e_ele_groupName, _name);
+    //deleted by liyr 2015-12-03
+	//if (_id)
+	//	signal.Set(e_ele_groupID, _id);
+	//if (!_name.IsEmpty())
+	//	signal.Set(e_ele_groupName, _name);
+    //deleted by liyr 2015-12-03
     
 	return TRUE;
 }

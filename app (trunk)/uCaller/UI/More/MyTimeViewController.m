@@ -73,7 +73,7 @@
     [self setNaviHidden:YES];
     // Do any additional setup after loading the view.
     isReview = [UConfig getVersionReview];
-    self.view.backgroundColor = [UIColor colorWithRed:0xf0/255.0 green:0xf0/255.0 blue:0xf6/255.0 alpha:1.0];
+    self.view.backgroundColor = [UIColor colorWithRed:0xf5/255.0 green:0xf5/255.0 blue:0xf5/255.0 alpha:1.0];
     
     isReview = [UConfig getVersionReview];
     
@@ -273,14 +273,15 @@
     }
 #endif
     
-    UIImageView *grayLineImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"line_gray"]];
-    grayLineImageView.frame = CGRectMake(0, buttonPackage.frame.size.height -0.5, KDeviceWidth, 0.5);
+    UIView *grayLineImageView = [[UIImageView alloc] init];
+    grayLineImageView.frame = CGRectMake(0, buttonPackage.frame.size.height - 0.5, KDeviceWidth, 0.5);
+    grayLineImageView.backgroundColor = [UIColor colorWithRed:0xe3/255.0 green:0xe3/255.0 blue:0xe3/255.0 alpha:1.0];
     [buttonPackage addSubview:textPackage];
     [buttonPackage addSubview:grayLineImageView];
     
     
-    UIImage * moreImage = [UIImage imageNamed:@"msg_accview"];
-    UIImageView *moreImageView =[[UIImageView alloc]initWithFrame:CGRectMake(KDeviceWidth-15-moreImage.size.width, (buttonPackage.frame.size.height-10.5)/2, 7, 21.0/2)];
+    UIImage * moreImage = [UIImage imageNamed:@"moreCell"];
+    UIImageView *moreImageView =[[UIImageView alloc]initWithFrame:CGRectMake(KDeviceWidth-15-moreImage.size.width, (buttonPackage.frame.size.height-10.5)/2, 7, 24.0/2)];
     moreImageView.image = moreImage;
     [buttonPackage addSubview:moreImageView];
     

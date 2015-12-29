@@ -111,6 +111,32 @@ void Sig::GetBaseUserInfo::SetUserNumber(const PString& unumber)
 	_signal.Set(e_ele_userNumber, unumber.Trim());
 }
 
+//added by liyr 2015-12-03
+PUInt64 Sig::GetBaseUserInfo::GetAID() const
+{
+    PUInt64 aid = 0;
+    _signal.Get(e_ele_AID, aid);
+    return aid;
+}
+
+void Sig::GetBaseUserInfo::SetAID(const PUInt64 &aid)
+{
+    _signal.Set(e_ele_AID, aid);
+}
+
+PUInt64 Sig::GetBaseUserInfo::GetCID() const
+{
+    PUInt64 cid = 0;
+    _signal.Get(e_ele_CID, cid);
+    return cid;
+}
+
+void Sig::GetBaseUserInfo::SetCID(const PUInt64 &cid)
+{
+    _signal.Set(e_ele_CID, cid);
+}
+//added by liyr 2015-12-03
+
 ////////////////
 Sig::GetBaseGroupInfo::GetBaseGroupInfo(UMPSignal& sig)
 : Wrap(sig)
@@ -331,6 +357,20 @@ void Sig::LoginAck::SetForwardTo(const PString& to)
 {
 	_signal.Set(e_ele_forwardTo, to);
 }
+
+//added by liyr 2015-12-03
+PString Sig::LoginAck::GetForwardToList() const
+{
+    PString tolist;
+    _signal.Get(e_ele_var, tolist);
+    return tolist;
+}
+
+void Sig::LoginAck::SetForwardToList(const PString& tolist)
+{
+    _signal.Set(e_ele_var, tolist);
+}
+//added by liyr 2015-12-03
 
 PString Sig::LoginAck::GetURL() const
 {

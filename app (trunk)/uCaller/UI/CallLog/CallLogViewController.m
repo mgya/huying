@@ -512,7 +512,7 @@
     
     if ([UConfig getCallLogMenu]==NO && !isReview) {
         [UConfig setCallLogMenu:YES];
-        [self.view addSubview:callLogGuideview];
+        [uApp.window addSubview:callLogGuideview];
     }
 
     [self addNaviSubView:titleNumLabel];

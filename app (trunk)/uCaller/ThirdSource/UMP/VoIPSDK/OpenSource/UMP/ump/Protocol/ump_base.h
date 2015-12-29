@@ -26,7 +26,7 @@
 #define defaultFXPort					((WORD)1430)
 
 
-#define ump_version						((DWORD)6)
+#define ump_version						((DWORD)7) //modified by liyr 2015-12-03 ump_version 6->7
 #define upp_version						((DWORD)6)
 
 #define uip_verson						((DWORD)2)
@@ -176,7 +176,7 @@ public:
 	BaseUserInfo(const UMPSignal& signal);
     
 	BaseUserInfo(const BaseUserInfo& other);
-	BaseUserInfo(const PUInt64 & uid, const PString& uname, const PString& unumber);
+	BaseUserInfo(const PUInt64 & uid, const PString& uname, const PString& unumber,const PUInt64 & cid=0,const PUInt64 & aid=0);//modified by liyr 2015-12-03
     
 	virtual ~BaseUserInfo();
     
@@ -195,11 +195,23 @@ public:
 	const PString & GetNumber() const{return _number;}
 	void SetNumber(const PString & number);
     
+    //added by liyr 2015-12-03
+    const PUInt64 & GetCID() const{return _cid;}
+    void SetCID( const PUInt64 & cid){_cid = cid;}
+    
+    const PUInt64 & GetAID() const{return _aid;}
+    void SetAID( const PUInt64 & aid){_aid = aid;}
+    //added by liyr 2015-12-03
+    
 	PBOOL IsFull() const;
 protected:
 	PUInt64 _id;
 	PString _name; //
 	PString _number;
+    //added by liyr 2015-12-03
+    PUInt64 _cid;
+    PUInt64 _aid;
+    //added by liyr 2015-12-03
 };
 
 PSCALAR_ARRAY(UInt64Array, PUInt64);
