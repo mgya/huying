@@ -33,6 +33,7 @@
 #import "CallGuideView.h"
 #import "WebViewController.h"
 #import "UConfig.h"
+#import "CycleScrollView.h"
 
 #define TAG_ACTIONSHEET_CLEAR 100
 
@@ -42,10 +43,12 @@
 #define CELLFRAME CGRectMake(0, 0, KDeviceWidth, CELL_HEIGHT)
 
 
-@interface MessageViewController(Private)
+@interface MessageViewController()
 
 -(void)onMsgLogEvent:(NSNotification *)notification;
-
+@property (nonatomic, retain) CycleScrollView *mainScorllView;//广告位数量大于1的uicontrol
+@property (nonatomic, retain) NSMutableArray *adImgArr;//广告轮播picture的array
+@property (nonatomic, retain) NSMutableArray *adUrlArr;//广告轮播的url的array
 @end
 
 @implementation MessageViewController
@@ -69,7 +72,7 @@
     UOperate *operateView;
     MsgLogManager *msgLogManager;
     UCore *uCore;
-
+    
     UIImageView *cellImgView;
     BOOL aPoint;
     UIButton *offBtn;
@@ -78,6 +81,14 @@
     UITapGestureRecognizer *guideTap;
     
     MsgLogCell *temp;
+    
+    //增加了广告位
+    UIView *adView;//包含了mainScorllView 或者 adButton 的uicontrol
+    UIButton *adButton;//广告位数量为1的时候的uicontrol
+    NSString *bannerUrl;
+    NSString *otherUrl;
+    
+    UIButton *closeBtn;
 }
 
 -(id)init
@@ -159,7 +170,7 @@
     }
     [photo addTarget:self action:@selector(showReSideMenu) forControlEvents:UIControlEventTouchUpInside];
     [self addNaviSubView:photo];
-
+    
     
     UIImage *img = [UIImage imageNamed:@"addPopMenuOff"];
     UIButton *rBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -168,7 +179,7 @@
     [rBtn setBackgroundImage:[UIImage imageNamed:@"addPopMenu"] forState:UIControlStateHighlighted];
     [rBtn addTarget:self action:@selector(showMenuView) forControlEvents:UIControlEventTouchUpInside];
     [self addNaviSubView:rBtn];
-
+    
     
     //241 238 233
     msgSearchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0,LocationY, KDeviceWidth, 44)];
@@ -201,10 +212,36 @@
     nomsgImageView.frame = CGRectMake((KDeviceWidth-nomsgImage.size.width)/2,LocationY+150, nomsgImage.size.width, nomsgImage.size.height);
     [self.view addSubview:nomsgImageView];
     
-    adsView = [[AdsView alloc] initWithFrame:CGRectMake(msgLogsTableView.frame.origin.x,msgLogsTableView.frame.origin.y+msgLogsTableView.frame.size.height-ADSVIEW_HEIGHT,msgLogsTableView.frame.size.width,ADSVIEW_HEIGHT)];
-    adsView.delegate = self;
-    adsView.hidden = YES;
-    [self.view addSubview:adsView];
+    //    adsView = [[AdsView alloc] initWithFrame:CGRectMake(msgLogsTableView.frame.origin.x,msgLogsTableView.frame.origin.y+msgLogsTableView.frame.size.height-ADSVIEW_HEIGHT,msgLogsTableView.frame.size.width,ADSVIEW_HEIGHT)];
+    //    adsView.delegate = self;
+    //    adsView.hidden = YES;
+    //    [self.view addSubview:adsView];
+    //轮播广告
+    adView = [[UIView alloc]init];
+    adView.backgroundColor = PAGE_BACKGROUND_COLOR;
+    adView.frame = CGRectMake(msgLogsTableView.frame.origin.x,msgLogsTableView.frame.origin.y+msgLogsTableView.frame.size.height-ADSVIEW_HEIGHT,msgLogsTableView.frame.size.width,ADSVIEW_HEIGHT);
+    adView.backgroundColor = [UIColor clearColor];
+    
+    adButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth,ADSVIEW_HEIGHT)];
+    adButton.backgroundColor = [UIColor clearColor];
+    adButton.hidden = YES;
+    [adView addSubview:adButton];
+    
+    
+    [self showSignAdsContents:[GetAdsContentDataSource sharedInstance].signArray];
+    
+    
+    adView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:adView];
+    
+    
+    
+    closeBtn = [[UIButton alloc] initWithFrame:CGRectMake(KDeviceWidth-20,0,25,25)];
+    [closeBtn addTarget:self action:@selector(didClose) forControlEvents:UIControlEventTouchUpInside];
+    closeBtn.backgroundColor = [UIColor clearColor];
+    [closeBtn setImage:[UIImage imageNamed:@"adsClose.png"] forState:UIControlStateNormal];
+    
+    
     
     [self refreshView];
     
@@ -215,16 +252,19 @@
     NSString *url = [[NSString alloc] initWithFormat:@"http://itunes.apple.com/lookup?id=%@",@"877921098"];
     
     [self Postpath:url];
-
+    
 }
 
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     
-    if (!bInSearch) {
-        [self showAdsContent:[GetAdsContentDataSource sharedInstance].imgMsg];
-    }
+    //    if (!bInSearch) {
+    //        [self showAdsContent:[GetAdsContentDataSource sharedInstance].imgMsg];
+    //    }
+    
+    [self showSignAdsContents:[GetAdsContentDataSource sharedInstance].signArray];
+    
     
     [self updateUMPStatus];
     
@@ -234,11 +274,125 @@
                                                object:nil];
     [msgLogsTableView becomeFirstResponder];
     
-
+    
     if (!bInSearch) {
         [uApp.rootViewController addPanGes];
     }
     
+}
+- (void)showSignAdsContents:(NSArray*)adArray
+{
+    if (adArray == nil||adArray.count == 0)
+        return;
+    
+    if (adArray.count == 1) {
+        
+        self.adUrlArr = [[NSMutableArray alloc]init];
+        
+        NSURL *url = [NSURL URLWithString:[adArray[0] objectForKey:@"ImageUrl"]];
+        NSData *imageData = [NSData dataWithContentsOfURL:url];
+        UIImage *image = [UIImage imageWithData:imageData];
+        
+        if(image == nil || ![image isKindOfClass:[UIImage class]])
+            return ;
+        [self.adUrlArr addObject:[adArray[0] objectForKey:@"Url"]];
+        [adButton setBackgroundImage:image forState:UIControlStateNormal];
+        [adButton addTarget:self action:@selector(didAdsButton) forControlEvents:(UIControlEventTouchUpInside)];
+        adButton.hidden = NO;
+    }
+    else if (adArray.count >1){
+        NSMutableArray *newAdsArr = [[NSMutableArray alloc]initWithArray:adArray];
+        if (newAdsArr.count > 1) {
+            [newAdsArr removeObject:newAdsArr[adArray.count-1]];
+            [newAdsArr insertObject:adArray[adArray.count-1] atIndex:0];
+        }
+        if (self.adImgArr.count == 0) {
+            self.adImgArr = [[NSMutableArray alloc]init];
+            self.adUrlArr = [[NSMutableArray alloc]init];
+            for (int i = 0; i<newAdsArr.count; i++) {
+                NSURL *url = [NSURL URLWithString:[newAdsArr[i] objectForKey:@"ImageUrl"]];
+                
+                NSData *imageData = [NSData dataWithContentsOfURL:url];
+                
+                UIImage *image = [UIImage imageWithData:imageData];
+                
+                if (image != nil) {
+                    [self.adImgArr addObject:image];
+                    [self.adUrlArr addObject:[newAdsArr[i] objectForKey:@"Url"]];
+                }
+            }
+        }
+        self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth,ADSVIEW_HEIGHT) animationDuration:3];
+        self.mainScorllView.backgroundColor = [UIColor clearColor];
+        [adView addSubview:self.mainScorllView];
+        
+        NSMutableArray *viewsArray = [@[] mutableCopy];
+        self.mainScorllView.hidden = NO;
+        if(iOS7){
+            self.automaticallyAdjustsScrollViewInsets = NO;//解决scrollView不从左上角显示
+        }
+        for (int i = 0; i < self.adImgArr.count; ++i) {
+            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, ADSVIEW_HEIGHT)];
+            tempImgView.image = (UIImage *)[self.adImgArr objectAtIndex:i];
+            [viewsArray addObject:tempImgView];
+        }
+        self.mainScorllView.fetchContentViewAtIndex = ^UIView *(NSInteger pageIndex){
+            return viewsArray[pageIndex];
+        };
+        
+        __weak typeof(self)weakSelf = self;
+        self.mainScorllView.totalPagesCount = ^NSInteger(void){
+            return weakSelf.adImgArr.count;
+        };
+        self.mainScorllView.TapActionBlock = ^(NSInteger pageIndex){
+            [weakSelf setAd:pageIndex];
+        };
+        [adView addSubview:self.mainScorllView];
+    }
+    [adView addSubview:closeBtn];
+}
+#pragma mark ------web动作-----
+- (void)setAd:(NSInteger)indexUrl{
+    if (indexUrl >= self.adUrlArr.count) {
+        return;
+    }
+    
+    [self touchWebAction:self.adUrlArr[indexUrl]];
+}
+
+-(void)didAdsButton
+{
+    if (self.adUrlArr.count == 0) {
+        return ;
+    }
+    
+    [self touchWebAction:self.adUrlArr[0]];
+}
+
+//adsWeb
+-(void)touchWebAction:(NSString *)aUrl
+{
+    if ([self.adUrlArr[0] isEqual: @""] || self.adUrlArr[0] == nil) {
+        return;
+    }
+    
+    if ([UConfig hasUserInfo]) {
+        
+        
+        [self webFunction:aUrl];
+        
+    }
+    else{
+        //未登录
+        XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"提示" message:@"尊敬的用户，您需要注册/登录后才能使用应用的全部功能。" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"注册/登录", nil];
+        [alertView show];
+    }
+}
+-(void)webFunction:(NSString *)urlStr
+{
+    WebViewController *webVC = [[WebViewController alloc]init];
+    webVC.webUrl = urlStr;
+    [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
 }
 
 -(void)Postpath:(NSString *)path
@@ -303,7 +457,7 @@
     if (alertView.tag == 3) {
         if (buttonIndex == 1) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/cn/app/hu-ying/id877921098?mt=8"]];
-
+            
         }else{
             if ([UConfig getGuideMenu]==NO) {
                 [UConfig setGuideMenu:YES];
@@ -317,7 +471,7 @@
 - (void)callGuideViewMiss:(UITapGestureRecognizer*)gesture{
     [callGuideView removeFromSuperview];
     [uApp.rootViewController.tabBarViewController setSelectedIndex:1];
-   
+    
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
@@ -388,7 +542,17 @@
     }
     [self resetView];
 }
-
+- (void)didClose{
+    
+    adView.hidden = YES;
+    if (_delegate && [_delegate respondsToSelector:@selector(didAdsClose)]) {
+        [_delegate didAdsClose];
+    }
+    //    [UIView animateWithDuration:1 animations:^{
+    //        signView.frame = CGRectMake(0,0,self.view.frame.size.width, bgScrollView.frame.size.height);
+    //    }
+    //     ];
+}
 #pragma mark---NBeginBackGroundTaskEvent---
 -(void)onBeginBackGroundTaskEvent:(NSNotification *)notification
 {
@@ -519,7 +683,7 @@
     
     if(aImage == nil || ![aImage isKindOfClass:[UIImage class]])
         return ;
-
+    
     [self resetView];
     adsView.hidden = NO;
     [adsView setBackgroundImage:aImage];
@@ -567,13 +731,13 @@
     }
     else {
         if (indexPath.row == 4 && aPoint == NO && point == 0) {
-        [cell removePanGes];
+            [cell removePanGes];
         }else{
             [cell addPanGes];
         }
     }
-
-
+    
+    
     aPoint = [UConfig getMsgLogView];
     if (indexPath.row == 4 && aPoint == NO && point == 0) {
         cellImgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth, 60)];
@@ -584,14 +748,14 @@
         UIImage *guideImg = [UIImage imageNamed:@"Guide_off"];
         offBtn = [[UIButton alloc]initWithFrame:CGRectMake(28*KWidthCompare6,0, 58, 58)];
         [offBtn setImage:guideImg forState:UIControlStateNormal];
-
+        
         [offBtn addTarget:self action:@selector(offMsgCellImgView) forControlEvents:UIControlEventTouchUpInside];
         [cellImgView addSubview:offBtn];
         point = 1;
-
+        
         
     }
-
+    
     if(msgLogsArray.count > indexPath.row)
     {
         MsgLog *msg = [msgLogsArray objectAtIndex:indexPath.row];
@@ -752,10 +916,10 @@
     if (!bInSearch) {
         return ;
     }
-
+    
     [self resetSearchMode:NO];
     [self updateUMPStatus];
-//    umpOnlineLabel.hidden = NO;
+    //    umpOnlineLabel.hidden = NO;
     [uApp.rootViewController addPanGes];
     msgSearchBar.showsCancelButton = NO;
     cancelButton = nil;

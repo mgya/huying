@@ -72,6 +72,12 @@ static GetAdsContentDataSource * sharedInstance = nil;
         NSString *typeName = [itemsObj elementForName:@"type"].stringValue;
         NSString *subtypeName = [itemsObj elementForName:@"subtype"].stringValue;
         
+        if ([typeName isEqualToString:@"account"] ) {
+            NSLog(@"!!!!!!!!!!");
+        }
+        
+        
+        
         if([typeName isEqualToString:@"index"] &&
                 [subtypeName isEqualToString:@"top"]){
             //typeName = index && subtypeName = top 为1.5.1及以上版本的“发现”界面的轮播条

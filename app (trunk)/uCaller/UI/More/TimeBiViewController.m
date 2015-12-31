@@ -28,11 +28,11 @@
 @interface TimeBiViewController (){
     
     NSString * _title;
-
+    
     UIView * titleLabel;
-
+    
     NSInteger chooseIndex;//选中ID
-
+    
     CGRect baseFrame;
     
     HTTPManager *getWareManager;
@@ -64,7 +64,7 @@
     UILabel *billTitleSec;
     //原价金额
     UILabel *billTitleSecNumber;
-
+    
     //遮罩
     UILabel *  maskLabel;
     
@@ -74,7 +74,7 @@
     
     HTTPManager *createOrderHttp;
     NSString *paydata;//单号
-
+    
     BOOL bSwipeGesture;//手势是否可用
     
 }
@@ -97,7 +97,7 @@
     iapPayManager = [[HTTPManager alloc] init];
     iapPayManager.delegate = self;
     setSelected = YES;
-
+    
     
     chooseIndex = 0;
     
@@ -117,7 +117,7 @@
     UILabel * miniLabel = [[UILabel alloc]initWithFrame:CGRectMake(24/2, 30/2, 6/2, 30/2)];
     miniLabel.backgroundColor = [UIColor colorWithRed:0x19/255.0 green:0xb2/255.0 blue:0xff/255.0 alpha:1.0];
     [titleLabel addSubview:miniLabel];
-
+    
     
     textLabel = [[UILabel alloc]initWithFrame:CGRectMake(miniLabel.frame.origin.x + miniLabel.frame.size.width + 7, 15, 32, 16)];
     textLabel.text = @"商品";
@@ -135,7 +135,7 @@
     baseFrame = CGRectMake(12, lineLabel.frame.origin.y + 18*KHeightCompare6, (KDeviceWidth -36*KWidthCompare6)/2,  45*KHeightCompare6);
     buttonList = [NSMutableArray arrayWithCapacity:8];
     UIImage * tempImage = [UIImage imageNamed:@"choose"];
-
+    
     for (int i = 0; i < 8; i++) {
         UIButton *tempButton = [[UIButton alloc]initWithFrame:CGRectMake(baseFrame.origin.x + (i%2)*(12 + baseFrame.size.width),baseFrame.origin.y + i/2*(baseFrame.size.height+15*KHeightCompare6),baseFrame.size.width,baseFrame.size.height)];
         tempButton.tag = 100 + i;
@@ -152,9 +152,9 @@
         [tempButton setTitleColor:[UIColor colorWithRed:0x66/255 green:0x66/255 blue:0x66/255 alpha:1.0] forState:UIControlStateNormal];
         tempButton.titleLabel.font = [UIFont systemFontOfSize: 15.0];
         [buttonList arrayByAddingObject:tempButton];
-
         
-       UIImageView * buttonChooseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(tempButton.frame.size.width - tempImage.size.width, tempButton.frame.size.height - tempImage.size.height, tempImage.size.width, tempImage.size.height)];
+        
+        UIImageView * buttonChooseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(tempButton.frame.size.width - tempImage.size.width, tempButton.frame.size.height - tempImage.size.height, tempImage.size.width, tempImage.size.height)];
         buttonChooseImageView.image = tempImage;
         buttonChooseImageView.tag = 99;
         [tempButton addSubview:buttonChooseImageView];
@@ -210,19 +210,19 @@
     
     UILabel * lineLabelC = [[UILabel alloc]initWithFrame:CGRectMake(12, descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 15*KHeightCompare6, KDeviceWidth,1)];
     lineLabelC.backgroundColor = [UIColor colorWithRed:227/255.0 green:227/255.0 blue:227/255.0 alpha:1.0];
-   // [infoLabel addSubview:lineLabelC];
+    // [infoLabel addSubview:lineLabelC];
     
     UILabel * textLabelC = [[UILabel alloc]initWithFrame:CGRectMake(21, lineLabelC.frame.origin.y + 15*KHeightCompare6, 64, 16)];
     textLabelC.text = @"生效方式";
     textLabelC.textColor = [UIColor colorWithRed:0x19/255.0 green:0xb2/255.0 blue:0xff/255.0 alpha:1.0];
     textLabelC.font = [UIFont systemFontOfSize:14];
-   // [infoLabel addSubview:textLabelC];
+    // [infoLabel addSubview:textLabelC];
     
     UILabel * textLabelD = [[UILabel alloc]initWithFrame:CGRectMake(21, textLabelC.frame.origin.y + textLabelC.frame.size.height + 15*KHeightCompare6, 100, 16)];
     textLabelD.text = @"购买立即生效";
     textLabelD.textColor = [UIColor colorWithRed:0x80/255.0 green:0x80/255.0 blue:0x80/255.0 alpha:1.0];
     textLabelD.font = [UIFont systemFontOfSize:14];
-   // [infoLabel addSubview:textLabelD];
+    // [infoLabel addSubview:textLabelD];
     
     
     //支付
@@ -278,11 +278,11 @@
         billButton.userInteractionEnabled = YES;
         [billLabel addSubview:billButton];
         
-    
+        
     }
     
-
-
+    
+    
     
     
     
@@ -297,7 +297,7 @@
     [UIUtil addBackGesture:self andSel:@selector(returnLastPage:)];
     
     bSwipeGesture = true;
-
+    
     // Do any additional setup after loading the view.
 }
 
@@ -312,17 +312,17 @@
             [bt.layer setBorderColor:[[UIColor colorWithRed:0x19/255.0 green:0x9f/255.0 blue:0xff/255.0 alpha:1.0] CGColor]];
             
         }else{
-             [bt viewWithTag:99].hidden = YES;
+            [bt viewWithTag:99].hidden = YES;
             [bt.layer setBorderColor:[[UIColor colorWithRed:0xcc/255.0 green:0xcc/255.0 blue:0xcc/255.0 alpha:1.0] CGColor]];
-
+            
         }
     }
     
     chooseIndex = temp.tag - 100;
     
     [self reloadData];
-
-
+    
+    
 }
 
 
@@ -335,7 +335,7 @@
         
     }
     return self;
-
+    
 }
 
 -(void)returnLastPage:(UISwipeGestureRecognizer * )swipeGesture{
@@ -354,7 +354,7 @@
 
 -(void)dataManager:(HTTPManager *)dataManager dataCallBack:(HTTPDataSource*)theDataSource type:(RequestType)eType bResult:(BOOL)bResult{
     
-{
+    {
         if(hud)
         {
             [hud hide:YES];
@@ -380,8 +380,8 @@
                         maskLabel.hidden = YES;
                         
                         [titleLabel setFrame:CGRectMake(0, LocationY, KDeviceWidth, 69*KHeightCompare6 + (( (wareList.count -1 < 7) ? (wareList.count - 1):7)/2 + 1)*63*KHeightCompare6)];
-                    
-                       [ infoLabel setFrame:CGRectMake(0, titleLabel.frame.origin.y + titleLabel.frame.size.height + 10, KDeviceWidth, KDeviceHeight - textLabel.frame.size.height - LocationY)];
+                        
+                        [ infoLabel setFrame:CGRectMake(0, titleLabel.frame.origin.y + titleLabel.frame.size.height + 10, KDeviceWidth, KDeviceHeight - textLabel.frame.size.height - LocationY)];
                         
                         [self reloadData];
                     }
@@ -407,12 +407,12 @@
                     }
                 }
                 else if (eType == RequestCreateOrder){
-    
-                        if (theDataSource.nResultNum == 1) {
-                            CreateOrderDataSource *orderSrc = (CreateOrderDataSource *)theDataSource;
-                            paydata = orderSrc.paydata;
-                            [self iapPay];
-                        }
+                    
+                    if (theDataSource.nResultNum == 1) {
+                        CreateOrderDataSource *orderSrc = (CreateOrderDataSource *)theDataSource;
+                        paydata = orderSrc.paydata;
+                        [self iapPay];
+                    }
                 }
                 
             }
@@ -421,9 +421,9 @@
                 //[[[iToast makeText:@"请求失败"] setGravity:iToastGravityCenter] show];
             }
         }
-    
-
-}
+        
+        
+    }
 }
 
 -(void)getWare
@@ -455,13 +455,13 @@
     }
     
     WareInfo *temp;
-
+    
     for (NSInteger i = buttonList.count < wareList.count ? buttonList.count - 1:wareList.count-1 ; i >=0; i--)
     {
         temp = [wareList objectAtIndex:i];
         [[buttonList objectAtIndex:i] setTitle:temp.strName forState:UIControlStateNormal];
         [[buttonList objectAtIndex:i] setHidden:NO];
-
+        
         UIImageView * buttonPromotion = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
         
         if (temp.sellType == 1) {
@@ -472,7 +472,7 @@
         [buttonPromotion setFrame:CGRectMake(0, 0, buttonPromotion.image.size.width, buttonPromotion.image.size.height)];
         
         [[buttonList objectAtIndex:i] addSubview:buttonPromotion];
-  
+        
     }
     temp = [wareList objectAtIndex:chooseIndex];
     [textLabelInfo setText:temp.strName];
@@ -504,8 +504,8 @@
         [billTitleSecNumber setText:[NSString stringWithFormat:@"￥%0.2f",temp.original]];//原价价格
     }
     
-   
-
+    
+    
     
 }
 -(void)setIAPObserver
@@ -526,11 +526,11 @@
 
 -(void)iapPay
 {
-//    if(![Util ConnectionState])
-//    {
-//        [XAlert showAlert:nil message:@"网络不可用，请检查您的网络，稍后再试！" buttonText:@"确定"];
-//        return;
-//    }
+    //    if(![Util ConnectionState])
+    //    {
+    //        [XAlert showAlert:nil message:@"网络不可用，请检查您的网络，稍后再试！" buttonText:@"确定"];
+    //        return;
+    //    }
     if ([SKPaymentQueue canMakePayments] == NO) {
         XAlertView *alertView = [[XAlertView alloc] initWithTitle:nil message:@"抱歉，该设备不支持苹果程序内购买!" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
         alertView.tag = TAG_RETURN;
@@ -555,7 +555,7 @@
     [self.view addSubview:hud];
     hud.labelText = @"正在支付";
     [hud show:YES];
-     bSwipeGesture = false;
+    bSwipeGesture = false;
     
     SKPayment *payment = [SKPayment paymentWithProductIdentifier:iapID];
     [[SKPaymentQueue defaultQueue] addPayment:payment];
@@ -564,7 +564,7 @@
 //苹果返回的数据
 -(void)onIAPSucceed:(NSString *)receiptdata
 {
-  //  payButton.enabled = YES;
+    //  payButton.enabled = YES;
     [iapPayManager iapBuyWare:curWare receiptdata:receiptdata order:paydata];
     
 }
@@ -629,13 +629,13 @@
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

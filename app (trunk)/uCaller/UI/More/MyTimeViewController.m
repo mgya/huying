@@ -41,8 +41,8 @@
     HTTPManager *httpUserAccountBalance;
     HTTPManager * getWareManager;
     NSInteger timer;
-  
-   
+    
+    
     NSArray *callsItemList;//已购买套餐
     UITableView *mTableView;
     
@@ -62,7 +62,7 @@
     
     UIImageView *backBtnView;
     
-
+    
 }
 @end
 
@@ -80,14 +80,14 @@
     UIImageView *backImgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth, 374.0/2)];
 #ifdef HOLIDAY
     if (isReview) {
-         backImgView.image = [UIImage imageNamed:@"myTimeBackImg.png"];
+        backImgView.image = [UIImage imageNamed:@"myTimeBackImg.png"];
     }else{
         backImgView.image = [UIImage imageNamed:@"myTimeBackImg11.png"];
     }
 #else
-     backImgView.image = [UIImage imageNamed:@"myTimeBackImg.png"];
+    backImgView.image = [UIImage imageNamed:@"myTimeBackImg.png"];
 #endif
-
+    
     backImgView.userInteractionEnabled = YES;
     [self.view addSubview:backImgView];
     
@@ -114,13 +114,13 @@
 #endif
     [backImgView addSubview:titleLabel];
     
-
+    
     UIButton * infoButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 64, KDeviceWidth/2, backImgView.frame.size.height - 64)];
     infoButton.backgroundColor = [UIColor clearColor];
     [infoButton addTarget:self action:@selector(MyBill) forControlEvents:UIControlEventTouchUpInside];
     [infoButton addTarget:self action:@selector(infoButtonDown) forControlEvents:UIControlEventTouchDown];
     [infoButton addTarget:self action:@selector(infoButtonOut) forControlEvents:UIControlEventTouchDragOutside];
-
+    
     [backImgView addSubview:infoButton];
     
     UIImageView *line  = [[UIImageView alloc]initWithFrame:CGRectMake(infoButton.frame.size.width, (infoButton.frame.size.height-45)/2, 1, 45)];
@@ -152,21 +152,21 @@
     timeLabel.backgroundColor = [UIColor clearColor];
     [infoButton addSubview:timeLabel];
     
-  
+    
     
     infoLabel = [[UILabel alloc]initWithFrame:CGRectMake(timeLabel.frame.size.width+timeLabel.frame.origin.x,timeLabel.frame.origin.y+15,size.width,15)];
     infoLabel.text = @" 分钟";
     infoLabel.font = [UIFont systemFontOfSize:16];
     infoLabel.textAlignment = NSTextAlignmentLeft;
 #ifdef HOLIDAY
-     infoLabel.textColor = [UIColor colorWithRed:255/255.0 green:95/255.0 blue:39/255.0 alpha:1.0];
+    infoLabel.textColor = [UIColor colorWithRed:255/255.0 green:95/255.0 blue:39/255.0 alpha:1.0];
 #else
-     infoLabel.textColor = [UIColor colorWithRed:254/255.0 green:254/255.0 blue:254/255.0 alpha:1.0];
+    infoLabel.textColor = [UIColor colorWithRed:254/255.0 green:254/255.0 blue:254/255.0 alpha:1.0];
 #endif
     infoLabel.backgroundColor = [UIColor clearColor];
     [infoButton addSubview:infoLabel];
     
-
+    
     
     //剩余时长
     surplusTime = [[UILabel alloc]initWithFrame:CGRectMake(timeLabel.frame.origin.x, infoLabel.frame.size.height+infoLabel.frame.origin.y+12, timeLabel.frame.size.width+infoLabel.frame.size.width, 15)];
@@ -185,7 +185,7 @@
     //应币
     UIButton *ButtonB = [[UIButton alloc]initWithFrame:CGRectMake(infoButton.frame.size.width, infoButton.frame.origin.y, KDeviceWidth/2, backImgView.frame.size.height - 64)];
     ButtonB.backgroundColor = [UIColor clearColor];
-
+    
     [ButtonB addTarget:self action:@selector(MyYingB) forControlEvents:UIControlEventTouchUpInside];
     [ButtonB addTarget:self action:@selector(MyYingBDown) forControlEvents:UIControlEventTouchDown];
     [ButtonB addTarget:self action:@selector(MyYingBOut) forControlEvents:UIControlEventTouchDragOutside];
@@ -214,7 +214,7 @@
 #endif
     unitLabel.backgroundColor = [UIColor clearColor];
     [ButtonB addSubview:unitLabel];
-
+    
     
     surplusB = [[UILabel alloc]initWithFrame:CGRectMake(KDeviceWidth/4-15,surplusTime.frame.origin.y, 30, 15)];
     surplusB.backgroundColor = [UIColor clearColor];
@@ -241,13 +241,38 @@
     if ([UConfig getVersionReview]) {
         buttonExchange.hidden = YES;
     }
+    UIView * bestView = [[UIView alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height, KDeviceWidth, 45)];
+    bestView.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:bestView];
+    UIImageView *bestImageView = [[UIImageView alloc]initWithFrame:CGRectMake(12, 9,27, 27)];
+    bestImageView.image = [UIImage imageNamed:@"BestPackage"];
+    [bestView addSubview:bestImageView];
+    UILabel * bearText = [[UILabel alloc]initWithFrame:CGRectMake(49, 0, 100, 45)];
+    bearText.text = @"精选优惠";
+    bearText.font = [UIFont systemFontOfSize:16];
+    CGSize bsize = [bearText.text sizeWithFont:bearText.font constrainedToSize:CGSizeMake(180.0f, 1000.0f) lineBreakMode:UILineBreakModeWordWrap];
+    bearText.frame = CGRectMake(49, 0, bsize.width,45);
+    bearText.backgroundColor = [UIColor clearColor];
+    [bestView addSubview:bearText];
     
+    UIView *moneyView = [[UIView alloc]initWithFrame:CGRectMake(0,backImgView.frame.size.height+bestView.frame.size.height, KDeviceWidth, 117*KWidthCompare6)];
+    moneyView.backgroundColor = [UIColor colorWithRed:250.0/255.0 green:250.0/255.0 blue:250.0/255.0 alpha:1.0];
+    [self.view addSubview:moneyView];
+    
+    
+    for (int i = 0; i<3; i++) {
+        UIButton *moneyBtn = [[UIButton alloc]initWithFrame:CGRectMake(12*KWidthCompare6+121*KWidthCompare6*i, 15*KWidthCompare6, 109*KWidthCompare6, 87*KWidthCompare6)];
+        [moneyBtn setBackgroundImage:[UIImage imageNamed:@"BestPackage"] forState:UIControlStateNormal];
+        moneyBtn.tag = i;
+        [moneyBtn addTarget:self action:@selector(jumpInfo:) forControlEvents:UIControlEventTouchUpInside];
+        [moneyView addSubview:moneyBtn];
+    }
     
     //套餐按钮
-    UIButton * buttonPackage = [[UIButton alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height, KDeviceWidth, 45)];
+    UIButton * buttonPackage = [[UIButton alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height+45+127*KWidthCompare6, KDeviceWidth, 45)];
     
     buttonPackage.backgroundColor = [UIColor whiteColor];
-
+    
     UIImageView *imageViewPackage = [[UIImageView alloc]initWithFrame:CGRectMake(12, 9,27, 27)];
 #ifdef HOLIDAY
     imageViewPackage.image = [UIImage imageNamed:@"Package11"];
@@ -273,28 +298,27 @@
     }
 #endif
     
-    UIView *grayLineImageView = [[UIImageView alloc] init];
-    grayLineImageView.frame = CGRectMake(0, buttonPackage.frame.size.height - 0.5, KDeviceWidth, 0.5);
-    grayLineImageView.backgroundColor = [UIColor colorWithRed:0xe3/255.0 green:0xe3/255.0 blue:0xe3/255.0 alpha:1.0];
+    UIImageView *grayLineImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"line_gray"]];
+    grayLineImageView.frame = CGRectMake(0, buttonPackage.frame.size.height -0.5, KDeviceWidth, 0.5);
     [buttonPackage addSubview:textPackage];
     [buttonPackage addSubview:grayLineImageView];
     
     
-    UIImage * moreImage = [UIImage imageNamed:@"moreCell"];
-    UIImageView *moreImageView =[[UIImageView alloc]initWithFrame:CGRectMake(KDeviceWidth-15-moreImage.size.width, (buttonPackage.frame.size.height-10.5)/2, 7, 24.0/2)];
+    UIImage * moreImage = [UIImage imageNamed:@"msg_accview"];
+    UIImageView *moreImageView =[[UIImageView alloc]initWithFrame:CGRectMake(KDeviceWidth-15-moreImage.size.width, (buttonPackage.frame.size.height-10.5)/2, 7, 21.0/2)];
     moreImageView.image = moreImage;
     [buttonPackage addSubview:moreImageView];
     
-
+    
     [buttonPackage setBackgroundImage:[self imageWithColor:[UIColor colorWithRed:220/255.0 green:220/255.0 blue:220/255.0 alpha:1.0] size:buttonPackage.frame.size] forState:UIControlStateHighlighted];
     
     [self.view addSubview:buttonPackage];
-
+    
     
     //没有套餐的时候
     UIImage * noPackageImage = [UIImage imageNamed:@"nopackage"];
     
-     noPackage = [[UIImageView alloc]initWithFrame:CGRectMake((KDeviceWidth - noPackageImage.size.width)/2, buttonPackage.frame.size.height+buttonPackage.frame.origin.y+64, noPackageImage.size.width, noPackageImage.size.height)];
+    noPackage = [[UIImageView alloc]initWithFrame:CGRectMake((KDeviceWidth - noPackageImage.size.width)/2,buttonPackage.frame.origin.y+buttonPackage.frame.size.height+(KDeviceHeight - (buttonPackage.frame.origin.y+buttonPackage.frame.size.height)-noPackageImage.size.height)/2, noPackageImage.size.width, noPackageImage.size.height)];
     noPackage.image = noPackageImage;
     [self.view addSubview:noPackage];
     
@@ -311,14 +335,12 @@
     mTableView.hidden = NO;
     mTableView.scrollEnabled = NO;
     
-
-    //添加右滑返回
-    [UIUtil addBackGesture:self andSel:@selector(returnLastPage:)];
     
-}
+    //添加右滑返回
+    [UIUtil addBackGesture:self andSel:@selector(returnLastPage:)];}
 
 -(void)DragExit{
-     backBtnView.image = [UIImage imageNamed:@"moreBack_nor"];
+    backBtnView.image = [UIImage imageNamed:@"moreBack_nor"];
 }
 
 
@@ -365,23 +387,23 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-
+    
     return 69;
-
+    
 }
 
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-
-
+    
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"pakcell"];
-   
-//    if(nil == cell)
+    
+    //    if(nil == cell)
     {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"pakcell"];
-      
+        
     }
-
+    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
     cell.contentView.backgroundColor = [UIColor colorWithRed:0xf7/255.0 green:0xf7/255.0 blue:0xfc/255.0 alpha:1];
@@ -408,7 +430,7 @@
         grayLineImageView.frame = CGRectMake(49, 69-0.5, KDeviceWidth, 0.5);
         
     }
-  
+    
     
     [cell addSubview:name];
     [cell addSubview:expireLabel];
@@ -417,14 +439,14 @@
     return cell;
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-   
+    
     if (isReview) {
         if (indexPath.section == 0) {
-             //[self payFunction];
+            //[self payFunction];
         }
     }else{
         
-       // [self payFunction];
+        // [self payFunction];
     }
     
 }
@@ -454,7 +476,7 @@
     infoLabel.textColor = [UIColor colorWithRed:254/255.0 green:254/255.0 blue:254/255.0 alpha:1.0];
     surplusTime.textColor =  [UIColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:0.8];
 #endif
-   
+    
     rightImgView.image = [UIImage imageNamed:@"moreMyTime_sel"];
     MyBillViewController *myBillViewController = [[MyBillViewController alloc] init];
     [self.navigationController pushViewController:myBillViewController animated:YES];
@@ -470,7 +492,7 @@
     infoLabel.textColor = [UIColor colorWithRed:254/255.0 green:254/255.0 blue:254/255.0 alpha:1.0];
     surplusTime.textColor =  [UIColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:0.8];
 #endif
-
+    
 }
 
 -(void)infoButtonDown{
@@ -553,10 +575,10 @@
                     noPackage.hidden = NO;
                     return;
                 }
-            noPackage.hidden = YES;
-            [mTableView reloadData];
+                noPackage.hidden = YES;
+                [mTableView reloadData];
             }else{
-                 noPackage.hidden = NO;
+                noPackage.hidden = NO;
             }
         }
         

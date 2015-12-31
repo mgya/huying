@@ -1445,6 +1445,9 @@
 		47B919951C0E92DD00F3AB0A /* callBox.png in Resources */ = {isa = PBXBuildFile; fileRef = 47B919921C0E92DD00F3AB0A /* callBox.png */; settings = {ASSET_TAGS = (); }; };
 		47B919961C0E92DD00F3AB0A /* callBox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47B919931C0E92DD00F3AB0A /* callBox@2x.png */; settings = {ASSET_TAGS = (); }; };
 		47B919971C0E92DD00F3AB0A /* callBox@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47B919941C0E92DD00F3AB0A /* callBox@3x.png */; settings = {ASSET_TAGS = (); }; };
+		47C537B01C34FFF000FCEE49 /* BestPackage.png in Resources */ = {isa = PBXBuildFile; fileRef = 47C537AD1C34FFF000FCEE49 /* BestPackage.png */; settings = {ASSET_TAGS = (); }; };
+		47C537B11C34FFF000FCEE49 /* BestPackage@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47C537AE1C34FFF000FCEE49 /* BestPackage@2x.png */; settings = {ASSET_TAGS = (); }; };
+		47C537B21C34FFF000FCEE49 /* BestPackage@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47C537AF1C34FFF000FCEE49 /* BestPackage@3x.png */; settings = {ASSET_TAGS = (); }; };
 		47CABCA81B4D260500CCEFAC /* guidePageCtr-4.png in Resources */ = {isa = PBXBuildFile; fileRef = 47CABCA71B4D260500CCEFAC /* guidePageCtr-4.png */; };
 		47E9B2341C02F50B00DC2CEB /* call_key_nor@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47E9B2301C02F50B00DC2CEB /* call_key_nor@3x.png */; settings = {ASSET_TAGS = (); }; };
 		47E9B2351C02F50B00DC2CEB /* call_key_sel.png in Resources */ = {isa = PBXBuildFile; fileRef = 47E9B2311C02F50B00DC2CEB /* call_key_sel.png */; settings = {ASSET_TAGS = (); }; };
@@ -1887,7 +1890,6 @@
 		C8C8940B1BDDE3A3009DFCAB /* BaiduMapAPI_Search.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8C894071BDDE3A3009DFCAB /* BaiduMapAPI_Search.framework */; settings = {ASSET_TAGS = (); }; };
 		C8C8940F1BDDF68B009DFCAB /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C8C8940E1BDDF68B009DFCAB /* MapViewController.m */; settings = {ASSET_TAGS = (); }; };
 		C8C894111BDE0D87009DFCAB /* mapapi.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C8C894101BDE0D87009DFCAB /* mapapi.bundle */; settings = {ASSET_TAGS = (); }; };
-		C8DD9F8C1C27E55000CFFD59 /* tingyunApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8DD9F8B1C27E55000CFFD59 /* tingyunApp.framework */; settings = {ASSET_TAGS = (); }; };
 		C8DD9F8E1C27E6F900CFFD59 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C8DD9F8D1C27E6F900CFFD59 /* libz.tbd */; };
 		C8FCA8831BE72E1C00104A34 /* location_off.png in Resources */ = {isa = PBXBuildFile; fileRef = C8FCA87D1BE72E1C00104A34 /* location_off.png */; settings = {ASSET_TAGS = (); }; };
 		C8FCA8841BE72E1C00104A34 /* location_off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C8FCA87E1BE72E1C00104A34 /* location_off@2x.png */; settings = {ASSET_TAGS = (); }; };
@@ -3651,6 +3653,9 @@
 		47B919921C0E92DD00F3AB0A /* callBox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = callBox.png; sourceTree = "<group>"; };
 		47B919931C0E92DD00F3AB0A /* callBox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "callBox@2x.png"; sourceTree = "<group>"; };
 		47B919941C0E92DD00F3AB0A /* callBox@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "callBox@3x.png"; sourceTree = "<group>"; };
+		47C537AD1C34FFF000FCEE49 /* BestPackage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BestPackage.png; sourceTree = "<group>"; };
+		47C537AE1C34FFF000FCEE49 /* BestPackage@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BestPackage@2x.png"; sourceTree = "<group>"; };
+		47C537AF1C34FFF000FCEE49 /* BestPackage@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BestPackage@3x.png"; sourceTree = "<group>"; };
 		47CABCA71B4D260500CCEFAC /* guidePageCtr-4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "guidePageCtr-4.png"; sourceTree = "<group>"; };
 		47E9B2301C02F50B00DC2CEB /* call_key_nor@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "call_key_nor@3x.png"; sourceTree = "<group>"; };
 		47E9B2311C02F50B00DC2CEB /* call_key_sel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = call_key_sel.png; sourceTree = "<group>"; };
@@ -4279,7 +4284,6 @@
 		C8C8940D1BDDF68B009DFCAB /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		C8C8940E1BDDF68B009DFCAB /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		C8C894101BDE0D87009DFCAB /* mapapi.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = mapapi.bundle; path = uCaller/ThirdSource/baiduSDK/BaiduMapAPI_Map.framework/Resources/mapapi.bundle; sourceTree = SOURCE_ROOT; };
-		C8DD9F8B1C27E55000CFFD59 /* tingyunApp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = tingyunApp.framework; sourceTree = "<group>"; };
 		C8DD9F8D1C27E6F900CFFD59 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		C8FCA87D1BE72E1C00104A34 /* location_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = location_off.png; path = CallLogChatCell/location_off.png; sourceTree = "<group>"; };
 		C8FCA87E1BE72E1C00104A34 /* location_off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "location_off@2x.png"; path = "CallLogChatCell/location_off@2x.png"; sourceTree = "<group>"; };
@@ -4431,7 +4435,6 @@
 				C8C894081BDDE3A3009DFCAB /* BaiduMapAPI_Base.framework in Frameworks */,
 				C8C8940A1BDDE3A3009DFCAB /* BaiduMapAPI_Map.framework in Frameworks */,
 				3FC9DB0318D1992E0046168C /* libz.dylib in Frameworks */,
-				C8DD9F8C1C27E55000CFFD59 /* tingyunApp.framework in Frameworks */,
 				844426E01AD6914F0095131B /* libopencore-amrwb.a in Frameworks */,
 				848C96311AC94E190040753B /* libTCWeiboSDK.a in Frameworks */,
 				3F2EBF2518D6F4AB0017958E /* libiconv.dylib in Frameworks */,
@@ -5887,7 +5890,6 @@
 		3FB21C2C18D196FA009B6010 /* ThirdSource */ = {
 			isa = PBXGroup;
 			children = (
-				C8DD9F8B1C27E55000CFFD59 /* tingyunApp.framework */,
 				C8C893F31BDDE180009DFCAB /* baiduSDK */,
 				847741CB1AFB9E3000EACD6E /* VoIPSDK-Bundle.xcodeproj */,
 				84A3FB1F1AC26DAF00B2CA83 /* VoIPSDK.xcodeproj */,
@@ -5964,6 +5966,9 @@
 		3FC0429418EC0F58004BAD28 /* MoreImages */ = {
 			isa = PBXGroup;
 			children = (
+				47C537AD1C34FFF000FCEE49 /* BestPackage.png */,
+				47C537AE1C34FFF000FCEE49 /* BestPackage@2x.png */,
+				47C537AF1C34FFF000FCEE49 /* BestPackage@3x.png */,
 				84713AE51BAAC5D4001733C7 /* moreBack_nor.png */,
 				84713AE61BAAC5D4001733C7 /* moreBack_nor@2x.png */,
 				84713AE71BAAC5D4001733C7 /* moreBack_sel.png */,
@@ -8570,6 +8575,7 @@
 				475D53EC1B2D32B600B32AE1 /* new_contact.png in Resources */,
 				3D48707D1A663BEB00B854FF /* contact_ticket_bgImg@2x.png in Resources */,
 				8473AEC219F666A000EAAFB6 /* interface_weibo_api_object.html in Resources */,
+				47C537B01C34FFF000FCEE49 /* BestPackage.png in Resources */,
 				841C86F51A257BA900F443F8 /* InviteContact@3x.png in Resources */,
 				47483B0C1B47EEC0009B15FA /* myTime_nor.png in Resources */,
 				84A992521B4D3AA4006A7E47 /* contactsinDial_sel.png in Resources */,
@@ -8577,6 +8583,7 @@
 				841C86F71A257BA900F443F8 /* ShareQQ@2x.png in Resources */,
 				3FF478CB195D0C2D00ABD06C /* more_title_sel@2x.png in Resources */,
 				845C2E4E1BA8283C00C98A01 /* moreBack_sel@3x.png in Resources */,
+				47C537B11C34FFF000FCEE49 /* BestPackage@2x.png in Resources */,
 				84477B8A1A1C7E8E002C5400 /* task@2x.png in Resources */,
 				3FC1D1CA19878C820016D8CB /* noticeview_bg4.png in Resources */,
 				3F285F5718FBC23A00A8F2F7 /* 103.gif in Resources */,
@@ -8922,6 +8929,7 @@
 				C8B833981B6E70A300959B7A /* alipay@3x.png in Resources */,
 				3F285E9818FBC23A00A8F2F7 /* 032.png in Resources */,
 				3D554A4F1A6CB009004EE089 /* contact_addFriend@3x.png in Resources */,
+				47C537B21C34FFF000FCEE49 /* BestPackage@3x.png in Resources */,
 				3F285EFB18FBC23A00A8F2F7 /* 011.gif in Resources */,
 				474F09B31B81E8B00071377A /* contact_info_call_sel@2x.png in Resources */,
 				3FC0F5CD190F8D070084E3CE /* more_person_processsel.png in Resources */,

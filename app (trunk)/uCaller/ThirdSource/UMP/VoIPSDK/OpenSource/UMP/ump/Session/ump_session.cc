@@ -584,23 +584,6 @@ PBOOL UMPSession::Interact(const BaseUserInfo & to, const BaseUserInfo & from,
 	return TRUE;
 }
 
-//added by liyr 2015-12-03 for sending message ack to as
-PBOOL UMPSession::SendMessageAck(const UMPSignal & body, const time_t & time){
-    UMPSignal sig_interact(e_sig_interactAck);
-    Sig::Interact interact(sig_interact);
-    
-    interact.SetBody(body);
-    interact.SetTime(time);
-    
-    if (!WriteSignal(sig_interact)){
-        U_WARN("WriteSignal failed");
-        return FALSE;
-    }
-    
-    return TRUE;
-}
-//added by liyr 2015-12-03 for sending message ack to as
-
 PBOOL UMPSession::FetchUserEInfo(const PString & userNumber,
 		const PString & calleeNumber, const PString & callSessionId) {
 	if (_stateMonitor.GetState() != e_online)
@@ -868,31 +851,9 @@ PBOOL UMPSession::HandleLoginAck(const Sig::LoginAck & loginAck) {
 		//Init();
 
 		GetCypher().SetKey(NULL, 0);
-        
-        //deleted by liyr 2015-12-03
-		/*U_DBG("login forward to :"<<loginAck.GetForwardTo());
+		U_DBG("login forward to :"<<loginAck.GetForwardTo());
 		E_ResultReason r = Login(loginAck.GetForwardTo(), passwd, bui, force,
-				TRUE);*/
-        //deleted by liyr 2015-12-03
-        
-        //added by liyr 2015-12-03
-        PString forwardto = loginAck.GetForwardTo();
-        PString forwardtolist = loginAck.GetForwardToList();
-        U_DBG("login forward to : "<<forwardto);
-        U_DBG("login forward list : "<<forwardtolist);
-        
-        PStringArray forwardtoListArray =  forwardtolist.Tokenise(";");
-        
-        E_ResultReason r = e_r_ok;
-        if(forwardtoListArray.GetSize() > 0){
-            U_DBG("forwardtoListArray : ");
-            r = Login(forwardtoListArray[0], passwd, bui, force, TRUE);
-            _umpsEventSink.OnForwardTo(forwardtoListArray);
-        }else{
-            r = Login(forwardto, passwd, bui, force, TRUE);
-        }
-        //added by liyr 2015-12-03
-        
+				TRUE);
 		U_DBG("login res :"<<r);
 		if (r != e_r_ok) {
 			_stateMonitor.SetState(e_login);

@@ -201,10 +201,6 @@ public:
 		virtual void OnReadRoundTrip(const Sig::RoundTrip & rt) = 0;
 		virtual void OnReadRoundTripAck(const Sig::RoundTripAck & rta) = 0;
         
-        //added by liyr 2015-12-03
-        virtual void OnForwardTo(const PStringArray& forwardList) = 0;
-        //added by liyr 2015-12-03
-        
         virtual void ForceEndCall(UMPSession & session,E_ResultReason reason) = 0;
 	};
     
@@ -235,10 +231,6 @@ public:
     
     
 	PBOOL SetSubState(E_UserSubState subState, const PString& description = "");
-    
-    //added by liyr 2015-12-03
-    PBOOL SendMessageAck(const UMPSignal & body, const time_t & time);
-    //added by liyr 2015-12-03
     
 	PBOOL FetchTempInteract();
 	PBOOL FetchTempNotify();

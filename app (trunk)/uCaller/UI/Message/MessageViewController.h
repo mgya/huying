@@ -17,6 +17,6 @@
 
 @interface MessageViewController : BaseViewController <UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,OperateDelegate,TouchDelegate,DropViewDelegate,AdsViewDelegate,UIGestureRecognizerDelegate,UIAlertViewDelegate>
 
-
-
+@property(nonatomic,strong) UITableView *makeCallsTableView;
+@property(nonatomic, assign)id<AdsViewDelegate> delegate;
 @end

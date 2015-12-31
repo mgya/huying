@@ -113,9 +113,8 @@
         }
         
         
-        if ([UConfig getVersionReview] || wareInfo.sort < 1000) {
-            [itemList addObject:wareInfo];
-        }
+        [itemList addObject:wareInfo];
+        
       
     }
     

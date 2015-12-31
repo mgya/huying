@@ -25,7 +25,7 @@
 - (void)startVoiceEngine :(short)localPort IP:(const char *)destIP port:(short)destPort payloadtype:(short)pt;
 - (void)stopVoiceEngine;
 
-- (int32_t)login :(NSString*)username passwd:(NSString*)pwd c_id:(NSString*)cid;//modified by liyr 2015-12-03
+- (int32_t)login :(NSString*)username passwd:(NSString*)pwd;
 - (void)logout:(BOOL)isAsync;
 
 - (void)call :(NSString*)number;

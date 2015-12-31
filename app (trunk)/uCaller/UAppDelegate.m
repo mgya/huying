@@ -48,7 +48,7 @@
 
 #import <BaiduMapAPI_Map/BMKMapComponent.h>
 
-#import <tingyunApp/NBSAppAgent.h>
+//#import <tingyunApp/NBSAppAgent.h>
 
 
 
@@ -512,7 +512,7 @@
     }
     
   //  +(void)startWithAppID:(NSString*)appId;
-    [NBSAppAgent startWithAppID:@"0205f2248c1b4823be1cf60e945c47db"];
+   // [NBSAppAgent startWithAppID:@"0205f2248c1b4823be1cf60e945c47db"];
 }
 
 -(void)CreateAndCheckFilePath {
