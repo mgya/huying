@@ -63,6 +63,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     NSMutableArray *taskArray = [[NSMutableArray alloc] init];
     NSMutableArray *ivrArray = [[NSMutableArray alloc]init];
     NSMutableArray *signCenterArray = [[NSMutableArray alloc]init];
+    NSMutableArray *hotArry = [[NSMutableArray alloc]init];
 
     
     DDXMLElement *itemsElement = [rspElement elementForName:@"items"];
@@ -71,12 +72,6 @@ static GetAdsContentDataSource * sharedInstance = nil;
         
         NSString *typeName = [itemsObj elementForName:@"type"].stringValue;
         NSString *subtypeName = [itemsObj elementForName:@"subtype"].stringValue;
-        
-        if ([typeName isEqualToString:@"account"] ) {
-            NSLog(@"!!!!!!!!!!");
-        }
-        
-        
         
         if([typeName isEqualToString:@"index"] &&
                 [subtypeName isEqualToString:@"top"]){
@@ -141,6 +136,15 @@ static GetAdsContentDataSource * sharedInstance = nil;
             NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:adsImgUrl,@"ImageUrl",adsUrl,@"Url", nil];
             [taskArray addObject:adsDict];
             
+        }else if([typeName isEqualToString:@"account"] &&
+                 [subtypeName isEqualToString:@"center"]){
+            
+            NSString *adsImgUrl = [itemsObj elementForName:@"imgurl"].stringValue;
+            NSString *adsUrl    = [itemsObj elementForName:@"url"].stringValue;
+            NSString *jumptype = [itemsObj elementForName:@"jumptype"].stringValue;
+            NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:adsImgUrl,@"ImageUrl",adsUrl,@"Url", jumptype,@"jumptype",nil];
+            [hotArry addObject:adsDict];
+            
         }
     }
     
@@ -149,6 +153,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     _taskArray = taskArray;
     _ivrArray = ivrArray;
     _signCenterArray = signCenterArray;
+    _hotArray = hotArry;
 
     
 }

@@ -29,8 +29,11 @@
 #import "GetUserTimeDataSource.h"
 #import "GetAccountBalanceDataSource.h"
 #import "UsablebizDetailDataSource.h"
+#import "WebViewController.h"
 
 #import "UCallsItem.h"
+
+#import "TimeBiViewController.h"
 
 //#import "PhotoGuideView.h"
 @interface MyTimeViewController ()<UITableViewDataSource,UITableViewDelegate>
@@ -62,7 +65,8 @@
     
     UIImageView *backBtnView;
     
-    
+    UIView *moneyView;
+    NSArray * hotArry;
 }
 @end
 
@@ -255,9 +259,14 @@
     bearText.backgroundColor = [UIColor clearColor];
     [bestView addSubview:bearText];
     
-    UIView *moneyView = [[UIView alloc]initWithFrame:CGRectMake(0,backImgView.frame.size.height+bestView.frame.size.height, KDeviceWidth, 117*KWidthCompare6)];
+    moneyView = [[UIView alloc]initWithFrame:CGRectMake(0,backImgView.frame.size.height+bestView.frame.size.height, KDeviceWidth, 117*KWidthCompare6)];
     moneyView.backgroundColor = [UIColor colorWithRed:250.0/255.0 green:250.0/255.0 blue:250.0/255.0 alpha:1.0];
     [self.view addSubview:moneyView];
+    
+    
+    
+    hotArry = [GetAdsContentDataSource sharedInstance].hotArray;
+    
     
     
     for (int i = 0; i<3; i++) {
@@ -266,7 +275,19 @@
         moneyBtn.tag = i;
         [moneyBtn addTarget:self action:@selector(jumpInfo:) forControlEvents:UIControlEventTouchUpInside];
         [moneyView addSubview:moneyBtn];
+        
+        NSNumber *NSi = [NSNumber numberWithInt:i];
+        
+        NSInvocationOperation * Operation= [[NSInvocationOperation alloc]initWithTarget:self selector:@selector(getHotImage:) object:NSi];
+        NSOperationQueue * queue = [[NSOperationQueue alloc]init];
+        [queue addOperation:Operation];
+    
+        
     }
+    
+    
+    
+    
     
     //套餐按钮
     UIButton * buttonPackage = [[UIButton alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height+45+127*KWidthCompare6, KDeviceWidth, 45)];
@@ -625,8 +646,6 @@
 }
 
 
-
-
 -(void)dealloc
 {
     NSLog(@"MyTime info view controller dealloc succ!");
@@ -637,7 +656,70 @@
     [mTableView reloadData];
 }
 
+-(void)jumpInfo:(UIButton*)sender{
+    
+    NSString *type = [hotArry[sender.tag] objectForKey:@"jumptype"];
+    if ([type isEqualToString:@"app"]) {
+        
+        NSString * infoUrl = [hotArry[sender.tag] objectForKey:@"Url"];
+        
+        id jumpViewController;
+        
+        if ([infoUrl isEqualToString:YINGBI]) {
+            jumpViewController = [[TimeBiViewController alloc] initWithTitle:@"应币商店"];
+        }else if([infoUrl isEqualToString:TIME]){
+            jumpViewController = [[TimeBiViewController alloc] initWithTitle:@"时长商店"];
+        }else if([infoUrl rangeOfString:PACKAGE].length > 0){
+            jumpViewController = [[PackageShopViewController alloc]init];//套餐商店
+        }
+
+        [self.navigationController pushViewController:jumpViewController animated:YES];
+  
+        
+    }else if ([type isEqualToString:@"out"]){
+        
+    }else if([type isEqualToString:@"inner"]){
+        
+    }
+    
+}
+
+-(void)getHotImage:(NSNumber*)index{
+    
 
 
+    
+    NSString *url = [hotArry[[index intValue]] objectForKey:@"ImageUrl"];
+
+    NSURL * nurl = [NSURL URLWithString:url];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // 耗时的操作
+        
+        NSData * data = [[NSData alloc]initWithContentsOfURL:nurl];
+        UIImage *image = [[UIImage alloc]initWithData:data];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // 更新界面
+            
+            for (int i = 0; i < hotArry.count; i++) {
+                
+
+                for (UIButton *button in [moneyView subviews])
+                {
+                    if (button.tag == [index intValue]) {
+                        [button setBackgroundImage:image forState:UIControlStateNormal];
+                        break;
+                    }
+                }
+            }
+        });
+    });
+    
+    
+}
+
+-(void)setHotImage:(NSNumber*)index{
+    
+}
 
 @end
