@@ -58,7 +58,6 @@
     TableViewMenu *msgLogsTableView;
     UILabel *umpOnlineLabel;
     UIImageView *nomsgImageView;
-    AdsView *adsView;
     BOOL isDidCloseAds;
     CallGuideView *callGuideView;
     
@@ -216,24 +215,25 @@
     //    adsView.delegate = self;
     //    adsView.hidden = YES;
     //    [self.view addSubview:adsView];
+    
     //轮播广告
     adView = [[UIView alloc]init];
     adView.backgroundColor = PAGE_BACKGROUND_COLOR;
     adView.frame = CGRectMake(msgLogsTableView.frame.origin.x,msgLogsTableView.frame.origin.y+msgLogsTableView.frame.size.height-ADSVIEW_HEIGHT,msgLogsTableView.frame.size.width,ADSVIEW_HEIGHT);
     adView.backgroundColor = [UIColor clearColor];
-    
-    adButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth,ADSVIEW_HEIGHT)];
-    adButton.backgroundColor = [UIColor clearColor];
-    adButton.hidden = YES;
-    [adView addSubview:adButton];
-    
-    
-    [self showSignAdsContents:[GetAdsContentDataSource sharedInstance].signArray];
-    
+    [UConfig setHuyingType:YES];
+    if ([UConfig getHuyingType]) {
+        adButton = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth,ADSVIEW_HEIGHT)];
+        adButton.backgroundColor = [UIColor clearColor];
+        adButton.hidden = YES;
+        [adView addSubview:adButton];
+        [self showSignAdsContents:[GetAdsContentDataSource sharedInstance].msgArray];
+    }else{
+        adView.hidden = YES;
+    }
     
     adView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:adView];
-    
     
     
     closeBtn = [[UIButton alloc] initWithFrame:CGRectMake(KDeviceWidth-20,0,25,25)];
@@ -259,13 +259,6 @@
 {
     [super viewWillAppear:animated];
     
-    //    if (!bInSearch) {
-    //        [self showAdsContent:[GetAdsContentDataSource sharedInstance].imgMsg];
-    //    }
-    
-    [self showSignAdsContents:[GetAdsContentDataSource sharedInstance].signArray];
-    
-    
     [self updateUMPStatus];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -280,6 +273,7 @@
     }
     
 }
+
 - (void)showSignAdsContents:(NSArray*)adArray
 {
     if (adArray == nil||adArray.count == 0)
@@ -322,9 +316,12 @@
                 }
             }
         }
-        self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth,ADSVIEW_HEIGHT) animationDuration:3];
-        self.mainScorllView.backgroundColor = [UIColor clearColor];
-        [adView addSubview:self.mainScorllView];
+        
+        if (self.mainScorllView == nil) {
+            self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth,ADSVIEW_HEIGHT) animationDuration:3];
+            self.mainScorllView.backgroundColor = [UIColor clearColor];
+            [adView addSubview:self.mainScorllView];
+        }
         
         NSMutableArray *viewsArray = [@[] mutableCopy];
         self.mainScorllView.hidden = NO;
@@ -544,14 +541,10 @@
 }
 - (void)didClose{
     
+    [UConfig setHuyingType:NO];
+    [self resetView];
     adView.hidden = YES;
-    if (_delegate && [_delegate respondsToSelector:@selector(didAdsClose)]) {
-        [_delegate didAdsClose];
-    }
-    //    [UIView animateWithDuration:1 animations:^{
-    //        signView.frame = CGRectMake(0,0,self.view.frame.size.width, bgScrollView.frame.size.height);
-    //    }
-    //     ];
+
 }
 #pragma mark---NBeginBackGroundTaskEvent---
 -(void)onBeginBackGroundTaskEvent:(NSNotification *)notification
@@ -665,28 +658,11 @@
 {
     NSDictionary *eventInfo = [notification userInfo];
     int event = [[eventInfo objectForKey:KEventType] intValue];
-    if(event == AdsImgUrlMsgUpdate)
+    if(event == MsgArryUpdate)
     {
-        UIImage* image = [eventInfo objectForKey:KValue];
-        [self showAdsContent:image];
+        NSMutableArray *adsArray = [eventInfo objectForKey:KValue];
+        [self showSignAdsContents:adsArray];
     }
-}
-
--(void)showAdsContent:(UIImage *)aImage
-{
-    if ([UConfig getVersionReview]) {
-        return ;
-    }
-    
-    if(!adsView.isHidden || isDidCloseAds)
-        return ;
-    
-    if(aImage == nil || ![aImage isKindOfClass:[UIImage class]])
-        return ;
-    
-    [self resetView];
-    adsView.hidden = NO;
-    [adsView setBackgroundImage:aImage];
 }
 
 #pragma mark -- UITableView delegate
@@ -945,11 +921,11 @@
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
         [uApp.rootViewController.tabBarViewController hideTabBar:NO];
         
-        if ([GetAdsContentDataSource sharedInstance].imgMsg && !isDidCloseAds) {
-            adsView.hidden = NO;
+        if ([UConfig getHuyingType]) {
+            adView.hidden = NO;
         }
         else {
-            adsView.hidden = YES;
+            adView.hidden = YES;
         }
         
     }
@@ -957,7 +933,7 @@
         [self setNaviHidden:YES];
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         [uApp.rootViewController.tabBarViewController hideTabBar:YES];
-        adsView.hidden = YES;
+        adView.hidden = YES;
     }
     
     [UIView beginAnimations:@""context:nil];
@@ -986,7 +962,7 @@
         tableviewRect.size.height -= UMPSTATUS_LABEL_HEIGHT;
     }
     
-    if (!adsView.hidden) {
+    if (!adView.hidden) {
         tableviewRect.size.height -= ADSVIEW_HEIGHT;
     }
     msgLogsTableView.frame = tableviewRect;
@@ -1135,13 +1111,6 @@
     WebViewController *webVC = [[WebViewController alloc]init];
     webVC.webUrl = [GetAdsContentDataSource sharedInstance].urlMsg;
     [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
-}
-
--(void)didAdsClose
-{
-    isDidCloseAds = YES;
-    [self resetView];
-    adsView.hidden = YES;
 }
 
 

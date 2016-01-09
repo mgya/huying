@@ -18,6 +18,7 @@
 @property(nonatomic,strong) NSArray *ivrArray;//点播，商城等。
 @property(nonatomic,copy)NSArray *signCenterArray;//签到弹出广告
 @property(nonatomic,copy)NSArray *hotArray;//我的时长里的热卖
+@property(nonatomic,copy)NSArray *msgArray;//呼应界面轮播
 
 
 

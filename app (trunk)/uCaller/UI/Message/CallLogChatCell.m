@@ -256,20 +256,7 @@
     {
         [delegate closeInput];
     }
-    if(![Util isEmpty:msgLog.number])
-    {
-        if(![Util ConnectionState])
-        {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"呼叫失败" message:@"网络不可用，请检查您的网络，稍后再试！" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            [alertView show];
-            return;
-        }
-        
-        CallerManager* manager = [CallerManager sharedInstance];
-        UContact *msgContact = [contactManager getContactByUNumber:msgLog.uNumber];
-        [manager Caller:msgLog.number Contact:msgContact ParentView:nil Forced:RequestCallerType_Unknow];
-        
-    }
+
     
 }
 @end

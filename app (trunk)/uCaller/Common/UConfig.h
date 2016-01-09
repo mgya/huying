@@ -388,4 +388,8 @@ typedef enum{
 
 +(BOOL)getSignType;
 
++ (void)setHuyingType:(BOOL)type;
+
++(BOOL)getHuyingType;
+
 @end

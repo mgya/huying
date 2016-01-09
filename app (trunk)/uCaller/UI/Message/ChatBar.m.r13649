@@ -18,7 +18,6 @@
     UIButton *faceButton;
     UIView *moreView;
     BOOL isFromSpeak;
-    UIButton * newSpeakButton;
 }
 
 @synthesize delegate;
@@ -176,20 +175,13 @@
         
         for (int i = 0; i<6; i++) {
             if (i == 1) {
-
-                newSpeakButton = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6)];
-
-                [newSpeakButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
-                [newSpeakButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
-                newSpeakButton.tag = 5;
-                [newSpeakButton addTarget:self action:@selector(moreClicked:) forControlEvents:UIControlEventTouchUpInside];
-                
-                
-                
-//                [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
-//                [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
-                [self addSubview:newSpeakButton];
-
+                speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
+                speakButton.delegate = self;
+                [speakButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
+                [speakButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
+                [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
+                [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+                [moreView addSubview:speakButton];
             }
             else if (i == 5){
                 
@@ -251,9 +243,7 @@
         }
         
     }else if (sender.tag == 5){
-        if (delegate && [delegate respondsToSelector:@selector(recBarButtonNow)]) {
-            [delegate recBarButtonNow];
-        }
+        
     }
 }
 

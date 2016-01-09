@@ -133,7 +133,8 @@ typedef enum
     AdsImgUrlMoreUpdate,   
     Big_Photo,//大头像数据完成或者失败
     
-    IvrUpdate//ivr数据
+    IvrUpdate,//ivr数据
+    MsgArryUpdate //呼应的轮播
     
     
 

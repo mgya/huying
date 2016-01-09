@@ -56,9 +56,10 @@
     comps = [calendar components:unitFlags fromDate:date];
     NSInteger month = [comps month] - 5;
     NSInteger year = [comps year];
-    
+
     if (month < 0) {
         month = month + 12;
+        year --;
     }
     
     //返回按钮

@@ -806,6 +806,15 @@ typedef enum ECallbackStep
 
 - (void)onCallEnd:(NSString *)releaseReason
 {
+    
+    
+    if ((callOK == NO)&&(releaseReason.integerValue == 0x100 || releaseReason.intValue == 0x101
+                         ||releaseReason.intValue == 0x301)) {
+        [uCore newTask:U_UMP_CALL_OUT data:callNumber];
+        return;
+    }
+
+    
     device.proximityMonitoringEnabled = NO;
 
     if(isEnd == YES)
@@ -1267,7 +1276,6 @@ typedef enum ECallbackStep
             else {
                 number1 = callNumber;
             }
-
             //读取挂机短信邀请内容
             smsType = EInviteSmsType_Gjdx;
             NSDictionary* dict = [NSKeyedUnarchiver unarchiveObjectWithFile:KTipsPath];

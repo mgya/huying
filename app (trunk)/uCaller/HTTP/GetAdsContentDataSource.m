@@ -64,6 +64,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     NSMutableArray *ivrArray = [[NSMutableArray alloc]init];
     NSMutableArray *signCenterArray = [[NSMutableArray alloc]init];
     NSMutableArray *hotArry = [[NSMutableArray alloc]init];
+    NSMutableArray *msgArray = [[NSMutableArray alloc]init];
 
     
     DDXMLElement *itemsElement = [rspElement elementForName:@"items"];
@@ -97,8 +98,10 @@ static GetAdsContentDataSource * sharedInstance = nil;
         else if([typeName isEqualToString:@"msg"] &&
                 [subtypeName isEqualToString:@"bottom"]){
             //会话列表页面底部的广告位
-            _imgUrlMsg = [itemsObj elementForName:@"imgurl"].stringValue;
-            _urlMsg    = [itemsObj elementForName:@"url"].stringValue;
+            NSString *adsImgUrl = [itemsObj elementForName:@"imgurl"].stringValue;
+            NSString *adsUrl    = [itemsObj elementForName:@"url"].stringValue;            NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:adsImgUrl,@"ImageUrl",adsUrl,@"Url", nil];
+            [msgArray addObject:adsDict];
+
         }
         else if ([typeName isEqualToString:@"index"]
                   && [subtypeName isEqualToString:@"list"])
@@ -154,6 +157,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     _ivrArray = ivrArray;
     _signCenterArray = signCenterArray;
     _hotArray = hotArry;
+    _msgArray = msgArray;
 
     
 }

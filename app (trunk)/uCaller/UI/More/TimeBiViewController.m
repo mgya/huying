@@ -77,6 +77,10 @@
     
     BOOL bSwipeGesture;//手势是否可用
     
+    UITableView *billTableView;
+    
+    UILabel * lineLabel;
+    
 }
 
 
@@ -126,51 +130,12 @@
     [titleLabel addSubview:textLabel];
     
     //资费下面的线段
-    UILabel * lineLabel = [[UILabel alloc]initWithFrame:CGRectMake(12, 46*KHeightCompare6, KDeviceWidth,1)];
+    lineLabel = [[UILabel alloc]initWithFrame:CGRectMake(12, 46*KHeightCompare6, KDeviceWidth,1)];
     lineLabel.backgroundColor = [UIColor colorWithRed:227/255.0 green:227/255.0 blue:227/255.0 alpha:1.0];
     [titleLabel addSubview:lineLabel];
     
     
-    
-    baseFrame = CGRectMake(12, lineLabel.frame.origin.y + 18*KHeightCompare6, (KDeviceWidth -36*KWidthCompare6)/2,  45*KHeightCompare6);
-    buttonList = [NSMutableArray arrayWithCapacity:8];
-    UIImage * tempImage = [UIImage imageNamed:@"choose"];
-    
-    for (int i = 0; i < 8; i++) {
-        UIButton *tempButton = [[UIButton alloc]initWithFrame:CGRectMake(baseFrame.origin.x + (i%2)*(12 + baseFrame.size.width),baseFrame.origin.y + i/2*(baseFrame.size.height+15*KHeightCompare6),baseFrame.size.width,baseFrame.size.height)];
-        tempButton.tag = 100 + i;
-        [tempButton.layer setCornerRadius:3.0];
-        [tempButton.layer setBorderWidth:1.0];
-        
-        if (i == 0) {
-            [tempButton.layer setBorderColor:[[UIColor colorWithRed:0x19/255.0 green:0x9f/255.0 blue:0xff/255.0 alpha:1.0] CGColor]];
-        }else{
-            [tempButton.layer setBorderColor:[[UIColor colorWithRed:0xcc/255.0 green:0xcc/255.0 blue:0xcc/255.0 alpha:1.0] CGColor]];
-        }
-        
-        [tempButton setTitle:@"资费1" forState:UIControlStateNormal];
-        [tempButton setTitleColor:[UIColor colorWithRed:0x66/255 green:0x66/255 blue:0x66/255 alpha:1.0] forState:UIControlStateNormal];
-        tempButton.titleLabel.font = [UIFont systemFontOfSize: 15.0];
-        [buttonList arrayByAddingObject:tempButton];
-        
-        
-        UIImageView * buttonChooseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(tempButton.frame.size.width - tempImage.size.width, tempButton.frame.size.height - tempImage.size.height, tempImage.size.width, tempImage.size.height)];
-        buttonChooseImageView.image = tempImage;
-        buttonChooseImageView.tag = 99;
-        [tempButton addSubview:buttonChooseImageView];
-        
-        
-        if (i == 0) {
-            buttonChooseImageView.hidden = NO;
-        }else{
-            buttonChooseImageView.hidden = YES;
-        }
-        
-        [tempButton addTarget:self action:@selector(clickButton:) forControlEvents:UIControlEventTouchUpInside];
-        tempButton.hidden = YES;
-        [titleLabel addSubview:tempButton];
-        [buttonList addObject:tempButton];
-    }
+
     
     
     //详情
@@ -379,7 +344,7 @@
                         wareList = dataSource.wareList;
                         maskLabel.hidden = YES;
                         
-                        [titleLabel setFrame:CGRectMake(0, LocationY, KDeviceWidth, 69*KHeightCompare6 + (( (wareList.count -1 < 7) ? (wareList.count - 1):7)/2 + 1)*63*KHeightCompare6)];
+                        [titleLabel setFrame:CGRectMake(0, LocationY, KDeviceWidth, 69*KHeightCompare6 + 4*63*KHeightCompare6)];
                         
                         [ infoLabel setFrame:CGRectMake(0, titleLabel.frame.origin.y + titleLabel.frame.size.height + 10, KDeviceWidth, KDeviceHeight - textLabel.frame.size.height - LocationY)];
                         
@@ -454,6 +419,57 @@
         return;
     }
     
+    if (billTableView == nil) {
+        billTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, lineLabel.frame.origin.y + lineLabel.frame.size.height, KDeviceWidth, 69*KHeightCompare6 + 3*63*KHeightCompare6) style:UITableViewStylePlain];
+        billTableView.dataSource = self;
+        billTableView.delegate = self;
+        billTableView.scrollEnabled = YES;
+        billTableView.backgroundColor = [UIColor clearColor];
+        billTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        
+        [titleLabel addSubview:billTableView];
+        
+        baseFrame = CGRectMake(12, 18*KHeightCompare6, (KDeviceWidth -36*KWidthCompare6)/2,  45*KHeightCompare6);
+        buttonList = [NSMutableArray arrayWithCapacity:8];
+        UIImage * tempImage = [UIImage imageNamed:@"choose"];
+        
+        for (int i = 0; i < wareList.count; i++) {
+            UIButton *tempButton = [[UIButton alloc]initWithFrame:CGRectMake(baseFrame.origin.x + (i%2)*(12 + baseFrame.size.width),baseFrame.origin.y + i/2*(baseFrame.size.height+15*KHeightCompare6),baseFrame.size.width,baseFrame.size.height)];
+            tempButton.tag = 100 + i;
+            [tempButton.layer setCornerRadius:3.0];
+            [tempButton.layer setBorderWidth:1.0];
+            
+            if (i == 0) {
+                [tempButton.layer setBorderColor:[[UIColor colorWithRed:0x19/255.0 green:0x9f/255.0 blue:0xff/255.0 alpha:1.0] CGColor]];
+            }else{
+                [tempButton.layer setBorderColor:[[UIColor colorWithRed:0xcc/255.0 green:0xcc/255.0 blue:0xcc/255.0 alpha:1.0] CGColor]];
+            }
+            
+            [tempButton setTitle:@"资费1" forState:UIControlStateNormal];
+            [tempButton setTitleColor:[UIColor colorWithRed:0x66/255 green:0x66/255 blue:0x66/255 alpha:1.0] forState:UIControlStateNormal];
+            tempButton.titleLabel.font = [UIFont systemFontOfSize: 15.0];
+            [buttonList arrayByAddingObject:tempButton];
+            
+            
+            UIImageView * buttonChooseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(tempButton.frame.size.width - tempImage.size.width, tempButton.frame.size.height - tempImage.size.height, tempImage.size.width, tempImage.size.height)];
+            buttonChooseImageView.image = tempImage;
+            buttonChooseImageView.tag = 99;
+            [tempButton addSubview:buttonChooseImageView];
+            
+            
+            if (i == 0) {
+                buttonChooseImageView.hidden = NO;
+            }else{
+                buttonChooseImageView.hidden = YES;
+            }
+            
+            [tempButton addTarget:self action:@selector(clickButton:) forControlEvents:UIControlEventTouchUpInside];
+            tempButton.hidden = YES;
+            [billTableView addSubview:tempButton];
+            [buttonList addObject:tempButton];
+        }
+    }
+    
     WareInfo *temp;
     
     for (NSInteger i = buttonList.count < wareList.count ? buttonList.count - 1:wareList.count-1 ; i >=0; i--)
@@ -505,6 +521,7 @@
     }
     
     
+    [billTableView reloadData];
     
     
 }
@@ -627,6 +644,38 @@
         }
     }
 }
+
+
+
+#pragma mark ----tableview-----
+
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"billCell"];
+
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"billCell"];
+    }
+
+    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+    
+    return cell;
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 69*KHeightCompare6 + ((wareList.count - 1)/2)*63*KHeightCompare6;
+    
+}
+
+
 
 /*
  #pragma mark - Navigation

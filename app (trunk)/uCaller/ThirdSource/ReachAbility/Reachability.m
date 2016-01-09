@@ -103,6 +103,7 @@
 #import <netdb.h>
 
 #import <CoreFoundation/CoreFoundation.h>
+#import<CoreTelephony/CTTelephonyNetworkInfo.h>
 
 #import "Reachability.h"
 
@@ -436,35 +437,31 @@ const SCNetworkReachabilityFlags kConnectionDown =  kSCNetworkReachabilityFlagsC
 
 		}
 		
-		// Observed WWAN Values:
-		// WWAN Active:              Reachability Flag Status: WR -t-----
-		// WWAN Connection required: Reachability Flag Status: WR ct-----
-		//
-		// Test Value: Reachability Flag Status: WR xxxxxxx
-		if (flags & kSCNetworkReachabilityFlagsIsWWAN) { return kReachableViaWWAN; }
-//        if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
-//            if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
-//                CTTelephonyNetworkInfo *info = [[CTTelephonyNetworkInfo alloc] init];
-//                NSString *currentRadioAccessTechnology = info.currentRadioAccessTechnology;
-//                if (currentRadioAccessTechnology) {
-//                    if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
-//                        return kReachableVia4G;
-//                    } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge] || [currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
-//                        return kReachableVia2G;
-//                    } else {
-//                        return kReachableVia3G;
-//                    }
-//                }
-//            }
-//            
-//            if ((flags & kSCNetworkReachabilityFlagsTransientConnection) == kSCNetworkReachabilityFlagsTransientConnection) {
-//                if((flags & kSCNetworkReachabilityFlagsConnectionRequired) == kSCNetworkReachabilityFlagsConnectionRequired) {
-//                    return kReachableVia2G;
-//                }
-//                return kReachableVia3G;
-//            }
-//            return kReachableViaWWAN;
-//        }
+
+//		if (flags & kSCNetworkReachabilityFlagsIsWWAN) { return kReachableViaWWAN; }
+        if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
+            if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
+                CTTelephonyNetworkInfo *info = [[CTTelephonyNetworkInfo alloc] init];
+                NSString *currentRadioAccessTechnology = info.currentRadioAccessTechnology;
+                if (currentRadioAccessTechnology) {
+                    if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
+                        return kReachableVia4G;
+                    } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge] || [currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
+                        return kReachableVia2G;
+                    } else {
+                        return kReachableVia3G;
+                    }
+                }
+            }
+            
+            if ((flags & kSCNetworkReachabilityFlagsTransientConnection) == kSCNetworkReachabilityFlagsTransientConnection) {
+                if((flags & kSCNetworkReachabilityFlagsConnectionRequired) == kSCNetworkReachabilityFlagsConnectionRequired) {
+                    return kReachableVia2G;
+                }
+                return kReachableVia3G;
+            }
+            return kReachableViaWWAN;
+        }
 
 		
 		// Clear moot bits.

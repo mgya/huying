@@ -12,7 +12,7 @@
 
 
 //时长和应币
-@interface TimeBiViewController : BaseViewController<HTTPManagerControllerDelegate,IAPDelegate>
+@interface TimeBiViewController : BaseViewController<HTTPManagerControllerDelegate,IAPDelegate,UITableViewDataSource,UITableViewDelegate>
 
 
 - (id)initWithTitle:(NSString *)title;

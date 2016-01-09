@@ -31,7 +31,7 @@
     {
         // Initialization code
         UIImage *img = [UIImage imageNamed:@"missedCallImg"];
-        statusImgView = [[UIImageView alloc] initWithFrame:CGRectMake(10,4,img.size.width,img.size.height) ];
+        statusImgView = [[UIImageView alloc] initWithFrame:CGRectMake(10,10,img.size.width,img.size.height) ];
        // [self.cellView addSubview:statusImgView];
         
         nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(statusImgView.frame.origin.x+statusImgView.frame.size.width+12, 10, 160, 20)];
@@ -40,7 +40,7 @@
         nameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
      //   [self.cellView addSubview:nameLabel];
         
-        countLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, nameLabel.frame.origin.y, 50, 25)];
+        countLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, nameLabel.frame.origin.y, 50, 20)];
         countLabel.backgroundColor = [UIColor clearColor];
         countLabel.lineBreakMode = NSLineBreakByCharWrapping;
        // [self.cellView addSubview:countLabel];
@@ -121,7 +121,7 @@
         img = [UIImage imageNamed:@"missedCallImg"];
     }
     statusImgView.image = img;
-    statusImgView.frame =CGRectMake(10,4+(25-img.size.height)/2,img.size.width,img.size.height);
+    statusImgView.frame =CGRectMake(10,10+(20-img.size.height)/2,img.size.width,img.size.height);
     
     //2.name
     NSString *name = aCallLog.contact.name;
@@ -145,7 +145,8 @@
     if(aCallLog.contactLogCount > 1)
     {
         countLabel.text = [NSString stringWithFormat:@"(%d)",aCallLog.contactLogCount];
-        countLabel.frame = CGRectMake(nameLabel.frame.origin.x+nameLabel.frame.size.width+5, countLabel.frame.origin.y, countLabel.frame.size.width, countLabel.frame.size.height);
+        countLabel.frame = CGRectMake(nameLabel.frame.origin.x+nameLabel.frame.size.width+5, nameLabel.frame.origin.y, countLabel.frame.size.width, countLabel.frame.size.height);
+      
     }
     else
     {

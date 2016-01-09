@@ -166,7 +166,7 @@ static CallerManager *sharedInstance = nil;
 
     //回拨逻辑
     NSString *strOnlineStatus = [Util getOnLineStyle];
-    if ( 0 == [strOnlineStatus compare:@"3G"]) {
+    if ( 0 == [strOnlineStatus compare:@"2G"] ||0 == [strOnlineStatus compare:@"3G"]||0 == [strOnlineStatus compare:@"4G"]) {
         
         if ([UConfig Get3GCaller] == ECallerType_UnKnow ||
             [UConfig Get3GCaller] == ECallerType_3G_Callback) {
@@ -200,12 +200,47 @@ static CallerManager *sharedInstance = nil;
             [self DirectCaller];
         }
         else if ([UConfig WifiCaller] == ECallerType_Wifi_Callback) {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"" message:@"您拨打的号码有误" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil,nil];
+            callNumber = caller;
+            [alertView show];
+            
+            
             [self CallbackCaller];
         }
     }//wifi
+    
+    
+    
+    
+    
+    
+    //直拨回拨新逻辑
+//    NSString *strOnlineStatus = [Util getOnLineStyle];
+//    if ( 0 == [strOnlineStatus compare:@"2G"]) {
+//        [self GuideCaller:NO];
+//    }else if ( 0 == [strOnlineStatus compare:@"4G"]|| 0 == [strOnlineStatus compare:@"3G"]){
+//        if ( [UConfig Get3GCaller] == ECallerType_3G_Callback){
+//            [self GuideCaller:YES];
+//        }
+//        else  {
+//            [self DirectCaller];
+//        }
+//    }
+//    else if ( 0 == [strOnlineStatus compare:@"Wifi"])
+//    {
+//        if ( [UConfig WifiCaller] == ECallerType_Wifi_Callback){
+//            [self GuideCaller:YES];
+//        }
+//        else  {
+//            [self DirectCaller];
+//        }
+//    }
 }
 
 
+-(void)GuideCaller:(BOOL)type{
+    
+}
 
 -(NSString*)SpecialCall:(NSString*)caller{
     

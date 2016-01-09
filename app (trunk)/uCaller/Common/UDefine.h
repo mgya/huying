@@ -403,6 +403,7 @@ typedef enum
 
 #define KTaskType @"KTaskType"
 #define KSignType @"KSignType"
+#define KHuYingType @"KHuYingType"
 
 
 

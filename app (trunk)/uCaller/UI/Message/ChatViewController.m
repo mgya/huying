@@ -183,6 +183,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     HTTPManager *httpGiveGift;//签到
 
     
+    LongPressButton *speakButton;
     
 }
 
@@ -2286,12 +2287,20 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     
     [self sendAudio];
     speakDuration = 0;
+    
+    
+    for (UIView * temp in [self.view subviews]) {
+        
+        if (temp.tag == 200) {
+            temp.hidden = YES;
+        }
+    }
 }
 
 //added by yfCui
 -(void)setRecordingState
 {
-    [speakDialog setShowText:@"上划取消"];
+    [speakDialog setShowText:@"上划取消1"];
     [speakDialog setRecordImage:[UIImage imageNamed:@"recording_prompt"] andWithAnimation:YES andTimeAnimation:NO];
     [speakDialog setTextBackgroundColor:[UIColor clearColor]];
     
@@ -2302,6 +2311,12 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     [speakDialog setShowText:@"已取消"];
     [speakDialog setTextBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"cancelSend_bg"]]];
     [speakDialog setRecordImage:[UIImage imageNamed:@"cancelSender_prompt"] andWithAnimation:NO andTimeAnimation:NO];
+    for (UIView * temp in [self.view subviews]) {
+        
+        if (temp.tag == 200) {
+            temp.hidden = YES;
+        }
+    }
 }
 
 -(void)cancelRecording
@@ -2722,10 +2737,117 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 -(void)closeInput{
     [chatBar.inputTextView resignFirstResponder];
+    
+    UITapGestureRecognizer *guiClose = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(bgClose:)];
+    
+    UIView * bgView = [[UIView alloc]initWithFrame:self.view.bounds];
+    bgView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.05];
+    [self.view addSubview:bgView];
+    bgView.userInteractionEnabled = YES;
+    bgView.tag = 1000;
+    [bgView addGestureRecognizer:guiClose];
+    
+    NSInteger width = 200;
+    NSInteger hight = 300;
+    
+    UIView * guideView = [[UIView alloc]initWithFrame:CGRectMake((KDeviceWidth - width)/2, (KDeviceHeight - hight)/2, width, hight)];
+    guideView.backgroundColor = [UIColor yellowColor];
+    [bgView addSubview:guideView];
+    
+    guideView.layer.borderWidth = 1 ;
+    guideView.layer.borderColor = [UIColor redColor].CGColor;
+    
+
+    
+    UITapGestureRecognizer *telTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tel:)];
+    UILabel * telView = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, guideView.frame.size.width, guideView.frame.size.height/3)];
+    telView.text = @"免费电话";
+    telView.font = [UIFont systemFontOfSize:32];
+    telView.textAlignment = NSTextAlignmentCenter;
+    telView.layer.borderWidth = 1 ;
+    telView.layer.borderColor = [UIColor redColor].CGColor;
+    [guideView addSubview:telView];
+    telView.userInteractionEnabled = YES;
+    [telView addGestureRecognizer:telTap];
+    
+    
+    
+    UITapGestureRecognizer *soundTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(sound:)];
+    UILabel * soundView = [[UILabel alloc]initWithFrame:CGRectMake(0, telView.frame.size.height-1, guideView.frame.size.width, guideView.frame.size.height/3)];
+    soundView.text = @"语音留言";
+    soundView.font = [UIFont systemFontOfSize:32];
+    soundView.textAlignment = NSTextAlignmentCenter;
+    soundView.layer.borderWidth = 1 ;
+    soundView.layer.borderColor = [UIColor redColor].CGColor;
+    [guideView addSubview:soundView];
+    soundView.userInteractionEnabled = YES;
+    [soundView addGestureRecognizer:soundTap];
+    
+    
+    //是否为本地联系人
+    if (contact.isLocalContact) {
+        UITapGestureRecognizer *phoneTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(phone:)];
+        UILabel * phoneView = [[UILabel alloc]initWithFrame:CGRectMake(0, soundView.frame.size.height-1+soundView.frame.origin.y, guideView.frame.size.width, guideView.frame.size.height/3)];
+        phoneView.text = @"呼叫手机号";
+        phoneView.font = [UIFont systemFontOfSize:32];
+        phoneView.textAlignment = NSTextAlignmentCenter;
+        [guideView addSubview:phoneView];
+        phoneView.userInteractionEnabled = YES;
+        [phoneView addGestureRecognizer:phoneTap];
+    }else{
+        [guideView setFrame:CGRectMake((KDeviceWidth - width)/2, (KDeviceHeight - hight)/2, width, hight/3*2)]   ;
+        guideView.layer.borderWidth = 0 ;
+    }
+    
+    
+    
+}
+
+//点击空白背景关闭
+-(void)bgClose:(UITapGestureRecognizer*)sender{
+    [sender view].hidden = YES;
 }
 
 
+//点击免费电话
+-(void)tel:(UITapGestureRecognizer*)sender{
+    
+    [[[sender view] superview] superview].hidden = YES;
+    
+    if(![Util ConnectionState])
+    {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"呼叫失败" message:@"网络不可用，请检查您的网络，稍后再试！" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [alertView show];
+            return;
+    }
+    CallerManager* manager = [CallerManager sharedInstance];
+    [manager Caller:contact.number Contact:contact ParentView:nil Forced:RequestCallerType_Unknow];
 
+}
+//点击留言
+-(void)sound:(UITapGestureRecognizer*)sender{
+    
+    [[[sender view] superview] superview].hidden = YES;
+}
+//点击呼叫手机
+-(void)phone:(UITapGestureRecognizer*)sender{
+    
+    [[[sender view] superview] superview].hidden = YES;
+    
+    
+    [[[sender view] superview] superview].hidden = YES;
+    
+    if(![Util ConnectionState])
+    {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"呼叫失败" message:@"网络不可用，请检查您的网络，稍后再试！" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        [alertView show];
+        return;
+    }
+    CallerManager* manager = [CallerManager sharedInstance];
+       [manager Caller:contact.pNumber Contact:contact ParentView:nil Forced:RequestCallerType_Unknow];
+    
+
+}
 
 //-(void)callPNumber
 //{
@@ -3346,5 +3468,40 @@ if (eType == RequestGiveGift)
     }
 
 }
+
+
+#pragma mark---录音界面---
+
+-(void)recBarButtonNow{
+    
+    UITapGestureRecognizer *soundTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideRec:)];
+    UIView * mainView = [[UIView alloc]initWithFrame:self.view.bounds];
+    mainView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.5];
+    [self.view addSubview:mainView];
+    mainView.userInteractionEnabled = YES;
+    [mainView addGestureRecognizer:soundTap];
+    mainView.tag = 200;
+    
+//    speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth - 100)/2, (KDeviceHeight - 100)/3*2, 100, 100)];
+//    speakButton.backgroundColor = [UIColor yellowColor];
+//    [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
+//    [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+//    [mainView addSubview:speakButton];
+    
+    speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth - 100)/2, (KDeviceHeight - 100)/3*2, 100, 100)];
+    speakButton.backgroundColor = [UIColor yellowColor];
+    [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
+    [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+    speakButton.delegate = self;
+    [mainView addSubview:speakButton];
+    
+}
+
+-(void)hideRec:(UITapGestureRecognizer*)sender{
+    [sender view].hidden = YES;
+
+}
+
+
 
 @end

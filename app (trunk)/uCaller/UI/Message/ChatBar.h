@@ -7,7 +7,7 @@
 //
 
 
-#define  CHATBAR_HEIGHT 43
+#define  CHATBAR_HEIGHT 100
 #define  CHATBUTTON_WIDTH 34
 
 #define MAX_TEXT_NUMBER 2000
@@ -23,6 +23,7 @@
 -(void)msgBarButton;
 -(void)locBarButton;
 -(void)cardBarButton;
+-(void)recButton;
 -(void)sendText:(NSString *)text;
 -(void)startSpeak;
 -(void)stopSpeak;
@@ -35,6 +36,7 @@
 - (void)msgBarButtonNow;
 - (void)locBarButtonNow;
 - (void)cardBarButtonNow;
+-(void)recBarButtonNow;
 @end
 
 @interface ChatBar : UIToolbar<UIExpandingTextViewDelegate,LongPressedDelegate>
@@ -46,7 +48,6 @@
 
 @property (strong,nonatomic) UIExpandingTextView *inputTextView;
 @property (strong,nonatomic) LongPressButton *speakButton;
-@property (strong,nonatomic) UIButton *switchButton;
 @property (strong,nonatomic) UIButton *sendButton;
 
 @property BOOL speakOn;

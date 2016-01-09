@@ -637,6 +637,18 @@
             // 使用WiFi网络
             strOnLineStyle = @"Wifi";
             break;
+        case kReachableVia2G:
+            // 使用WiFi网络
+            strOnLineStyle = @"2G";
+            break;
+        case kReachableVia3G:
+            // 使用WiFi网络
+            strOnLineStyle = @"3G";
+            break;
+        case kReachableVia4G:
+            // 使用WiFi网络
+            strOnLineStyle = @"4G";
+            break;
     }
     return strOnLineStyle;
 }

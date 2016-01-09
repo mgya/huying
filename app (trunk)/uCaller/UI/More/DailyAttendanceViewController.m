@@ -310,8 +310,6 @@ typedef enum{
         }
         isShowDailyMsg = NO;
     }
-    
-
 }
 - (void)viewWillDisappear:(BOOL)animated
 {

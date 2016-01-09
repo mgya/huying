@@ -1435,6 +1435,15 @@ static DataCore *sharedInstance = nil;
                         [notifyInfo setValue:adsDataSource.ivrArray forKey:KValue];
                         [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadWithName:KIVRContent object:nil userInfo:notifyInfo];
                     }
+                    
+                    
+                    if (adsDataSource.msgArray.count > 0) {
+                        NSMutableDictionary *notifyInfo = [[NSMutableDictionary alloc] init];
+                        [notifyInfo setValue:[NSNumber numberWithInt:MsgArryUpdate] forKey:KEventType];
+                        [notifyInfo setValue:adsDataSource.msgArray forKey:KValue];
+                        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadWithName:KAdsContent object:nil userInfo:notifyInfo];
+                    }
+
 
 
                 });//dispatch_async

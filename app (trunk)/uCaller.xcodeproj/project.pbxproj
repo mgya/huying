@@ -1351,19 +1351,13 @@
 		47784F7B1B68BE5F0063416E /* msg_hideface_keyboard@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F731B68BE5F0063416E /* msg_hideface_keyboard@3x.png */; };
 		47784F8E1B68C3E30063416E /* msg_add_moreboard_sel.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F821B68C3E30063416E /* msg_add_moreboard_sel.png */; };
 		47784F901B68C3E30063416E /* msg_add_moreboard_sel@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F841B68C3E30063416E /* msg_add_moreboard_sel@3x.png */; };
-		47784F911B68C3E30063416E /* msg_add_moreboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F851B68C3E30063416E /* msg_add_moreboard.png */; };
 		47784F921B68C3E30063416E /* msg_add_moreboard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F861B68C3E30063416E /* msg_add_moreboard@2x.png */; };
 		47784F931B68C3E30063416E /* msg_add_moreboard@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F871B68C3E30063416E /* msg_add_moreboard@3x.png */; };
 		47784F971B68C3E30063416E /* msg_dis_moreboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F8B1B68C3E30063416E /* msg_dis_moreboard.png */; };
-		47784F981B68C3E30063416E /* msg_dis_moreboard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F8C1B68C3E30063416E /* msg_dis_moreboard@2x.png */; };
-		47784F991B68C3E30063416E /* msg_dis_moreboard@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784F8D1B68C3E30063416E /* msg_dis_moreboard@3x.png */; };
 		47784FBD1B68D4C00063416E /* msg_add_moreboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FAB1B68D4C00063416E /* msg_add_moreboard.png */; };
-		47784FBE1B68D4C00063416E /* msg_add_moreboard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FAC1B68D4C00063416E /* msg_add_moreboard@2x.png */; };
-		47784FBF1B68D4C00063416E /* msg_add_moreboard@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FAD1B68D4C00063416E /* msg_add_moreboard@3x.png */; };
 		47784FC01B68D4C00063416E /* msg_dis_moreboard_sel@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FAE1B68D4C00063416E /* msg_dis_moreboard_sel@3x.png */; };
 		47784FC11B68D4C00063416E /* msg_dis_moreboard_sel.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FAF1B68D4C00063416E /* msg_dis_moreboard_sel.png */; };
 		47784FC21B68D4C00063416E /* msg_dis_moreboard_sel@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FB01B68D4C00063416E /* msg_dis_moreboard_sel@2x.png */; };
-		47784FC31B68D4C00063416E /* msg_dis_moreboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FB11B68D4C00063416E /* msg_dis_moreboard.png */; };
 		47784FC41B68D4C00063416E /* msg_dis_moreboard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FB21B68D4C00063416E /* msg_dis_moreboard@2x.png */; };
 		47784FC51B68D4C00063416E /* msg_dis_moreboard@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 47784FB31B68D4C00063416E /* msg_dis_moreboard@3x.png */; };
 		477915141ACCE82D00836D11 /* GetRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 477915131ACCE82D00836D11 /* GetRefreshToken.m */; };
@@ -7684,7 +7678,7 @@
 		3FD7957D18C95EB8001AA386 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = yfCui;
 				TargetAttributes = {
 					3FD7958418C95EB8001AA386 = {
@@ -8122,7 +8116,6 @@
 				3FF478E3195D72F200ABD06C /* more_bill_clock_sel@2x.png in Resources */,
 				3D4A827C1A67DD1000A43C6D /* ticket_qiangpiao_sel@3x.png in Resources */,
 				3D5EA8931B413E27005EFE6A /* dialBack_redial_sel@2x.png in Resources */,
-				47784F991B68C3E30063416E /* msg_dis_moreboard@3x.png in Resources */,
 				477E2C031BB3956300F6FD3B /* navMore@2x.png in Resources */,
 				3F285F5518FBC23A00A8F2F7 /* 101.gif in Resources */,
 				4795355A1B71B2C700DDEA43 /* cc_msg_switch_speak.png in Resources */,
@@ -8287,7 +8280,6 @@
 				47784F5A1B68A9A00063416E /* CallLog_Call_nor@2x.png in Resources */,
 				3D28C1E51AE4E3E2007B7119 /* segLeftS@3x.png in Resources */,
 				3D2A16EF1AE64042007A11A3 /* more_pay_btnsel@3x.png in Resources */,
-				47784FC31B68D4C00063416E /* msg_dis_moreboard.png in Resources */,
 				47483AF01B47D413009B15FA /* adbackImg.png in Resources */,
 				3D4A827F1A67DD1000A43C6D /* ticket_redial_nor@3x.png in Resources */,
 				3FB822B81954183200EC87DE /* more_share_unenable.png in Resources */,
@@ -8460,7 +8452,6 @@
 				3DC135B31A357B02009DBC08 /* contact_invite_joinun@3x.png in Resources */,
 				3F285ED718FBC23A00A8F2F7 /* 095.png in Resources */,
 				C8B833BC1B6E837900959B7A /* chooseBill.png in Resources */,
-				47784F981B68C3E30063416E /* msg_dis_moreboard@2x.png in Resources */,
 				84713AEC1BAAC5D4001733C7 /* moreBack_sel@2x.png in Resources */,
 				3D2A16EB1AE64042007A11A3 /* more_pay_btnnor@2x.png in Resources */,
 				477B2A8C1B46258F006C8D46 /* contact_sex_male@3x.png in Resources */,
@@ -8837,7 +8828,6 @@
 				3D5EA8771B413A77005EFE6A /* call_sure_sel.png in Resources */,
 				8473AED619F666A000EAAFB6 /* sync_off.png in Resources */,
 				3F285EA318FBC23A00A8F2F7 /* 043.png in Resources */,
-				47784F911B68C3E30063416E /* msg_add_moreboard.png in Resources */,
 				3D399C091ABAD07300416E98 /* gift_finish_nor@3x.png in Resources */,
 				3F45605D1906205C00764A37 /* dtmf-7.aif in Resources */,
 				47734D1D1B44D3C6009385ED /* TabBar_CallLog_up.png in Resources */,
@@ -9169,7 +9159,6 @@
 				3D3327741AC01EDE00020535 /* personal_yule@3x.png in Resources */,
 				3F0851BF18FFC44A00658E1C /* contact_star_sel@2x.png in Resources */,
 				47784F751B68BE5F0063416E /* msg_face_keyboard_sel@2x.png in Resources */,
-				47784FBF1B68D4C00063416E /* msg_add_moreboard@3x.png in Resources */,
 				846EE7D61B4A2AC800A906BE /* CallLogChatCell_Right@3x.png in Resources */,
 				3D3A636B1ADFB25E0099E100 /* loginBtn_bg_sel@3x.png in Resources */,
 				3F285EF118FBC23A00A8F2F7 /* 001.gif in Resources */,
@@ -9306,7 +9295,6 @@
 				3D2A16F51AE64AD5007A11A3 /* more_pay_default@3x.png in Resources */,
 				3F285F5F18FBC23A00A8F2F7 /* 110.gif in Resources */,
 				3F285EBE18FBC23A00A8F2F7 /* 070.png in Resources */,
-				47784FBE1B68D4C00063416E /* msg_add_moreboard@2x.png in Resources */,
 				3D5EA8041B40F762005EFE6A /* call_end_nor@2x.png in Resources */,
 				475D53E31B2D32B600B32AE1 /* contactPhoto_g.png in Resources */,
 				47483B1A1B47F40D009B15FA /* moreMyTime_nor.png in Resources */,
@@ -9720,6 +9708,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Qianli Ma (4NABK57F3C)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Qianli Ma (4NABK57F3C)";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -9779,7 +9768,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-1";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -9864,6 +9852,7 @@
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.huying.ucaller;
 				PRODUCT_NAME = uCaller;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=*]" = "";
@@ -9878,7 +9867,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-1";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -9956,6 +9944,7 @@
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.huying.ucaller;
 				PRODUCT_NAME = uCaller;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=*]" = "";
@@ -9984,6 +9973,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "uCallerTests/uCallerTests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "yfCui.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -10005,6 +9995,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "uCaller/uCaller-Prefix.pch";
 				INFOPLIST_FILE = "uCallerTests/uCallerTests-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "yfCui.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";

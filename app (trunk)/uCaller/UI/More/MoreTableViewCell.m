@@ -61,7 +61,6 @@
         moreCellArrow.image = [UIImage imageNamed:@"moreCell"];
         [self addSubview:moreCellArrow];
     
-        
     }
     return self;
 }

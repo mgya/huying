@@ -115,7 +115,10 @@ enum {
 	// DDG NetworkStatus Constant Names.
 	kNotReachable = 0, // Apple's code depends upon 'NotReachable' being the same value as 'NO'.
 	kReachableViaWWAN, // Switched order from Apple's enum. WWAN is active before WiFi.
-	kReachableViaWiFi
+	kReachableViaWiFi,
+    kReachableVia2G,
+    kReachableVia3G,
+    kReachableVia4G
 	
 };
 typedef	uint32_t NetworkStatus;

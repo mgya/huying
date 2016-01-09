@@ -259,7 +259,12 @@
     bearText.backgroundColor = [UIColor clearColor];
     [bestView addSubview:bearText];
     
+    UIView *grayBestLineView = [[UIView alloc]initWithFrame:CGRectMake(0,45-0.5, KDeviceWidth, 0.5 )];
+    grayBestLineView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
+    [bestView addSubview:grayBestLineView];
+    
     moneyView = [[UIView alloc]initWithFrame:CGRectMake(0,backImgView.frame.size.height+bestView.frame.size.height, KDeviceWidth, 117*KWidthCompare6)];
+
     moneyView.backgroundColor = [UIColor colorWithRed:250.0/255.0 green:250.0/255.0 blue:250.0/255.0 alpha:1.0];
     [self.view addSubview:moneyView];
     
@@ -284,6 +289,9 @@
     
         
     }
+    UIView *grayMLineView = [[UIView alloc]initWithFrame:CGRectMake(0,117*KWidthCompare6-0.5, KDeviceWidth, 0.5 )];
+    grayMLineView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
+    [moneyView addSubview:grayMLineView];
     
     
     
@@ -319,10 +327,15 @@
     }
 #endif
     
-    UIImageView *grayLineImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"line_gray"]];
-    grayLineImageView.frame = CGRectMake(0, buttonPackage.frame.size.height -0.5, KDeviceWidth, 0.5);
+    UIView *grayUpLineView = [[UIView alloc]initWithFrame:CGRectMake(0, buttonPackage.frame.size.height-45 -0.5, KDeviceWidth, 0.5 )];
+    grayUpLineView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
     [buttonPackage addSubview:textPackage];
-    [buttonPackage addSubview:grayLineImageView];
+    [buttonPackage addSubview:grayUpLineView];
+    
+    UIView *grayLineView = [[UIView alloc]initWithFrame:CGRectMake(0, buttonPackage.frame.size.height -0.5, KDeviceWidth, 0.5 )];
+    grayLineView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
+    [buttonPackage addSubview:textPackage];
+    [buttonPackage addSubview:grayLineView];
     
     
     UIImage * moreImage = [UIImage imageNamed:@"msg_accview"];
@@ -700,18 +713,13 @@
         UIImage *image = [[UIImage alloc]initWithData:data];
         dispatch_async(dispatch_get_main_queue(), ^{
             // 更新界面
-            
-            for (int i = 0; i < hotArry.count; i++) {
-                
-
                 for (UIButton *button in [moneyView subviews])
                 {
-                    if (button.tag == [index intValue]) {
+                    if ((int)button.tag == [index intValue]) {
                         [button setBackgroundImage:image forState:UIControlStateNormal];
                         break;
                     }
                 }
-            }
         });
     });
     

@@ -16,7 +16,7 @@
     BOOL isShowFaceBoard;
     CGFloat startY;
     UIButton *faceButton;
-    UIView *moreView;
+    
     BOOL isFromSpeak;
     UIButton * newSpeakButton;
 }
@@ -72,36 +72,32 @@
         NSArray *picNameNor = [NSArray arrayWithObjects:@"more_call_nor",@"more_call_nor",@"more_msg_nor",@"more_card_nor",@"more_location_nor",@"msg_face_keyboard_sel" ,nil];
         NSArray *picNameSel = [NSArray arrayWithObjects:@"more_call_sel",@"more_call_sel",@"more_msg_sel",@"more_card_sel",@"more_location_sel",@"msg_face_keyboard_sel",nil];
         
-        moreView = [[UIView alloc]initWithFrame:CGRectMake(0, inputTextView.frame.origin.y+inputTextView.frame.size.height+10,KDeviceWidth, 45*KWidthCompare6)];
-        [self addSubview:moreView];
-        
         for (int i = 0; i<6; i++) {
             if (i == 1) {
-                speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
-                speakButton.delegate = self;
+                speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6)];               speakButton.delegate = self;
                 [speakButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
                 [speakButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
                 [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
                 [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
-                [moreView addSubview:speakButton];
+                [self addSubview:speakButton];
             }
             else if (i == 5){
                 
                 faceButton = [UIButton buttonWithType:UIButtonTypeCustom];
-                faceButton.frame = CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6);
+                faceButton.frame = CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6);
                 [faceButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
                 [faceButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
                 [faceButton addTarget:self action:@selector(faceBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
                 [faceButton setTitle:@"1" forState:UIControlStateReserved];
-                [moreView addSubview:faceButton];
+                [self addSubview:faceButton];
             }
             else{
-                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
+                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6)];
                 [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
                 [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
                 choiceBtn.tag = i;
                 [choiceBtn addTarget:self action:@selector(moreClicked:) forControlEvents:UIControlEventTouchUpInside];
-                [moreView addSubview:choiceBtn];
+                [self addSubview:choiceBtn];
             }
             
         }
@@ -171,12 +167,8 @@
         NSArray *picNameNor = [NSArray arrayWithObjects:@"more_call_nor",@"more_call_nor",@"more_msg_nor",@"more_card_nor",@"more_location_nor",@"msg_face_keyboard_sel" ,nil];
         NSArray *picNameSel = [NSArray arrayWithObjects:@"more_call_sel",@"more_call_sel",@"more_msg_sel",@"more_card_sel",@"more_location_sel",@"msg_face_keyboard_sel",nil];
         
-        moreView = [[UIView alloc]initWithFrame:CGRectMake(0, inputTextView.frame.origin.y+inputTextView.frame.size.height+10, KDeviceWidth, 45*KWidthCompare6)];
-        [self addSubview:moreView];
-        
         for (int i = 0; i<6; i++) {
             if (i == 1) {
-
                 newSpeakButton = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6)];
 
                 [newSpeakButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
@@ -189,25 +181,24 @@
 //                [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
 //                [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
                 [self addSubview:newSpeakButton];
-
             }
             else if (i == 5){
                 
                 faceButton = [UIButton buttonWithType:UIButtonTypeCustom];
-                faceButton.frame = CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6);
+                faceButton.frame = CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6);
                 [faceButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
                 [faceButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
                 [faceButton addTarget:self action:@selector(faceBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
                 [faceButton setTitle:@"1" forState:UIControlStateReserved];
-                [moreView addSubview:faceButton];
+                [self addSubview:faceButton];
             }
             else{
-                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
+                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6)];
                 [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
                 [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
                 choiceBtn.tag = i;
                 [choiceBtn addTarget:self action:@selector(moreClicked:) forControlEvents:UIControlEventTouchUpInside];
-                [moreView addSubview:choiceBtn];
+                [self addSubview:choiceBtn];
             }
             
         }
@@ -339,8 +330,6 @@
     {
         [delegate heightWillChange:diff];
     }
-    
-    moreView.frame = CGRectMake(0, moreView.frame.origin.y-diff, KDeviceWidth, 45*KWidthCompare6);
     
 }
 

@@ -1874,5 +1874,15 @@
     }
     return [[NSUserDefaults standardUserDefaults] boolForKey:KSignType];
 }
++(void)setHuyingType:(BOOL)type{
+    [[NSUserDefaults standardUserDefaults] setBool:type forKey:KHuYingType];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
++(BOOL)getHuyingType{
+    if ([UConfig getVersionReview]) {
+        return NO;
+    }
+    return [[NSUserDefaults standardUserDefaults] boolForKey:KHuYingType];
+}
 @end

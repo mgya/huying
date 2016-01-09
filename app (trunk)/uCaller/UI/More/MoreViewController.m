@@ -227,9 +227,11 @@ typedef enum{
     isReview = [UConfig getVersionReview];
     if (isReview) {
         adView.frame = CGRectMake(0, LocationY, KDeviceWidth,0);
+        adView.hidden = YES;
     }
     else {
         adView.frame = CGRectMake(0, LocationY, KDeviceWidth,125*KWidthCompare6);
+        adView.hidden = NO;
     }
     makeCallsTableView.frame = CGRectMake(0,adView.frame.origin.y+adView.frame.size.height, self.view.frame.size.width, self.view.frame.size.height-KTabBarHeight-adView.frame.size.height-adView.frame.origin.y);
     

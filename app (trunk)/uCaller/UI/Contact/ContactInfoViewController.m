@@ -132,7 +132,7 @@ typedef enum{
     
     UITableView *contactInfoTableView;
     
-    UIButton *btnCall;
+    UIButton *btnSendLeave;
     UIButton *btnSendMsg;
     UIButton *addBtn;
     UIButton *starButton;
@@ -381,37 +381,37 @@ typedef enum{
     [dropImgesMarr addObject:addBlackImg];
     
     nTop =  KDeviceHeight - 49-(60-LocationY)-3;
-    btnCall = [UIButton buttonWithType:UIButtonTypeCustom];
-	btnCall.frame = CGRectMake(0,0,KDeviceWidth/2,50*KHeightCompare6);
-	btnCall.titleLabel.font = [UIFont boldSystemFontOfSize:16];
-    [btnCall addTarget:self action:@selector(callButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [btnCall setBackgroundColor:[UIColor whiteColor]];
-    [btnCall setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
-    [btnCall setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateHighlighted];
-	[addView addSubview:btnCall];
-    btnCall.hidden = YES;
- 
-    
-    
     btnSendMsg = [UIButton buttonWithType:UIButtonTypeCustom];
-	btnSendMsg.frame = CGRectMake(KDeviceWidth/2,0,KDeviceWidth/2,50*KHeightCompare6);
+	btnSendMsg.frame = CGRectMake(0,0,KDeviceWidth/2,50*KHeightCompare6);
 	btnSendMsg.titleLabel.font = [UIFont boldSystemFontOfSize:16];
-	[btnSendMsg addTarget:self action:@selector(sendMsgButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [btnSendMsg addTarget:self action:@selector(sendMsgButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [btnSendMsg setBackgroundColor:[UIColor whiteColor]];
     [btnSendMsg setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
     [btnSendMsg setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateHighlighted];
 	[addView addSubview:btnSendMsg];
     btnSendMsg.hidden = YES;
+ 
+    
+    
+    btnSendLeave = [UIButton buttonWithType:UIButtonTypeCustom];
+	btnSendLeave.frame = CGRectMake(KDeviceWidth/2,0,KDeviceWidth/2,50*KHeightCompare6);
+	btnSendLeave.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+	[btnSendLeave addTarget:self action:@selector(sendMsgButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [btnSendLeave setBackgroundColor:[UIColor whiteColor]];
+    [btnSendLeave setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
+    [btnSendLeave setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateHighlighted];
+	[addView addSubview:btnSendLeave];
+    btnSendLeave.hidden = YES;
 
-    UIView *btnxView = [[UIView alloc]initWithFrame:CGRectMake(0, btnCall.frame.origin.y-0.6, self.view.frame.size.width, 0.6)];
+    UIView *btnxView = [[UIView alloc]initWithFrame:CGRectMake(0, btnSendMsg.frame.origin.y-0.6, self.view.frame.size.width, 0.6)];
     [btnxView setBackgroundColor:[[UIColor alloc]initWithRed:219.0/255.0 green:219.0/255.0 blue:219.0/255.0 alpha:1.0]];
     [addView addSubview:btnxView];
     
     UIView *btnyView = [[UIView alloc]init];
     if (iOS7) {
-        btnyView.frame = CGRectMake(self.view.frame.size.width/2-0.3, btnCall.frame.origin.y, 0.6, btnCall.frame.size.height);
+        btnyView.frame = CGRectMake(self.view.frame.size.width/2-0.3, btnSendMsg.frame.origin.y, 0.6, btnSendMsg.frame.size.height);
     }else{
-        btnyView.frame = CGRectMake(self.view.frame.size.width/2-0.6, btnCall.frame.origin.y, 1.2, btnCall.frame.size.height);
+        btnyView.frame = CGRectMake(self.view.frame.size.width/2-0.6, btnSendMsg.frame.origin.y, 1.2, btnSendMsg.frame.size.height);
     }
     
     [btnyView setBackgroundColor:[[UIColor alloc]initWithRed:219.0/255.0 green:219.0/255.0 blue:219.0/255.0 alpha:1.0]];
@@ -439,13 +439,13 @@ typedef enum{
 //    if (contact.type == CONTACT_LOCAL) {
 //        starButton.hidden = YES;
 //    }
-    btnCall.hidden = NO;
     btnSendMsg.hidden = NO;
+    btnSendLeave.hidden = NO;
     addBtn.hidden = YES;
     
     if(contact.type == CONTACT_Recommend || contact.type == CONTACT_MySelf||contact.type == CONTACT_Unknow){
-        btnCall.hidden = YES;
         btnSendMsg.hidden = YES;
+        btnSendLeave.hidden = YES;
         addBtn.hidden = NO;
         starButton.hidden = YES;
         btnxView.hidden = YES;
@@ -494,8 +494,8 @@ typedef enum{
     
     
     if (fromTel) {
-        btnCall.hidden = YES;
         btnSendMsg.hidden = YES;
+        btnSendLeave.hidden = YES;
         addView.hidden = YES;
         starButton.hidden = YES;
         rBtn.hidden = YES;
@@ -943,48 +943,47 @@ typedef enum{
     
     if([contact hasUNumber] || [contact.number startWith:TZ_PREFIX])
     {
-        [btnCall setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateNormal)];
-        [btnCall setTitle:@"免费通话" forState:(UIControlStateNormal)];
-        [btnCall setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateHighlighted)];
-        [btnCall setTitle:@"免费通话" forState:(UIControlStateHighlighted)];
+        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateNormal)];
+        [btnSendMsg setTitle:@"发消息" forState:(UIControlStateNormal)];
+        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateHighlighted)];
+        [btnSendMsg setTitle:@"发消息" forState:(UIControlStateHighlighted)];
         
         
         if(contact.hasUNumber)
         {
-            [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateNormal)];
-            [btnSendMsg setTitle:@"发消息" forState:(UIControlStateNormal)];
-            [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateHighlighted)];
-            [btnSendMsg setTitle:@"发消息" forState:(UIControlStateHighlighted)];
+            [btnSendLeave setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateNormal)];
+            [btnSendLeave setTitle:@"留言" forState:(UIControlStateNormal)];
+            [btnSendLeave setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateHighlighted)];
+            [btnSendLeave setTitle:@"留言" forState:(UIControlStateHighlighted)];
         }
         else
         {
-            [btnSendMsg setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateNormal)];
-            [btnSendMsg setTitle:@"添加好友" forState:(UIControlStateNormal)];
-            [btnSendMsg setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateHighlighted)];
-            [btnSendMsg setTitle:@"添加好友" forState:(UIControlStateHighlighted)];
+            [btnSendLeave setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateNormal)];
+            [btnSendLeave setTitle:@"添加好友" forState:(UIControlStateNormal)];
+            [btnSendLeave setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateHighlighted)];
+            [btnSendLeave setTitle:@"添加好友" forState:(UIControlStateHighlighted)];
         }
     }
     else
     {
-        [btnCall setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateNormal)];
-        [btnCall setTitle:@"拨打电话" forState:(UIControlStateNormal)];
-        [btnCall setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateHighlighted)];
-        [btnCall setTitle:@"拨打电话" forState:(UIControlStateHighlighted)];
+        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateNormal)];
+        [btnSendMsg setTitle:@"邀请" forState:(UIControlStateNormal)];
+        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateHighlighted)];
+        [btnSendMsg setTitle:@"邀请" forState:(UIControlStateHighlighted)];
         
-        [btnSendMsg setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateNormal)];
-        [btnSendMsg setTitle:@"邀请加入" forState:(UIControlStateNormal)];
-        [btnSendMsg setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateHighlighted)];
-        [btnSendMsg setTitle:@"邀请加入" forState:(UIControlStateHighlighted)];
+        [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateNormal)];
+        [btnSendLeave setTitle:@"留言" forState:(UIControlStateNormal)];
+        [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateHighlighted)];
+        [btnSendLeave setTitle:@"留言" forState:(UIControlStateHighlighted)];
         
         if(![Util isPhoneNumber:contact.number])
         {
-            btnSendMsg.enabled = NO;
-            [btnSendMsg setImage:[UIImage imageNamed:@"contact_invite_joinun.png"] forState:(UIControlStateNormal)];
-            [btnSendMsg setTitle:@"邀请加入" forState:(UIControlStateNormal)];
-            [btnSendMsg setTitleColor:[[UIColor alloc]initWithRed:171.0/255.0 green:226.0/255.0 blue:254.0/255.0 alpha:1.0] forState:UIControlStateNormal];
+            btnSendLeave.enabled = NO;
+            [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_joinun.png"] forState:(UIControlStateNormal)];
+            [btnSendLeave setTitle:@"邀请加入" forState:(UIControlStateNormal)];
+            [btnSendLeave setTitleColor:[[UIColor alloc]initWithRed:171.0/255.0 green:226.0/255.0 blue:254.0/255.0 alpha:1.0] forState:UIControlStateNormal];
         }
     }
-    
 }
 -(void)refreshGender
 {
@@ -1489,23 +1488,16 @@ typedef enum{
         
         if (contact.type != CONTACT_MySelf) {
             if ([title isEqualToString:INFO_UNUMBER]) {
-                UIImage *uContactInfoImg = [UIImage imageNamed:@"contact_info_msg.png"];
-                UIButton *UmsgBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-uContactInfoImg.size.width, (CELL_HEIGHT-uContactInfoImg.size.height)/2, uContactInfoImg.size.width, uContactInfoImg.size.height)];
-                [UmsgBtn setImage:uContactInfoImg forState:UIControlStateNormal];
-                [UmsgBtn setImage:[UIImage imageNamed:@"contact_info_msg.png"] forState:UIControlStateNormal];
-                [UmsgBtn addTarget:self action:@selector(DidUMsg:) forControlEvents:UIControlEventTouchUpInside];
-                [cell.contentView addSubview:UmsgBtn];
+                UIImage *uContactInfoImg = [UIImage imageNamed:@"contact_info_call.png"];
 
-                
-                UIButton *UcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(UmsgBtn.frame.origin.x-38*KWidthCompare6-uContactInfoImg.size.width,(CELL_HEIGHT-uContactInfoImg.size.height)/2, uContactInfoImg.size.width, uContactInfoImg.size.height)];
-                [UcallBtn setImage:[UIImage imageNamed:@"contact_info_call.png"] forState:UIControlStateNormal];
+                UIButton *UcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-38*KWidthCompare6,(CELL_HEIGHT-uContactInfoImg.size.height)/2, uContactInfoImg.size.width, uContactInfoImg.size.height)];
+                [UcallBtn setImage:uContactInfoImg forState:UIControlStateNormal];
                 [UcallBtn setImage:[UIImage imageNamed:@"contact_info_call_sel.png"] forState:UIControlStateHighlighted];
                 [UcallBtn addTarget:self action:@selector(DidUCall:) forControlEvents:UIControlEventTouchUpInside];
                 [cell.contentView addSubview:UcallBtn];
                 
                 
                 if (fromTel) {
-                    UmsgBtn.hidden = YES;
                     UcallBtn.hidden = YES;
                 }
                 
@@ -1527,25 +1519,17 @@ typedef enum{
                 }
                 
             }else if([title isEqualToString:INFO_PNUMBER]){
-                UIImage *pContactInfoImg = [UIImage imageNamed:@"contact_info_msg.png"];
-                UIButton *PmsgBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-pContactInfoImg.size.width, (CELL_HEIGHT-pContactInfoImg.size.height)/2, pContactInfoImg.size.width, pContactInfoImg.size.height)];
-                [PmsgBtn setImage:pContactInfoImg forState:UIControlStateNormal];
-                [PmsgBtn setImage:[UIImage imageNamed:@"contact_info_msg_sel.png"] forState:UIControlStateHighlighted];
-                [PmsgBtn addTarget:self action:@selector(DidPMsg:) forControlEvents:UIControlEventTouchUpInside];
-                [cell.contentView addSubview:PmsgBtn];
+                UIImage *pContactInfoImg = [UIImage imageNamed:@"contact_info_call.png"];
                 
-                UIButton *PcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(PmsgBtn.frame.origin.x-38*KWidthCompare6-pContactInfoImg.size.width,(CELL_HEIGHT-pContactInfoImg.size.height)/2, pContactInfoImg.size.width, pContactInfoImg.size.height)];
-                [PcallBtn setImage:[UIImage imageNamed:@"contact_info_call.png"] forState:UIControlStateNormal];
+                UIButton *PcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-38*KWidthCompare6-pContactInfoImg.size.width,(CELL_HEIGHT-pContactInfoImg.size.height)/2, pContactInfoImg.size.width, pContactInfoImg.size.height)];
+                [PcallBtn setImage:pContactInfoImg forState:UIControlStateNormal];
                 [PcallBtn setImage:[UIImage imageNamed:@"contact_info_call_sel.png"] forState:UIControlStateHighlighted];
                 [PcallBtn addTarget:self action:@selector(DidPcall:) forControlEvents:UIControlEventTouchUpInside];
                 [cell.contentView addSubview:PcallBtn];
                 
                 if (fromTel) {
-                    PmsgBtn.hidden = YES;
                     PcallBtn.hidden = YES;
                 }
-                
-               
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             contentLabel.textColor = [UIColor colorWithRed:64.0/255.0 green:64.0/255.0 blue:64.0/255.0 alpha:1.0];

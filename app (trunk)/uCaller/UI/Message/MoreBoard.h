@@ -17,6 +17,7 @@
 -(void)msgBarButton;
 -(void)locBarButton;
 -(void)cardBarButton;
+-(void)recButton;
 
 @end
 

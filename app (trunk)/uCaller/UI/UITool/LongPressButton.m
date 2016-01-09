@@ -71,8 +71,12 @@
         maxHeight = self.superview.bounds.size.height-105 ;
         minHeight = self.superview.bounds.size.height - 290;
         
-        maxWidth = 250;
-        minWidth = 80;
+        maxWidth = 100;
+        minWidth = 0;
+        
+//        maxWidth = 250;
+//        minWidth = 80;
+
         
         isCancelRecording = NO;
         //end
@@ -185,16 +189,24 @@
     if (gestureRecognizer.state ==
         UIGestureRecognizerStateChanged)
     {
-        CGPoint point = [gestureRecognizer locationInView:self.superview];
+        CGPoint point = [gestureRecognizer locationInView:self];
+        
+        
+        NSLog(@"%f--!!!!-%f",point.x,point.y);
+        NSLog(@"%zd##%zd##%zd##%zd##",maxHeight,minHeight,maxWidth,minWidth);
+
+        
+        
+        
         if(point.y <= maxHeight
            && point.y >= minHeight
            && point.x <= maxWidth
            && point.x >= minWidth
            )
         {
-            if([self.delegate respondsToSelector:@selector(cancelRecordingState)])
+            if([self.delegate respondsToSelector:@selector(setCancelRecordingState)])
             {
-                [self.delegate performSelector:@selector(cancelRecordingState)];
+                [self.delegate performSelector:@selector(setCancelRecordingState)];
                 isCancelRecording = YES;
             }
         }
