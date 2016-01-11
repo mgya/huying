@@ -54,4 +54,7 @@ typedef NSUInteger LongPressEvents;
 
 - (void)buttonTouchUpOutside;
 
+-(void)setAnimation:(NSString*)imageName;
+-(void)stopAnimation;
+
 @end

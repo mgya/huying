@@ -99,7 +99,7 @@
         recordImageView.frame = CGRectMake((140-52.0/2)/2*KWidthCompare6,27*KWidthCompare6,52.0/2*KWidthCompare6,111.0/2*KWidthCompare6);
         if(animateImageView == nil)
         {
-            animateImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"animation%d",speakDuration]]];
+            animateImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:[NSString stringWithFormat:@"animation%zd",speakDuration]]];
             animateImageView.frame = CGRectMake((140-52.0/2)/2*KWidthCompare6,27*KWidthCompare6,52.0/2*KWidthCompare6,111.0/2*KWidthCompare6);
         }
         [backgroundView addSubview:animateImageView];
@@ -113,7 +113,7 @@
         [timer invalidate];
     }
     NSInteger imageIndex = (speakDuration % 4)+1;
-    UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"animation%d",imageIndex]];
+    UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"animation%zd",imageIndex]];
     animateImageView.image = image;
 
     speakDuration++;

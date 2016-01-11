@@ -34,6 +34,7 @@
 #import "MsgLog.h"
 #import "MsgLogManager.h"
 #import "DataCore.h"
+#import "ChatViewController.h"
 
 #define KDisMissViewTime 1.0
 
@@ -153,7 +154,7 @@ typedef enum ECallbackStep
     NSString *callDuration;//通话时常
     NSInteger callSec;//通话秒数
     MenuCallView *callMenuView;//键盘联系人等模块
-
+    
     CallButtonBar *callinBottomBar;//呼入界面
     numberSubtype callNumberSubtype;
     
@@ -167,6 +168,11 @@ typedef enum ECallbackStep
     
     MenuEditView *editMenuView;//挂机键、键盘弹起等
     UIView *phonePadView;//键盘View
+    UIView *choiceView;
+    UIButton *leaveBtn;
+    UIButton *callBackBtn;
+    UIButton *backBtn;
+    UIView *callAdView;
     
     BOOL callOK;
     BOOL isHangUp;
@@ -180,7 +186,7 @@ typedef enum ECallbackStep
     //for 回拨
     HTTPManager* httpCallback;
     NSInteger redialCount;
-
+    
     //for 挂机短信
     HTTPManager* httpCheckUser;
     HTTPManager* httpTips;
@@ -193,7 +199,7 @@ typedef enum ECallbackStep
     
     BOOL isShowContacts;//是否显示联系人view
     BOOL isHideTabBar;//联系人ui，show时候纪录是否隐藏tabbar，本窗口销毁时候恢复tabbar状态
-
+    
     ShareContent   *shareContent;
 }
 
@@ -227,10 +233,10 @@ typedef enum ECallbackStep
         bPasswordChanged = NO;
         isCouldInviteCaller = NO;
         isShowContacts = NO;
-
+        
         device = [UIDevice currentDevice];
         device.proximityMonitoringEnabled = YES;
-
+        
         uApp = [UAppDelegate uApp];
         uCore = [UCore sharedInstance];
         
@@ -265,8 +271,7 @@ typedef enum ECallbackStep
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
-    
+    // Do any additional setup after loading the view.
     if(IPHONE5)
     {
         self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"dial_inCall5"]];
@@ -305,7 +310,7 @@ typedef enum ECallbackStep
     CGFloat callMVMargin = 18.0;
     CGFloat downMargin = 37.0*KHeightCompare6;
     UIImage *mute_no_img = [UIImage imageNamed:@"mute_no"];
-
+    
     callMenuView = [[MenuCallView alloc] initWithFrame: CGRectMake(marginLeft, KDeviceHeight-downMargin-callEditHeight-callMVMargin-mute_no_img.size.height, callMVWidth, mute_no_img.size.height)];
     
     [callMenuView setBackgroundColor:[UIColor clearColor]];
@@ -330,7 +335,7 @@ typedef enum ECallbackStep
     if (!IPHONE5 && !IPHONE6 && !IPHONE6plus) {
         infoView.frame = CGRectMake(infoView.frame.origin.x, infoView.frame.origin.y-40, infoView.frame.size.width, infoView.frame.size.height);
     }
-
+    
     //呼入时拒绝接听（接听、拒绝）
     callinBottomBar = [[CallButtonBar alloc] initForIncomingCallWaiting];
     [[callinBottomBar button] addTarget:self action:@selector(endCall)
@@ -338,21 +343,58 @@ typedef enum ECallbackStep
     [[callinBottomBar button2] addTarget:self action:@selector(answerCall)
                         forControlEvents:UIControlEventTouchUpInside];
     [[callinBottomBar messageBtn] addTarget:self action:@selector(messageBack)
-                        forControlEvents:UIControlEventTouchUpInside];
+                           forControlEvents:UIControlEventTouchUpInside];
     callinBottomBar.hidden = YES;
     [self.view addSubview:callinBottomBar];
+    
+    
+    
     
     CGFloat menuViewOriginY = KDeviceHeight-downMargin-callEditHeight;
     editMenuView = [[MenuEditView alloc]initWithFrame:CGRectMake(marginLeft, menuViewOriginY, callMVWidth, callEditHeight)];
     editMenuView.delegate = self;
+    editMenuView.backgroundColor = [UIColor clearColor];
     [editMenuView hideDialAndMenuBtn:NO End:NO EndEnabled:YES  Sure:YES RedialAndCancel:YES];
     [bgView addSubview:editMenuView];
     
+    choiceView = [[UIView alloc]initWithFrame:CGRectMake(0,  KDeviceHeight-downMargin-callEditHeight-callMVMargin-mute_no_img.size.height, KDeviceWidth, 150)];
+    choiceView.hidden = YES;
+    [bgView addSubview:choiceView];
+    
+    leaveBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 10, 50, 50)];
+    leaveBtn.backgroundColor = [UIColor greenColor];
+    [leaveBtn addTarget:self action:@selector(speak) forControlEvents:UIControlEventTouchUpInside];
+    [choiceView addSubview:leaveBtn];
+    
+    callBackBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 100, 50, 50)];
+    callBackBtn.backgroundColor = [UIColor redColor];
+    [callBackBtn addTarget:self action:@selector(callButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [choiceView addSubview:callBackBtn];
+    
+    backBtn = [[UIButton alloc]initWithFrame:CGRectMake(200, 100, 50, 50)];
+    backBtn.backgroundColor = [UIColor yellowColor];
+    [backBtn setTitle:@"返回" forState:UIControlStateNormal];
+    [backBtn addTarget:self action:@selector(dismissViewe) forControlEvents:UIControlEventTouchUpInside];
+    [choiceView addSubview:backBtn];
+    
+    
+    callAdView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth, KDeviceHeight)];
+    callAdView.backgroundColor = [UIColor colorWithRed:0/255.0 green:161/255.0 blue:253.0/255.0 alpha:0.8];
+    callAdView.hidden = YES;
+    [self.view addSubview:callAdView];
+    UIImageView *callAdImgView = [[UIImageView alloc]initWithFrame:CGRectMake((KDeviceWidth-100)/2, (KDeviceHeight-100)/2, 100, 100)];
+    callAdImgView.userInteractionEnabled = YES;
+    callAdImgView.backgroundColor = [UIColor blackColor];
+    [callAdView addSubview:callAdImgView];
+    UIButton *closeAdBtn = [[UIButton alloc]initWithFrame:CGRectMake(90, -5, 20, 20)];
+    [closeAdBtn setImage:[UIImage imageNamed:@"adsClose.png"] forState:UIControlStateNormal];
+    [closeAdBtn addTarget:self action:@selector(closeAd) forControlEvents:UIControlEventTouchUpInside];
+    [callAdImgView addSubview:closeAdBtn];
     
     //键盘
     CGFloat phonePadHeight = 458.0/2*kKHeightCompare6;
     DialPad *phonePad = [[DialPad alloc] initWithFrame:
-                CGRectMake(0.0f, 0.0f, KDeviceWidth, phonePadHeight)];
+                         CGRectMake(0.0f, 0.0f, KDeviceWidth, phonePadHeight)];
     [phonePad setImage:[UIImage imageNamed:@"call_key_nor"]];
     [phonePad setPressImage:[UIImage imageNamed:@"call_key_sel"]];
     [phonePad setPlaysSounds:[[NSUserDefaults standardUserDefaults]
@@ -364,13 +406,15 @@ typedef enum ECallbackStep
     phonePadView.backgroundColor = [UIColor clearColor];
     [phonePadView addSubview:phonePad];
     [bgView addSubview:phonePadView];
-
+    
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onCoreEvent:)
                                                  name:NUMPVoIPEvent object:nil];
 }
-
+- (void)dismissViewe{
+    [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -398,7 +442,7 @@ typedef enum ECallbackStep
 }
 
 #pragma mark -- Call Operation Methods
-- (void)callOut:(UContact *)contact number:(NSString *)number 
+- (void)callOut:(UContact *)contact number:(NSString *)number
 {
     isHideTabBar = [uApp.rootViewController.tabBarViewController isHideTabBar];
     UIWindow *showCallWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -458,7 +502,7 @@ typedef enum ECallbackStep
         [self performSelector:@selector(onTimeout) withObject:nil afterDelay:40.0];
     }
     else if([manager RequestCallerType] == RequestCallerType_Callback){
-
+        
         NSString *strOnlineStatus = [Util getOnLineStyle];
         if ( 0 == [strOnlineStatus compare:@"3G"]) {
             callLog.type = CALL_234G_Callback_OUT;
@@ -469,7 +513,7 @@ typedef enum ECallbackStep
         else {
             callLog.type = CALL_OUT;
         }
-
+        
         callContact = [[UContact alloc] initWithContact:contact];
         callNumber = number;
         
@@ -546,8 +590,8 @@ typedef enum ECallbackStep
     if(callLog.type == CALL_MISSED)
         callLog.type = CALL_IN;
     [self onCallEnd:nil];
-
- 
+    
+    
     NSNumber *isDelay = [NSNumber numberWithBool:NO];
     if (callLog.type == CALL_OUT ||
         callLog.type == CALL_Wifi_Direct_OUT ||
@@ -644,7 +688,7 @@ typedef enum ECallbackStep
     {
         NSLog(@"Error updating audio session: %@", error.localizedFailureReason);
     }
-
+    
     if(warningTonePlayer)
     {
         warningTonePlayer = nil;
@@ -656,7 +700,6 @@ typedef enum ECallbackStep
         NSError *error;
         warningTonePlayer = [[AVAudioPlayer alloc] initWithData:audioData error:&error];
     }
-    
     [warningTonePlayer prepareToPlay];
     [warningTonePlayer setVolume:1];
     warningTonePlayer.numberOfLoops = 0;
@@ -718,7 +761,7 @@ typedef enum ECallbackStep
 #pragma mark----TellFriendsVC------
 -(void)tellFriendsPopBack
 {
-//    [self dismissViewControllerAnimated:YES completion:nil];
+    //    [self dismissViewControllerAnimated:YES completion:nil];
     [self hideCallView];
 }
 
@@ -780,7 +823,7 @@ typedef enum ECallbackStep
     //检测麦克风权限，仅限于呼入逻辑
     if (callLog.type == CALL_IN) {
         if(iOS7) {
-           [self AudioSessionCheck];
+            [self AudioSessionCheck];
         }
     }
     
@@ -807,16 +850,15 @@ typedef enum ECallbackStep
 - (void)onCallEnd:(NSString *)releaseReason
 {
     
-    
     if ((callOK == NO)&&(releaseReason.integerValue == 0x100 || releaseReason.intValue == 0x101
                          ||releaseReason.intValue == 0x301)) {
         [uCore newTask:U_UMP_CALL_OUT data:callNumber];
         return;
     }
-
+    
     
     device.proximityMonitoringEnabled = NO;
-
+    
     if(isEnd == YES)
         return;
     isEnd = YES;
@@ -830,9 +872,6 @@ typedef enum ECallbackStep
         [timer invalidate];
         timer = nil;
     }
-    
-    
-    [infoView setStatus:@"通话结束"];
     [[callMenuView buttonAtPosition:2] setSelected:NO];
     [[callMenuView buttonAtPosition:1] setSelected:NO];
     if (callLog.type == CALL_OUT && callSec == 0)
@@ -849,7 +888,7 @@ typedef enum ECallbackStep
         [UConfig setMissedCallCount:[NSString stringWithFormat:@"%zd",newCallCount]];
         [uApp.rootViewController.tabBarViewController updateNewCallCount:newCallCount];
     }
-
+    
     if([Util isEmpty:releaseReason] == NO &&
        (callLog.type == CALL_OUT ||
         callLog.type == CALL_Wifi_Direct_OUT ||
@@ -867,7 +906,7 @@ typedef enum ECallbackStep
             alertView.tag = KCallEnd_Common;
             [alertView show];
             return ;
-
+            
         }
     }
     else
@@ -883,20 +922,20 @@ typedef enum ECallbackStep
         [self AskInviteCaller];
     }
     else {
-        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+        
         CallerManager* manager = [CallerManager sharedInstance];
         if (manager.mySelf) {
             [manager.mySelf performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
-
+            
         }
-            }
+    }
 }
 
 
 -(void)onTimeout
 {
-//    static int count = 0;
-//    NSLog(@"CallViewController onTimeout count = %d", ++count);
+    //    static int count = 0;
+    //    NSLog(@"CallViewController onTimeout count = %d", ++count);
     CallerManager* manager = [CallerManager sharedInstance];
     if ([manager RequestCallerType] == RequestCallerType_Direct)
     {
@@ -907,9 +946,9 @@ typedef enum ECallbackStep
     {
         NSLog(@"CallViewController onTimeout callbackStep = %d", callbackStep);
         if (callbackStep == ECallbackStep_UnKnow) {
-//            static NSDate *redialDate;
+            //            static NSDate *redialDate;
             if (redialCount == 0) {
-//                redialDate = [NSDate date];
+                //                redialDate = [NSDate date];
                 
                 [self interfaceRefresh];
             }
@@ -919,16 +958,16 @@ typedef enum ECallbackStep
             }
             else if (redialCount>2)
             {
-//                NSDate *nowDate = [NSDate date];
-//                NSTimeInterval time=[nowDate timeIntervalSinceDate:redialDate];
-//                if (time<5*60) {
-//                    //当用户5分钟内连续重拨两次后
-//                    [self getCallBackFailInterface];
-//                }
-//                else
-//                {
-                    [self getCallBackFailInterface];
-//                }
+                //                NSDate *nowDate = [NSDate date];
+                //                NSTimeInterval time=[nowDate timeIntervalSinceDate:redialDate];
+                //                if (time<5*60) {
+                //                    //当用户5分钟内连续重拨两次后
+                //                    [self getCallBackFailInterface];
+                //                }
+                //                else
+                //                {
+                [self getCallBackFailInterface];
+                //                }
             }
             
         }
@@ -963,7 +1002,7 @@ typedef enum ECallbackStep
 //-(void)onPasswordChanged
 //{
 //    bPasswordChanged = YES;
-//    
+//
 //    [self endCall];
 //}
 
@@ -992,7 +1031,7 @@ typedef enum ECallbackStep
 {
     if([Util isEmpty:callNumber])
         return;
-
+    
     callLog.number = callNumber;
     callLog.duration = callSec;
     [uCore newTask:U_ADD_CALLLOG data:callLog];
@@ -1000,14 +1039,14 @@ typedef enum ECallbackStep
 
 -(void)addMsgLog:(NSString *)releaseReason
 {
-//    NSString *logID;
-//    NSString *number;//对应的号码，手机号或者呼应号
-//    UContact *contact;//号码对应的联系人
-//    int type;//calllog － CallType， MsgLog － MsgType
-//    double time;//log 产生纪录的时间
-//    int duration;//通话时长或者语音信息时长
-//    int numberLogCount;//本身号码对应的信息条数
-//    int contactLogCount;//所匹配的联系人对应的信息条数
+    //    NSString *logID;
+    //    NSString *number;//对应的号码，手机号或者呼应号
+    //    UContact *contact;//号码对应的联系人
+    //    int type;//calllog － CallType， MsgLog － MsgType
+    //    double time;//log 产生纪录的时间
+    //    int duration;//通话时长或者语音信息时长
+    //    int numberLogCount;//本身号码对应的信息条数
+    //    int contactLogCount;//所匹配的联系人对应的信息条数
     
     
     callLog.contact = [[ContactManager sharedInstance] getContact:callLog.number];
@@ -1031,24 +1070,46 @@ typedef enum ECallbackStep
         msg.uNumber = msg.contact.uNumber;
         msg.pNumber = msg.contact.pNumber;
     }
+    
+    
     if(isCallIn){
         msg.type = MSG_CALLLOG_RECV;
         if(callSec > 0){
             msg.content = [self getProgress];
-        }
-        else if(releaseReason.integerValue == RR_OK){
-            msg.content = [self getProgress];
-        }
-        else if (releaseReason == nil){
-            if (callSec > 0) {
+            [infoView setStatus:[NSString stringWithFormat:@"%@",callDuration]];
+            editMenuView.hidden = YES;
+            callMenuView.hidden = YES;
+            callinBottomBar.hidden = YES;
+            choiceView.hidden = NO;
+            leaveBtn.hidden = YES;
+            callBackBtn.hidden = YES;
+            callAdView.hidden = NO;
+            backBtn.frame = CGRectMake(150, 100, 50, 50);
+            
+        }else{
+            if(releaseReason.integerValue == RR_OK){
                 msg.content = [self getProgress];
             }
-            else {
+            else if (releaseReason == nil){
+                if (callSec > 0) {
+                    msg.content = [self getProgress];
+                }
+                else {
+                    msg.content = @"未接听";
+                }
+            }
+            else{
                 msg.content = @"未接听";
             }
-        }
-        else{
-            msg.content = @"未接听";
+            
+            [infoView setStatus:@"已拒绝"];
+            editMenuView.hidden = YES;
+            callMenuView.hidden = YES;
+            callinBottomBar.hidden = YES;
+            choiceView.hidden = NO;
+            [leaveBtn setTitle:@"语音留言" forState:UIControlStateNormal];
+            [callBackBtn setTitle:@"回电" forState:UIControlStateNormal];
+            
         }
     }
     else{
@@ -1056,29 +1117,47 @@ typedef enum ECallbackStep
         //call out
         if(callSec > 0){
             msg.content = [self getProgress];
-        }
-        else if (releaseReason.integerValue == RR_BUSY) {
-            msg.content = @"对方挂断";
-        }
-        else if(releaseReason.integerValue == RR_TIMEOUT)
-        {
-            //主叫超时，无人接听
-            msg.content = @"无人接听";
-        }
-        else if(releaseReason.integerValue == 1){
             msg.content = [self getProgress];
-        }
-        else {
-            msg.content = @"未接听";
+            [infoView setStatus:[NSString stringWithFormat:@"%@",callDuration]];
+            editMenuView.hidden = YES;
+            callMenuView.hidden = YES;
+            choiceView.hidden = NO;
+            leaveBtn.hidden = YES;
+            callBackBtn.hidden = YES;
+            callAdView.hidden = NO;
+            backBtn.frame = CGRectMake(150, 100, 50, 50);
+        }else{
+            if (releaseReason.integerValue == RR_BUSY) {
+                msg.content = @"对方挂断";
+                
+            }
+            else if(releaseReason.integerValue == RR_TIMEOUT)
+            {
+                //主叫超时，无人接听
+                msg.content = @"无人接听";
+            }
+            else if(releaseReason.integerValue == 1){
+                msg.content = [self getProgress];
+            }
+            else {
+                msg.content = @"未接听";
+            }
+            [infoView setStatus:@"未接通"];
+            editMenuView.hidden = YES;
+            callMenuView.hidden = YES;
+            choiceView.hidden = NO;
+            [leaveBtn setTitle:@"语音留言" forState:UIControlStateNormal];
+            [callBackBtn setTitle:@"重播" forState:UIControlStateNormal];
+            
         }
     }
     
     if (callLog.contact != nil && callLog.contact.isUCallerContact == YES) {
         
-         [[DataCore sharedInstance] doTask:U_ADD_MSGLOG data:msg];
+        [[DataCore sharedInstance] doTask:U_ADD_MSGLOG data:msg];
     }else{
         [[DataCore sharedInstance] doTask:U_ADD_STRANGERMSGLOG data:msg];
-
+        
     }
 }
 
@@ -1149,9 +1228,9 @@ typedef enum ECallbackStep
         UIButton *curButton = [callMenuView buttonAtPosition:index];
         [self setSpeaker:!curButton.selected];
         [curButton setSelected:!curButton.selected];
-
+        
     }
-    else if(index == 2){        
+    else if(index == 2){
         [self showContacts];
     }
 }
@@ -1286,17 +1365,17 @@ typedef enum ECallbackStep
                 controller.recipients = [NSArray arrayWithObject:number1];
                 controller.body = inviteContents;
                 controller.messageComposeDelegate = self;
-            
+                
                 [self presentModalViewController:controller animated:YES];
             }
             else {
                 //手机没有发短信能力
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示信息"
                                                                 message:@"设备没有短信功能"
-                                                                delegate:self
-                                                        cancelButtonTitle:nil
-                                                        otherButtonTitles:@"确定", nil];
-                    
+                                                               delegate:self
+                                                      cancelButtonTitle:nil
+                                                      otherButtonTitles:@"确定", nil];
+                
                 [alert show];
             }
         }
@@ -1319,7 +1398,7 @@ typedef enum ECallbackStep
             NSString *preMsg = [curContent.msg substringToIndex:numberRange.location];
             NSString *sufixMsg = [curContent.msg substringFromIndex:numberRange.location+numberRange.length];
             curContent.msg = [NSString stringWithFormat:@"%@%@%@",preMsg,[UConfig getUNumber],sufixMsg];
- 
+            
             //发送系统短信
             smsType = EInviteSmsType_TellFriend;
             if ([MFMessageComposeViewController canSendText]) {
@@ -1339,7 +1418,7 @@ typedef enum ECallbackStep
                                                       otherButtonTitles:@"确定", nil];
                 [alert show];
             }
-
+            
         }
         else {
             //取消发送邀请
@@ -1355,19 +1434,19 @@ typedef enum ECallbackStep
             return;
         }
         isEnd = YES;
-        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+//        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
     }
 }
 
 #pragma mark --- http回调
 -(void)dataManager:(HTTPManager *)dataManager dataCallBack:(HTTPDataSource *)theDataSource type:(RequestType)eType bResult:(BOOL)bResult
 {
-
+    
     if(!bResult)
     {
         return;
     }
-
+    
     if( eType == RequestCallback ) {
         if ( theDataSource.bParseSuccessed == YES ) {
             switch (theDataSource.nResultNum) {
@@ -1375,13 +1454,13 @@ typedef enum ECallbackStep
                 {
                     NSLog(@"回拨请求成功");
                     if(eType == RequestCallback) {
-//                        editMenuView.hidden = NO;
-//                        [editMenuView hideDialAndMenuBtn:YES End:NO EndEnabled:NO  Sure:YES RedialAndCancel:YES];
-//                        
-//                        [infoView showBgImgView:YES ImageStr:@"dialBack_readyCall"];
-//                        
-//                        infoView.status = @"系统将通过呼应号\n回拨到你的手机";
-//                        infoView.special = @"请准备接听";
+                        //                        editMenuView.hidden = NO;
+                        //                        [editMenuView hideDialAndMenuBtn:YES End:NO EndEnabled:NO  Sure:YES RedialAndCancel:YES];
+                        //
+                        //                        [infoView showBgImgView:YES ImageStr:@"dialBack_readyCall"];
+                        //
+                        //                        infoView.status = @"系统将通过呼应号\n回拨到你的手机";
+                        //                        infoView.special = @"请准备接听";
                         
                         [self performSelector:@selector(onTimeout) withObject:nil afterDelay:25.0];
                     }
@@ -1393,11 +1472,11 @@ typedef enum ECallbackStep
                     alertView.tag = callerError701;
                     [alertView show];
                 }break;
-                  
+                    
                 case 100305:
                 {
                     [self getCallBackFailInterface];
-
+                    
                 }break;
                     
                 case 100306:
@@ -1425,22 +1504,22 @@ typedef enum ECallbackStep
             if (!dataSrc.isRegister && ![self IsInvitedCaller]) {
                 [self setInviteCaller:YES];
             }
-//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//                //2.是否是通讯录好友
-//                UContact *pContact = [[ContactManager sharedInstance] getLocalContact:callNumber];
-//                if (pContact) {
-//                    //通讯录好友，挂机短信逻辑
-//                    if ( ![self IsInvitedCaller] ) [self setInviteCaller:YES];
-//                }
-//                else {
-//                    //3.往来通话记录 >= 3次
-//                    NSArray* log = [[CallLogManager sharedInstance] getCallLogsOfNumber:callNumber];
-//                    if ([log count] >= 2) {
-//                        //挂机短信逻辑
-//                        if ( ![self IsInvitedCaller] ) [self setInviteCaller:YES];
-//                    }
-//                }
-//            });//block
+            //            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            //                //2.是否是通讯录好友
+            //                UContact *pContact = [[ContactManager sharedInstance] getLocalContact:callNumber];
+            //                if (pContact) {
+            //                    //通讯录好友，挂机短信逻辑
+            //                    if ( ![self IsInvitedCaller] ) [self setInviteCaller:YES];
+            //                }
+            //                else {
+            //                    //3.往来通话记录 >= 3次
+            //                    NSArray* log = [[CallLogManager sharedInstance] getCallLogsOfNumber:callNumber];
+            //                    if ([log count] >= 2) {
+            //                        //挂机短信逻辑
+            //                        if ( ![self IsInvitedCaller] ) [self setInviteCaller:YES];
+            //                    }
+            //                }
+            //            });//block
         }
     }//eType == RequestCheckUser
     else if ( eType == RequestGiveGift) {
@@ -1467,7 +1546,7 @@ typedef enum ECallbackStep
     {
         if (theDataSource.bParseSuccessed && theDataSource.nResultNum ==1) {
             ActivitytipDataSource *activityTipDataSource = (ActivitytipDataSource *)theDataSource;
-        
+            
             shareContent.title   = activityTipDataSource.titleStr;
             shareContent.msg = activityTipDataSource.contentStr;
             NSString *imgUrlStr = activityTipDataSource.imgUrlStr;
@@ -1486,7 +1565,7 @@ typedef enum ECallbackStep
 
 -(void)callbackCallend
 {
-//    static BOOL isAddedCallLog = NO;
+    //    static BOOL isAddedCallLog = NO;
     __weak typeof(self)weakSelf = self;
     callCenter.callEventHandler = ^(CTCall *call) {
         NSLog(@"callviewcontroller callState = %@", call.callState);
@@ -1496,7 +1575,7 @@ typedef enum ECallbackStep
                 if (weakSelf.isEnd) {
                     return ;
                 }
-//                isAddedCallLog = YES;
+                //                isAddedCallLog = YES;
                 weakSelf.isEnd = YES;
                 if(weakSelf.callbackStep == ECallbackStep_UnKnow) {
                     weakSelf.callbackStep = ECallbackStep_Incoming;
@@ -1517,12 +1596,12 @@ typedef enum ECallbackStep
 -(void)showRefuseMessageActionSheet
 {
     UIActionSheet *actionSheet  = [[UIActionSheet alloc]
-                                           initWithTitle:nil
-                                           delegate:self
-                                           cancelButtonTitle:@"取消"
-                                           destructiveButtonTitle:nil
-                                           otherButtonTitles: RefuseMessage1, RefuseMessage2,RefuseMessage3,RefuseMessage4,nil];
-
+                                   initWithTitle:nil
+                                   delegate:self
+                                   cancelButtonTitle:@"取消"
+                                   destructiveButtonTitle:nil
+                                   otherButtonTitles: RefuseMessage1, RefuseMessage2,RefuseMessage3,RefuseMessage4,nil];
+    
     [actionSheet showInView:[UIApplication sharedApplication].keyWindow];
 }
 
@@ -1552,7 +1631,7 @@ typedef enum ECallbackStep
             number = buttonIndex;
         }
             break;
-        
+            
     }
     
     if ( number>=0 && number<=3 ) {
@@ -1592,7 +1671,7 @@ typedef enum ECallbackStep
             default:
                 break;
         }
-
+        
         //服务器下发短信
         [httpNewSendSms newSendSms:callNumber MessageType:phoneMessageType];
         
@@ -1658,12 +1737,12 @@ typedef enum ECallbackStep
         //大于5分钟
         msg = @"【邀请】此联系人，将赠送5分钟通话时长。";
     }
-        
+    
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
-                                                      message:msg
-                                                     delegate:self
-                                            cancelButtonTitle:@"取消"
-                                            otherButtonTitles:@"一键邀请", nil];
+                                                        message:msg
+                                                       delegate:self
+                                              cancelButtonTitle:@"取消"
+                                              otherButtonTitles:@"一键邀请", nil];
     alertView.tag = inviteCaller;
     [alertView show];
     
@@ -1682,11 +1761,11 @@ typedef enum ECallbackStep
         [callMenuView buttonAtPosition:0].imageView.alpha = 0.5f;
         [callMenuView buttonAtPosition:1].imageView.alpha = 0.5f;
         [callMenuView buttonAtPosition:2].imageView.alpha = 0.5f;
-
+        
         infoView.alpha = 0.5f;
         //动画结束
         [UIView commitAnimations];
-
+        
         [self performSelector:@selector(StartInviteCaller) withObject:nil afterDelay:interval];
     }
     else {
@@ -1706,7 +1785,7 @@ typedef enum ECallbackStep
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString* num = [Util getValidNumber:callNumber];
         if ( (num.length == 11 && [[num substringToIndex:1] isEqualToString:@"1"]) ||
-             (num.length == 12 && [[num substringToIndex:3] isEqualToString:@"01"])) {
+            (num.length == 12 && [[num substringToIndex:3] isEqualToString:@"01"])) {
             //1.手机号是否注册呼应
             [httpCheckUser checkUser:num];
             //2.获取挂机短信提示语
@@ -1752,62 +1831,62 @@ typedef enum ECallbackStep
     switch ( result ) {
             
         case MessageComposeResultCancelled:
-            {
-                //返回上一个界面
-                [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
-            }
+        {
+            //返回上一个界面
+            [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+        }
             break;
         case MessageComposeResultFailed:// send failed
-            {
-                if (EInviteSmsType_Gjdx == smsType) {
-                    if (isCouldInviteCaller) {
-                        [self AskInviteCaller];
-                    }
-                }
-                else if(EInviteSmsType_TellFriend == smsType) {
-                    [self SmsInviteOfFirstPhone];
+        {
+            if (EInviteSmsType_Gjdx == smsType) {
+                if (isCouldInviteCaller) {
+                    [self AskInviteCaller];
                 }
             }
+            else if(EInviteSmsType_TellFriend == smsType) {
+                [self SmsInviteOfFirstPhone];
+            }
+        }
             break;
         case MessageComposeResultSent:
-            {
-                if (EInviteSmsType_Gjdx == smsType) {
-                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                        
-                        NSString* number1 = nil;
-                        if(callNumber.length == 12) {
-                            number1 = [callNumber substringFromIndex:1];
-                        }
-                        else {
-                            number1 = callNumber;
-                        }
-                        
-                        //将邀请手机号加入挂机短信cache
-                        NSMutableDictionary* inviteNumbers = [NSKeyedUnarchiver unarchiveObjectWithFile:KInviteNumbersPath];
-                        if (inviteNumbers == nil) {
-                            inviteNumbers = [[NSMutableDictionary alloc] init];
-                        }
-                        NSMutableArray* numbers = [inviteNumbers objectForKey:[UConfig getPNumber]];
-                        
-                        
-                        if (numbers == nil) {
-                            numbers = [NSMutableArray arrayWithObject:number1];
-                        }
-                        else {
-                            [numbers addObject:number1];
-                        }
-                        
-                        [inviteNumbers setValue:numbers forKey:[UConfig getPNumber]];
-                        [NSKeyedArchiver archiveRootObject:inviteNumbers toFile:KInviteNumbersPath];
-                        //赠送挂机短信时长接口
-                        [httpGiveGift giveGift:@"4" andSubType:@"15" andInviteNumber:[NSArray arrayWithObject:callNumber]];
-                    });
-                }//type = gjdx
-                else if(EInviteSmsType_TellFriend == smsType) {
-                    [UConfig setSmsInvitedWithFirstReg:YES];
-                    [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
-                }
+        {
+            if (EInviteSmsType_Gjdx == smsType) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    
+                    NSString* number1 = nil;
+                    if(callNumber.length == 12) {
+                        number1 = [callNumber substringFromIndex:1];
+                    }
+                    else {
+                        number1 = callNumber;
+                    }
+                    
+                    //将邀请手机号加入挂机短信cache
+                    NSMutableDictionary* inviteNumbers = [NSKeyedUnarchiver unarchiveObjectWithFile:KInviteNumbersPath];
+                    if (inviteNumbers == nil) {
+                        inviteNumbers = [[NSMutableDictionary alloc] init];
+                    }
+                    NSMutableArray* numbers = [inviteNumbers objectForKey:[UConfig getPNumber]];
+                    
+                    
+                    if (numbers == nil) {
+                        numbers = [NSMutableArray arrayWithObject:number1];
+                    }
+                    else {
+                        [numbers addObject:number1];
+                    }
+                    
+                    [inviteNumbers setValue:numbers forKey:[UConfig getPNumber]];
+                    [NSKeyedArchiver archiveRootObject:inviteNumbers toFile:KInviteNumbersPath];
+                    //赠送挂机短信时长接口
+                    [httpGiveGift giveGift:@"4" andSubType:@"15" andInviteNumber:[NSArray arrayWithObject:callNumber]];
+                });
+            }//type = gjdx
+            else if(EInviteSmsType_TellFriend == smsType) {
+                [UConfig setSmsInvitedWithFirstReg:YES];
+                [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
             }
+        }
             break;
         default:
             break;
@@ -1827,9 +1906,9 @@ typedef enum ECallbackStep
                         
                     }
                     else {
-                         alertView = [[XAlertView alloc] initWithTitle:@"提示" message:@"请在设置->隐私->麦克风选项中打开呼应的语音权限。" delegate:self cancelButtonTitle:@"好的" otherButtonTitles:nil];
+                        alertView = [[XAlertView alloc] initWithTitle:@"提示" message:@"请在设置->隐私->麦克风选项中打开呼应的语音权限。" delegate:self cancelButtonTitle:@"好的" otherButtonTitles:nil];
                     }
-                   
+                    
                     alertView.tag = RecordPermission;
                     [alertView show];
                 });
@@ -1855,9 +1934,50 @@ typedef enum ECallbackStep
 
 -(void)onUIDeviceProximityStateDidChange
 {
-
+    
+}
+//重播  回拨
+- (void)callButtonPressed:(UIButton*)button
+{
+    
+    [self hideCallView];
+    [uApp.rootViewController addPanGes];
+    
+    if(![Util ConnectionState])
+    {
+        XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"呼叫失败" message:@"网络不可用，请检查您的网络，稍后再试！" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        [alertView show];
+        return;
+    }
+    CallerManager* manager = [CallerManager sharedInstance];
+    
+    [manager Caller:callNumber Contact:callLog.contact ParentView:self Forced:RequestCallerType_Unknow];
+    
 }
 
+
+-(void)speak{
+    
+    
+    ChatViewController *chatViewController = [[ChatViewController alloc] initWithContact:callLog.contact andNumber:callLog.contact.uNumber];
+    chatViewController.blackImage = [self screenView:self.view];
+    
+    self.view.hidden = YES;
+   // chatViewController.fromContactInfo = YES;
+    
+    
+//    UINavigationController *contactNav = [[UINavigationController alloc] initWithRootViewController:chatViewController];
+//    
+//    [self presentViewController:contactNav animated:YES completion:nil];
+  //  [contactNav pushViewController:chatViewController animated:NO];
+    
+    [[UAppDelegate uApp].rootViewController.navigationController pushViewController:chatViewController animated:YES];
+}
+
+
+- (void)closeAd{
+    [callAdView removeFromSuperview];
+}
 #pragma mark ---对callNumber类型的判断---
 -(BOOL)checkCallInNumberType:(numberSubtype)numberType
 {
@@ -1888,4 +2008,17 @@ typedef enum ECallbackStep
     return numType;
 }
 
+
+
+- (UIImage*)screenView:(UIView *)view{
+    CGRect rect = view.frame;
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    [view.layer renderInContext:context];
+    // [self.navigationController.view.layer renderInContext:context];
+    
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+}
 @end

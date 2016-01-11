@@ -1134,8 +1134,9 @@ typedef enum{
             [msgLogManager updateNewMsgCountOfUID:contact.uid];
             
             ChatViewController *chatViewController = [[ChatViewController alloc] initWithContact:contact andNumber:contact.uNumber];
+            chatViewController.blackImage = [self screenView:self.view];
             chatViewController.fromContactInfo = YES;
-            [self.navigationController pushViewController:chatViewController animated:YES];
+            [self.navigationController pushViewController:chatViewController animated:NO];
         }
     }
 }
@@ -2088,6 +2089,16 @@ typedef enum{
 }
 
 
+- (UIImage*)screenView:(UIView *)view{
+    CGRect rect = view.frame;
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    [view.layer renderInContext:context];
+   // [self.navigationController.view.layer renderInContext:context];
 
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+}
 
 @end

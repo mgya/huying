@@ -165,6 +165,8 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     UIButton *callBtn;
     UIButton *photoMaxBtn;
     
+    UIButton *leaveButton;
+    
     UIView *_scrollview;
     UIImageView *_imageview;
     CGRect oldFrame;
@@ -182,12 +184,14 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     
     HTTPManager *httpGiveGift;//签到
 
-    
+
     LongPressButton *speakButton;
-    
+    UILabel * timeLabel;
+    UILabel *cancelLabel;
 }
 
 @synthesize fromContactInfo;
+@synthesize fromCallView;
 
 - (id)initWithContact:(UContact *)aContact andNumber:(NSString *)aNumber
 {
@@ -345,6 +349,10 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     
     //添加右滑返回
     [UIUtil addBackGesture:self andSel:@selector(newPopBack:)];
+    
+    if (fromContactInfo) {
+        [self recBarButtonNow];
+    }
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -724,8 +732,6 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         addButtonContainer.backgroundColor = PAGE_BACKGROUND_COLOR;
         [self.view addSubview:addButtonContainer];
         
-        
-        CGFloat addContactBtnSub = KDeviceWidth-30;
         UIButton *addContactBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         addContactBtn.frame = CGRectMake((addButtonContainer.frame.size.width-558.0/2*KWidthCompare6)/2,(addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi, 558.0/2*KWidthCompare6, 34);
         addContactBtn.backgroundColor = PAGE_SUBJECT_COLOR;
@@ -733,6 +739,13 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         [addContactBtn addTarget:self action:@selector(callUNumber) forControlEvents:UIControlEventTouchUpInside];
         addContactBtn.titleLabel.textColor = [UIColor whiteColor];
         [addButtonContainer addSubview:addContactBtn];
+        
+        leaveButton = [[UIButton alloc]initWithFrame:CGRectMake(120, (addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi, 100, 34)];
+        leaveButton.backgroundColor = PAGE_SUBJECT_COLOR;
+        [leaveButton setTitle:@"语音留言" forState:UIControlStateNormal];
+        [leaveButton addTarget:self action:@selector(leaveMsg) forControlEvents:UIControlEventTouchUpInside];
+        leaveButton.titleLabel.textColor = [UIColor whiteColor];
+        [addButtonContainer addSubview:leaveButton];
         
         deleteView = [[UIView alloc] initWithFrame:CGRectMake(0, KDeviceHeight-49-(LocationY-LocationY), KDeviceWidth, 49)];
         [deleteView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"nav_Background.png"]]];
@@ -2254,17 +2267,11 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     if([self startRecord] == YES)
     {
         isSpeaking = YES;
-        speakDialog = [[CustomSpeakDialogView alloc] initWithView:self.view];
-        [speakDialog showInView:self.view];
         speakDuration = 0;
         speakTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(speakTimerFire) userInfo:nil repeats:YES];
-        [speakDialog setShowText:@"上划取消"];
-        [speakDialog setRecordImage:[UIImage imageNamed:@"recording_prompt"] andWithAnimation:YES andTimeAnimation:NO];
+        [speakButton setAnimation:@"animation"];
     }
-    else
-    {
-        //[audioSession setCategory:nil error:nil];
-    }
+
 }
 
 -(void)stopSpeak
@@ -2277,12 +2284,15 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     [speakDialog removeFromSuperview];
     [self stopRecord];
     if (speakDuration == 0) {
-        [self.view addSubview:speakDialog];
-        [speakDialog setShowText:@"时间太短"];
-        [speakDialog setTextBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"cancelSend_bg"]]];
-        [speakDialog setRecordImage:[UIImage imageNamed:@"time_little"] andWithAnimation:NO andTimeAnimation:YES];
-        [self performSelector:@selector(hideBanner:) withObject:speakDialog  afterDelay:1.0f];
-        return;
+        cancelLabel.text = @"时间太短";
+        
+        for (UIView * temp in [self.view subviews]) {
+            
+            if (temp.tag == 300) {
+                [self performSelector:@selector(hideBanner:) withObject:temp  afterDelay:1.0f];
+                return;
+            }
+        }
     }
     
     [self sendAudio];
@@ -2291,10 +2301,16 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     
     for (UIView * temp in [self.view subviews]) {
         
-        if (temp.tag == 200) {
-            temp.hidden = YES;
+        if (temp.tag == 300) {
+            [temp removeFromSuperview];
         }
     }
+    
+    if (fromContactInfo) {
+        [self popBack];
+    }
+
+
 }
 
 //added by yfCui
@@ -2308,33 +2324,46 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 -(void)setCancelRecordingState
 {
-    [speakDialog setShowText:@"已取消"];
-    [speakDialog setTextBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"cancelSend_bg"]]];
-    [speakDialog setRecordImage:[UIImage imageNamed:@"cancelSender_prompt"] andWithAnimation:NO andTimeAnimation:NO];
-    for (UIView * temp in [self.view subviews]) {
-        
-        if (temp.tag == 200) {
-            temp.hidden = YES;
-        }
-    }
+    
+    [speakButton stopAnimation];
+    
+    [speakButton setImage:[UIImage imageNamed:@"001"] forState:UIControlStateNormal];
+    cancelLabel.text = @"已取消";
+    [speakTimer invalidate];
+    
+    
 }
 
 -(void)cancelRecording
 {
-    if(speakDialog != nil)
-    {
-        [speakDialog removeFromSuperview];
-        speakDialog = nil;
-    }
+    
+    
+    
+//    if(speakDialog != nil)
+//    {
+//        [speakDialog removeFromSuperview];
+//        speakDialog = nil;
+//    }
     
     if(isSpeaking == NO)
         return;
     
     isSpeaking = NO;
-    
+    for (UIView * temp in [self.view subviews]) {
+        
+        if (temp.tag == 200 || temp.tag == 300) {
+            temp.hidden = YES;
+        }
+    }
+
+
     [speakTimer invalidate];
     [self stopRecord];
     
+    if (fromContactInfo) {
+        [self popBack];
+    }
+  
 }
 //end
 
@@ -2370,7 +2399,16 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         [chatBar.speakButton buttonTouchUpOutside];
     }
     speakDuration++;
-    [speakDialog setSeconds:[NSString stringWithFormat:@"%d秒",speakDuration]];
+//    [speakDialog setSeconds:[NSString stringWithFormat:@"%d秒",speakDuration]];
+    NSString * timeed;
+    if (speakDuration > 9) {
+        timeed = [[NSString alloc]initWithFormat:@"00:%d",speakDuration];
+    }else{
+        timeed = [[NSString alloc]initWithFormat:@"00:0%d",speakDuration];
+    }
+    
+    timeLabel.text = timeed;
+    
     
 }
 
@@ -2596,10 +2634,10 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     {
         return;
     }
-    [UIView beginAnimations:@"hideBanner" context:NULL];
-    view.alpha=0.0f;
-    [UIView setAnimationDuration:0.7];
-    [UIView commitAnimations];
+//    [UIView beginAnimations:@"hideBanner" context:NULL];
+//    view.alpha=0.0f;
+//    [UIView setAnimationDuration:0.7];
+//    [UIView commitAnimations];
     [view removeFromSuperview];
     //[view performSelector:@selector(removeFromSuperview) withObject:nil afterDelay:1.0f];
 }
@@ -2828,6 +2866,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 -(void)sound:(UITapGestureRecognizer*)sender{
     
     [[[sender view] superview] superview].hidden = YES;
+    [self recBarButtonNow];
 }
 //点击呼叫手机
 -(void)phone:(UITapGestureRecognizer*)sender{
@@ -3407,7 +3446,12 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         [self.navigationController popToRootViewControllerAnimated:YES];
         self.isbackRoot = NO;
     }else{
-        [self.navigationController popViewControllerAnimated:YES];
+        if (fromContactInfo) {
+             [self.navigationController popViewControllerAnimated:NO];
+        }else{
+             [self.navigationController popViewControllerAnimated:YES];
+        }
+       
 
     }
 }
@@ -3474,24 +3518,47 @@ if (eType == RequestGiveGift)
 
 -(void)recBarButtonNow{
     
+
+    UIImageView * blackImageView = [[UIImageView alloc]initWithFrame:self.view.bounds];
+    if (_blackImage) {
+        blackImageView.image = _blackImage;
+    }else{
+        [[UIColor lightGrayColor] colorWithAlphaComponent:0.01];
+    }
+    blackImageView.userInteractionEnabled = YES;
+    [self.view addSubview:blackImageView];
+    blackImageView.tag = 300;
+    
+    
     UITapGestureRecognizer *soundTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideRec:)];
     UIView * mainView = [[UIView alloc]initWithFrame:self.view.bounds];
     mainView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.5];
-    [self.view addSubview:mainView];
+
+    [blackImageView addSubview:mainView];
     mainView.userInteractionEnabled = YES;
     [mainView addGestureRecognizer:soundTap];
     mainView.tag = 200;
     
-//    speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth - 100)/2, (KDeviceHeight - 100)/3*2, 100, 100)];
-//    speakButton.backgroundColor = [UIColor yellowColor];
-//    [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
-//    [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
-//    [mainView addSubview:speakButton];
+
+    timeLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth - 100)/2, (KDeviceHeight - 100)/3, 100, 50)];
+    timeLabel.backgroundColor = [UIColor yellowColor];
+    timeLabel.textAlignment = NSTextAlignmentCenter;
+    timeLabel.text = @"00:00";
+    [mainView addSubview:timeLabel];
+    
+    cancelLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth - 200)/2, timeLabel.frame.origin.y + timeLabel.frame.size.height, 200, 50)];
+    cancelLabel.textAlignment = NSTextAlignmentCenter;
+    cancelLabel.text = @"手指上滑，取消发送";
+    [mainView addSubview:cancelLabel];
+    
     
     speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth - 100)/2, (KDeviceHeight - 100)/3*2, 100, 100)];
-    speakButton.backgroundColor = [UIColor yellowColor];
     [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
     [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+    UIImage * image = [UIImage imageNamed:@"animation1"];
+    [speakButton setImage:image forState:UIControlStateNormal];
+    
+    
     speakButton.delegate = self;
     [mainView addSubview:speakButton];
     
@@ -3499,9 +3566,12 @@ if (eType == RequestGiveGift)
 
 -(void)hideRec:(UITapGestureRecognizer*)sender{
     [sender view].hidden = YES;
+    [sender view].superview.hidden = YES;
+    if (fromContactInfo) {
+        [self popBack];
+    }
 
 }
-
 
 
 @end

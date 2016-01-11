@@ -23,9 +23,14 @@
 @interface ChatViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate,ChatBarDelegate,AVAudioRecorderDelegate,AVAudioPlayerDelegate,UIAlertViewDelegate,EGORefreshTableHeaderDelegate,ChatCellDelegate,UIActionSheetDelegate,GlobalDelegate,recordDelegate,AudioBoxDelegate,callBarBtnDelegate,UIGestureRecognizerDelegate,mapViewDelegate,MsgRelayContactCellDelegate,HTTPManagerControllerDelegate,LongPressedDelegate>
 
 @property (nonatomic,assign) BOOL fromContactInfo;
+@property (nonatomic,assign)BOOL fromCallView;
 
 @property (nonatomic,assign)BOOL isbackRoot;
 
+@property(nonatomic,strong)UIImage *blackImage;
+
+
 -(id)initWithContact:(UContact *)contact andNumber:(NSString *)number;
+
 
 @end

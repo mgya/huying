@@ -46,9 +46,13 @@
 @end
 
 
-@interface LongPressButton ()
+@interface LongPressButton (){
+    NSTimer * mytimer;
+}
 @property(nonatomic,strong)UIButton *button;
 @property(nonatomic,strong)NSMutableDictionary  *targetDictonary;
+
+@property(nonatomic,assign)NSInteger time;
 @end
 
 @implementation LongPressButton
@@ -237,5 +241,32 @@
     
 }
 
+
+-(void)setAnimation:(NSString*)imageName{
+    
+    if (!mytimer) {
+        mytimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(runImage) userInfo:nil repeats:YES];
+    }
+
+      _time = 0;
+
+}
+
+-(void)stopAnimation{
+    [mytimer invalidate];
+}
+
+-(void)runImage{
+    
+    NSInteger jishu = _time%4+1;
+    NSString *name = [[NSString alloc]initWithFormat:@"animation%zd",jishu ];
+    
+    UIImage * p = [UIImage imageNamed:name];
+    
+    [self setImage:p forState:UIControlStateNormal];
+    
+    _time ++;
+    
+}
 
 @end
