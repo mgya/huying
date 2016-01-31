@@ -863,6 +863,10 @@ PBOOL PChannel::ConvertOSError(int err, Errors & lastError, int & osError)
 {
     osError = (err >= 0) ? 0 : errno;
     
+    if(osError != 0){
+        U_WARN_("osError is " << osError << " ");
+    }
+    
     switch (osError) {
         case 0 :
             lastError = NoError;

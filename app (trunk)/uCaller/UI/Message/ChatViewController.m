@@ -46,12 +46,16 @@
 #import "TimeBiViewController.h"
 
 #import "GiveGiftDataSource.h"
+#import "ShareContent.h"
+#import "AfterLoginInfoDataSource.h"
 
 
 
 #define TAG_ACTIONSHEET_DELETE 100
 #define TAG_ACTIONSHEET_CLEAR 101
 #define TAB_ACTIONSHEET_EDITPHO 102
+#define TAB_ACTIONSHEET_SEND 103
+
 
 #define INIT_LOGS_COUNT 25
 #define MORE_LOGS_COUNT 10
@@ -124,7 +128,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     NSURL *recordFileURL;
     NSTimer *speakTimer;
     
-    CustomSpeakDialogView *speakDialog;
+  //  CustomSpeakDialogView *speakDialog;
     
     int speakDuration;
     
@@ -183,15 +187,28 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     CGAffineTransform _transform;
     
     HTTPManager *httpGiveGift;//签到
+    HTTPManager *getShareHttp;
+    HTTPManager *getAfterInfoHttp;
 
 
     LongPressButton *speakButton;
-    UILabel * timeLabel;
     UILabel *cancelLabel;
+    float r;
+    UIView * animationView;
+    NSTimer * animationTimer;
+    UILabel * timeLabel;
+    UILabel * titleLabel;
+    UIImageView * microphoneImgView;
+    
+    BOOL isSendLeaveMsgs;
+    ShareContent *shareContent;
+    NSString *smsContent;
+
+
 }
 
 @synthesize fromContactInfo;
-@synthesize fromCallView;
+@synthesize fromCallVC;
 
 - (id)initWithContact:(UContact *)aContact andNumber:(NSString *)aNumber
 {
@@ -216,6 +233,14 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         
         allMsgLogsMap = [[NSMutableDictionary alloc] init];
         
+        getShareHttp = [[HTTPManager alloc]init];
+        getShareHttp.delegate = self;
+        
+        getAfterInfoHttp = [[HTTPManager alloc]init];
+        getAfterInfoHttp.delegate = self;
+        
+        shareContent = [[ShareContent alloc]init];
+        
         isSpeaking = NO;
         
         recvNewMsg = NO;
@@ -223,6 +248,8 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         contactsShow = NO;
         
         self.isbackRoot = NO;
+        
+        isSendLeaveMsgs = NO;
         
         NSString *cachesPaths = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
         NSString *filePaths = [cachesPaths stringByAppendingPathComponent:[NSString stringWithFormat:@"Photo/%@",[UConfig getPhotoURL]]];
@@ -345,14 +372,20 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     
     self.view.backgroundColor = PAGE_BACKGROUND_COLOR;
     
-    [self loadChatView];
     
+    speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth)/4, KDeviceHeight - 40, 100, 50)];
+    [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
+    [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+    speakButton.delegate = self;
+    speakButton.backgroundColor = [UIColor clearColor];
+
+
+    [self loadChatView];
+    [self.view addSubview:speakButton];
     //添加右滑返回
     [UIUtil addBackGesture:self andSel:@selector(newPopBack:)];
     
-    if (fromContactInfo) {
-        [self recBarButtonNow];
-    }
+    
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -365,6 +398,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     if ([contact.uNumber isEqualToString: @"950137900001"]) {
         callBtn.hidden = YES;
         infoBtn.hidden = YES;
+        speakButton.hidden = YES;
     }else{
         callBtn.hidden = NO;
         infoBtn.hidden = NO;
@@ -696,10 +730,9 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 -(void)hideKeyBoard
 {
-    //    if([chatBar.inputTextView isFirstResponder])
-    //    {
+
     [chatBar.inputTextView resignFirstResponder];
-    // }
+
 }
 
 -(void)loadChatView
@@ -728,22 +761,33 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         chatBar = [[ChatBar alloc] initFromView:self.view];
         chatBar.delegate = self;
         
-        addButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(chatBar.frame.origin.x, KDeviceHeight-chatBar.frame.size.height-(LocationY-LocationY), KDeviceWidth, chatBar.frame.size.height)];
+        addButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(chatBar.frame.origin.x, KDeviceHeight-50, KDeviceWidth, 50)];
         addButtonContainer.backgroundColor = PAGE_BACKGROUND_COLOR;
         [self.view addSubview:addButtonContainer];
         
         UIButton *addContactBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        addContactBtn.frame = CGRectMake((addButtonContainer.frame.size.width-558.0/2*KWidthCompare6)/2,(addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi, 558.0/2*KWidthCompare6, 34);
+       
+        if (IPHONE6plus) {
+            addContactBtn.frame = CGRectMake(10*KWidthCompare6,(addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi,(KDeviceWidth-30*KWidthCompare6)/2, 30*KWidthCompare6);
+        }else{
+             addContactBtn.frame = CGRectMake(10*KWidthCompare6,(addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi,(KDeviceWidth-30*KWidthCompare6)/2, 40*KWidthCompare6);
+        }
         addContactBtn.backgroundColor = PAGE_SUBJECT_COLOR;
         [addContactBtn setTitle:@"免费电话" forState:UIControlStateNormal];
+        addContactBtn.layer.cornerRadius = 8;
         [addContactBtn addTarget:self action:@selector(callUNumber) forControlEvents:UIControlEventTouchUpInside];
         addContactBtn.titleLabel.textColor = [UIColor whiteColor];
         [addButtonContainer addSubview:addContactBtn];
         
-        leaveButton = [[UIButton alloc]initWithFrame:CGRectMake(120, (addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi, 100, 34)];
+        if (IPHONE6plus) {
+            leaveButton = [[UIButton alloc]initWithFrame:CGRectMake(addContactBtn.frame.origin.x+addContactBtn.frame.size.width+10*KWidthCompare6,(addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi, (KDeviceWidth-30*KWidthCompare6)/2, 30*KWidthCompare6)];
+        }else{
+            leaveButton = [[UIButton alloc]initWithFrame:CGRectMake(addContactBtn.frame.origin.x+addContactBtn.frame.size.width+10*KWidthCompare6,(addButtonContainer.frame.size.height-34)/2-LocationYWithoutNavi, (KDeviceWidth-30*KWidthCompare6)/2, 40*KWidthCompare6)];
+        }
         leaveButton.backgroundColor = PAGE_SUBJECT_COLOR;
         [leaveButton setTitle:@"语音留言" forState:UIControlStateNormal];
-        [leaveButton addTarget:self action:@selector(leaveMsg) forControlEvents:UIControlEventTouchUpInside];
+        leaveButton.layer.cornerRadius = 8;
+//        [leaveButton addTarget:self action:@selector(closeKey) forControlEvents:UIControlEventTouchUpInside];
         leaveButton.titleLabel.textColor = [UIColor whiteColor];
         [addButtonContainer addSubview:leaveButton];
         
@@ -837,9 +881,11 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     else
     {
         title = number;
-        
+        chatTableView.frame = CGRectMake(0,LocationY, KDeviceWidth, KDeviceHeight-LocationY-50);
         chatBar.hidden = YES;
         addButtonContainer.hidden = NO;
+        
+        [speakButton setFrame:CGRectMake(addButtonContainer.frame.origin.x + addButtonContainer.frame.size.width/2, addButtonContainer.frame.origin.y, addButtonContainer.frame.size.width/2, addButtonContainer.frame.size.height)];
     }
     
     self.navTitleLabel.text = title;
@@ -978,6 +1024,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         loadedMsgLogs = [msgLogManager getMsgLogsByUID:contact.uid];
     }
     else if([Util isEmpty:number] == NO)
+        
     {
 
         loadedMsgLogs = [msgLogManager getMsgLogsByNumber:number];
@@ -1063,14 +1110,27 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
                 MsgLog *preMsg = [msgLogs objectAtIndex:index-1];
                 if((msg.time - preMsg.time)<60*60*24){
                     audioBoxCell.isShowTime = NO;
-                    lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeight;
+                    if (IPHONE4) {
+                        lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeight+30;
+                    }else{
+                        lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeight;
+                    }
                 }
                 else {
-                    lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+                    if (IPHONE4) {
+                        lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime+30;
+                    }else{
+                        lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+                    }
                 }
             }
             else {
-                lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+                if (IPHONE4) {
+                    lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime+30;
+                }else{
+                    lineHeight = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+
+                }
             }
             
             audioBoxCell.lineHeight = lineHeight;
@@ -1241,7 +1301,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
                 }
                 
                 CGRect cellFrame = [chatCell frame];
-                cellFrame.origin = CGPointMake(0, 0);
+             //   cellFrame.origin = CGPointMake(0, 0);
                 cellFrame.size.height = cellHeight;
                 [chatCell setFrame:cellFrame];
 
@@ -1513,14 +1573,28 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
             if (index > 0) {
                 MsgLog *preMsg = [msgLogs objectAtIndex:index-1];
                 if((msg.time - preMsg.time)<60*60*24){
-                    height = self.view.frame.size.height * KCoefficient_AudioBoxHeight;/*274/1334.0 为@2x系数*/
+                    if (IPHONE4) {
+                        height = self.view.frame.size.height * KCoefficient_AudioBoxHeight+30;/*274/1334.0 为@2x系数*/
+                    }else{
+                        height = self.view.frame.size.height * KCoefficient_AudioBoxHeight;/*274/1334.0 为@2x系数*/
+                    }
                 }
                 else {
-                    height = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+                    if (IPHONE4) {
+                        height = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime+30;
+                    }else{
+                        height = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+                    }
                 }
             }
             else {
-                height = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+                if (IPHONE4) {
+                    height = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime+30;
+
+                }else{
+                    height = self.view.frame.size.height * KCoefficient_AudioBoxHeightWithTime;
+
+                }
             }
             
         }
@@ -1928,7 +2002,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 {
     if(contact != nil && isEdit == NO)
     {
-        if(fromContactInfo)
+        if(fromContactInfo || fromCallVC)
         {
             [self popBack];
         }
@@ -2075,11 +2149,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 -(void)sendAudio
 {
-    if(![contact hasUNumber])
-    {
-        [XAlert showAlert:@"提示" message:@"不能给好友之外的人发送信息" buttonText:@"确定"];
-        return;
-    }
+
     NSString *filePath = [recordFileURL path];
     
     MsgLog *msg = [[MsgLog alloc] init];
@@ -2089,12 +2159,28 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     msg.status = MSG_SENT;
     msg.time = [[NSDate date] timeIntervalSince1970];
     msg.duration = speakDuration;
-    msg.logContactUID = contact.uid;
-    msg.number = contact.uNumber;
-    msg.msgType = 1;
     msg.fileType = @"amr";
+    msg.isSendLeaveMsg = isSendLeaveMsgs;
     
-    [uCore newTask:U_SEND_MSG data:msg];
+    if (contact == nil && contact.type != CONTACT_LOCAL && contact.type != CONTACT_uCaller) {
+       // msg.logContactUID = number;
+        msg.number = number;
+        msg.msgType = 3;
+        [uCore newTask:U_ADD_STRANGERMSGLOG data:msg];
+    }else{
+        if (contact.uid.length == 0 || contact.uNumber.length == 0 || contact.type == CONTACT_Unknow || contact.type == CONTACT_Recommend) {
+           // msg.logContactUID = number;
+            msg.number = number;
+            msg.msgType = 3;
+            [uCore newTask:U_ADD_STRANGERMSGLOG data:msg];
+        }else{
+            msg.logContactUID = contact.uid;
+            msg.number = contact.uNumber;
+            msg.msgType = 1;
+        }
+    }
+
+   [uCore newTask:U_SEND_MSG data:msg];
     
     [allMsgLogsMap setObject:msg forKey:msg.logID];
     [msgLogs addObject:msg];
@@ -2107,11 +2193,11 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 #pragma mark - MsgBar Delegate Methods
 -(void)sendText:(NSString *)content
 {
-    if(![contact hasUNumber])
-    {
-        [XAlert showAlert:@"提示" message:@"不能给好友之外的人发送信息" buttonText:@"确定"];
-        return;
-    }
+//    if(![contact hasUNumber])
+//    {
+//        [XAlert showAlert:@"提示" message:@"不能给好友之外的人发送信息" buttonText:@"确定"];
+//        return;
+//    }
     if((contact == nil) && [Util isEmpty:number])
     {
         [XAlert alert:@"提醒" message:@"接收人号码不能为空" buttonText:@"确定" isError:YES];
@@ -2258,6 +2344,10 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     if(isSpeaking)
         return;
     
+    
+    [self showSendVIew];
+
+    
     if(playMsg != nil)
     {
         [self stopPlay];
@@ -2269,7 +2359,6 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         isSpeaking = YES;
         speakDuration = 0;
         speakTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(speakTimerFire) userInfo:nil repeats:YES];
-        [speakButton setAnimation:@"animation"];
     }
 
 }
@@ -2279,56 +2368,79 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     if(isSpeaking == NO)
         return;
     isSpeaking = NO;
+
+
     
     [speakTimer invalidate];
-    [speakDialog removeFromSuperview];
+  //  [speakDialog removeFromSuperview];
     [self stopRecord];
     if (speakDuration == 0) {
-        cancelLabel.text = @"时间太短";
+        titleLabel.text = @"时间太短";
         
         for (UIView * temp in [self.view subviews]) {
             
-            if (temp.tag == 300) {
+            if (temp.tag == 1000) {
                 [self performSelector:@selector(hideBanner:) withObject:temp  afterDelay:1.0f];
                 return;
             }
         }
     }
     
-    [self sendAudio];
-    speakDuration = 0;
+    if (contact.hasUNumber == YES || number.length != 11) {
+        [self sendAudio];
+    }else{
+        
+        if ([[number substringAtIndex:0] isEqualToString:@"0"]) {
+            [self sendAudio];
+
+        }else{
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"" message:@"留言已录制，发送短信通知对方将更快收到回复，是否发送？" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"取消",nil];
+            alertView.tag = 55;
+            [alertView show];
+        }
+
+
+    }
+
     
     
     for (UIView * temp in [self.view subviews]) {
         
-        if (temp.tag == 300) {
+        if (temp.tag == 1000) {
             [temp removeFromSuperview];
         }
     }
-    
-    if (fromContactInfo) {
-        [self popBack];
-    }
-
 
 }
-
+//实现浮动banner消失的动画效果
+-(void)hideBanner:(id)who
+{
+    UIView *view=(UIView*)who;//[map viewWithTag:TAG_V_POIINFO];
+    if(view == nil)
+    {
+        return;
+    }
+    
+    [view removeFromSuperview];
+}
 //added by yfCui
 -(void)setRecordingState
 {
-    [speakDialog setShowText:@"上划取消1"];
-    [speakDialog setRecordImage:[UIImage imageNamed:@"recording_prompt"] andWithAnimation:YES andTimeAnimation:NO];
-    [speakDialog setTextBackgroundColor:[UIColor clearColor]];
-    
+//    [speakDialog setShowText:@"上划取消1"];
+//    [speakDialog setRecordImage:[UIImage imageNamed:@"recording_prompt"] andWithAnimation:YES andTimeAnimation:NO];
+//    [speakDialog setTextBackgroundColor:[UIColor clearColor]];
+//    
 }
 
 -(void)setCancelRecordingState
 {
-    
-    [speakButton stopAnimation];
-    
-    [speakButton setImage:[UIImage imageNamed:@"001"] forState:UIControlStateNormal];
-    cancelLabel.text = @"已取消";
+    if (animationTimer) {
+        [animationTimer invalidate];
+        animationTimer = nil;
+    }
+    [animationView setFrame:CGRectMake(0, 0, 0, 0)];
+    microphoneImgView.image = [UIImage imageNamed:@"sendcancle"];
+    titleLabel.textColor = [UIColor colorWithRed:0xff/255.0 green:0x59/255.0 blue:0x6d/255.0 alpha:1.0];
     [speakTimer invalidate];
     
     
@@ -2336,23 +2448,15 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 -(void)cancelRecording
 {
-    
-    
-    
-//    if(speakDialog != nil)
-//    {
-//        [speakDialog removeFromSuperview];
-//        speakDialog = nil;
-//    }
-    
+        
     if(isSpeaking == NO)
         return;
     
     isSpeaking = NO;
     for (UIView * temp in [self.view subviews]) {
         
-        if (temp.tag == 200 || temp.tag == 300) {
-            temp.hidden = YES;
+        if (temp.tag == 1000) {
+            [temp removeFromSuperview];
         }
     }
 
@@ -2360,9 +2464,9 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     [speakTimer invalidate];
     [self stopRecord];
     
-    if (fromContactInfo) {
-        [self popBack];
-    }
+//    if (fromContactInfo||fromCallVC) {
+//        [self popBack];
+//    }
   
 }
 //end
@@ -2393,7 +2497,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
             recordingView = nil;
         }
 #endif
-        [speakDialog setShowText:@"语音时长已经超过60秒!"];
+    //    [speakDialog setShowText:@"语音时长已经超过60秒!"];
         [self showUpdateTimeBanner:@"语音时长已经超过60秒!" withbannerFrame:CGRectMake(120, 200, 80, 80)];
         //[self stopSpeak];
         [chatBar.speakButton buttonTouchUpOutside];
@@ -2502,7 +2606,11 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     audioRecorder = nil;
     
     uApp.inRecord = NO;
-    //Added by huah in 2013-12-10
+    
+    if (animationTimer) {
+        [animationTimer invalidate];
+        animationTimer = nil;
+    }    //Added by huah in 2013-12-10
     //[audioSession setCategory:nil error:nil];
 }
 
@@ -2626,22 +2734,6 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     
 }
 
-//实现浮动banner消失的动画效果
--(void)hideBanner:(id)who
-{
-    UIView *view=(UIView*)who;//[map viewWithTag:TAG_V_POIINFO];
-    if(view == nil)
-    {
-        return;
-    }
-//    [UIView beginAnimations:@"hideBanner" context:NULL];
-//    view.alpha=0.0f;
-//    [UIView setAnimationDuration:0.7];
-//    [UIView commitAnimations];
-    [view removeFromSuperview];
-    //[view performSelector:@selector(removeFromSuperview) withObject:nil afterDelay:1.0f];
-}
-
 #pragma mark - GlobalDelegate Methods
 -(void)onResignActive
 {
@@ -2689,8 +2781,17 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
             [self openPhoLibray];
             
         }
+    }else if(actionSheet.tag == TAB_ACTIONSHEET_SEND){
+        if (buttonIndex == 0) {
+            [self tel];
+        }else if(buttonIndex == 1){
+            if (contact.isLocalContact)
+            {
+                [self phone];
+            }              
+        }
     }
-
+ 
 }
 
 //点击编辑按钮时触发
@@ -2775,70 +2876,21 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 -(void)closeInput{
     [chatBar.inputTextView resignFirstResponder];
+    UIActionSheet *editHeadActionSheet;
     
-    UITapGestureRecognizer *guiClose = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(bgClose:)];
-    
-    UIView * bgView = [[UIView alloc]initWithFrame:self.view.bounds];
-    bgView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.05];
-    [self.view addSubview:bgView];
-    bgView.userInteractionEnabled = YES;
-    bgView.tag = 1000;
-    [bgView addGestureRecognizer:guiClose];
-    
-    NSInteger width = 200;
-    NSInteger hight = 300;
-    
-    UIView * guideView = [[UIView alloc]initWithFrame:CGRectMake((KDeviceWidth - width)/2, (KDeviceHeight - hight)/2, width, hight)];
-    guideView.backgroundColor = [UIColor yellowColor];
-    [bgView addSubview:guideView];
-    
-    guideView.layer.borderWidth = 1 ;
-    guideView.layer.borderColor = [UIColor redColor].CGColor;
-    
-
-    
-    UITapGestureRecognizer *telTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tel:)];
-    UILabel * telView = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, guideView.frame.size.width, guideView.frame.size.height/3)];
-    telView.text = @"免费电话";
-    telView.font = [UIFont systemFontOfSize:32];
-    telView.textAlignment = NSTextAlignmentCenter;
-    telView.layer.borderWidth = 1 ;
-    telView.layer.borderColor = [UIColor redColor].CGColor;
-    [guideView addSubview:telView];
-    telView.userInteractionEnabled = YES;
-    [telView addGestureRecognizer:telTap];
-    
-    
-    
-    UITapGestureRecognizer *soundTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(sound:)];
-    UILabel * soundView = [[UILabel alloc]initWithFrame:CGRectMake(0, telView.frame.size.height-1, guideView.frame.size.width, guideView.frame.size.height/3)];
-    soundView.text = @"语音留言";
-    soundView.font = [UIFont systemFontOfSize:32];
-    soundView.textAlignment = NSTextAlignmentCenter;
-    soundView.layer.borderWidth = 1 ;
-    soundView.layer.borderColor = [UIColor redColor].CGColor;
-    [guideView addSubview:soundView];
-    soundView.userInteractionEnabled = YES;
-    [soundView addGestureRecognizer:soundTap];
-    
-    
-    //是否为本地联系人
-    if (contact.isLocalContact) {
-        UITapGestureRecognizer *phoneTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(phone:)];
-        UILabel * phoneView = [[UILabel alloc]initWithFrame:CGRectMake(0, soundView.frame.size.height-1+soundView.frame.origin.y, guideView.frame.size.width, guideView.frame.size.height/3)];
-        phoneView.text = @"呼叫手机号";
-        phoneView.font = [UIFont systemFontOfSize:32];
-        phoneView.textAlignment = NSTextAlignmentCenter;
-        [guideView addSubview:phoneView];
-        phoneView.userInteractionEnabled = YES;
-        [phoneView addGestureRecognizer:phoneTap];
+    if (contact.isLocalContact){
+        editHeadActionSheet  = [[UIActionSheet alloc]
+                                               initWithTitle:nil
+                                               delegate:self
+                                               cancelButtonTitle:@"取消"
+                                               destructiveButtonTitle:nil
+                                               otherButtonTitles: @"免费电话",@"呼叫手机号",nil];
     }else{
-        [guideView setFrame:CGRectMake((KDeviceWidth - width)/2, (KDeviceHeight - hight)/2, width, hight/3*2)]   ;
-        guideView.layer.borderWidth = 0 ;
+        [self tel];
     }
-    
-    
-    
+
+    editHeadActionSheet.tag = TAB_ACTIONSHEET_SEND;
+    [editHeadActionSheet showInView:[UIApplication sharedApplication].keyWindow];
 }
 
 //点击空白背景关闭
@@ -2848,33 +2900,19 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 
 //点击免费电话
--(void)tel:(UITapGestureRecognizer*)sender{
+-(void)tel{
     
-    [[[sender view] superview] superview].hidden = YES;
-    
-    if(![Util ConnectionState])
-    {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"呼叫失败" message:@"网络不可用，请检查您的网络，稍后再试！" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            [alertView show];
-            return;
-    }
     CallerManager* manager = [CallerManager sharedInstance];
-    [manager Caller:contact.number Contact:contact ParentView:nil Forced:RequestCallerType_Unknow];
+    [manager Caller:number Contact:contact ParentView:nil Forced:RequestCallerType_Unknow];
 
 }
 //点击留言
--(void)sound:(UITapGestureRecognizer*)sender{
-    
-    [[[sender view] superview] superview].hidden = YES;
-    [self recBarButtonNow];
-}
+//-(void)sound:(UITapGestureRecognizer*)sender{
+//    
+//    [[[sender view] superview] superview].hidden = YES;
+//}
 //点击呼叫手机
--(void)phone:(UITapGestureRecognizer*)sender{
-    
-    [[[sender view] superview] superview].hidden = YES;
-    
-    
-    [[[sender view] superview] superview].hidden = YES;
+-(void)phone{
     
     if(![Util ConnectionState])
     {
@@ -3382,11 +3420,11 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
 
 #pragma mark - MapView Delegate Methods
 -(void)locationInfo:(NSString*)address location:(CLLocationCoordinate2D)coor{
-    if(![contact hasUNumber])
-    {
-        [XAlert showAlert:@"提示" message:@"不能给好友之外的人发送信息" buttonText:@"确定"];
-        return;
-    }
+//    if(![contact hasUNumber])
+//    {
+//        [XAlert showAlert:@"提示" message:@"不能给好友之外的人发送信息" buttonText:@"确定"];
+//        return;
+//    }
     if((contact == nil) && [Util isEmpty:number])
     {
         [XAlert alert:@"提醒" message:@"接收人号码不能为空" buttonText:@"确定" isError:YES];
@@ -3448,7 +3486,10 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     }else{
         if (fromContactInfo) {
              [self.navigationController popViewControllerAnimated:NO];
-        }else{
+        }else if (fromCallVC){
+            [self dismissModalViewControllerAnimated:NO];
+        }
+        else{
              [self.navigationController popViewControllerAnimated:YES];
         }
        
@@ -3495,7 +3536,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
         progressHud = nil;
     }
     
-if (eType == RequestGiveGift)
+    if (eType == RequestGiveGift)
     {
         //签到
         DailyAttendanceViewController *dailyViewController = [[DailyAttendanceViewController alloc] init];
@@ -3510,67 +3551,139 @@ if (eType == RequestGiveGift)
         }
         
     }
-
+    if (eType == RequestAfterLoginInfo) {
+         AfterLoginInfoDataSource *leaveMsgdataSource = (AfterLoginInfoDataSource *)theDataSource;
+        if(leaveMsgdataSource.nResultNum == 1 && leaveMsgdataSource.bParseSuccessed)
+        {
+            smsContent = leaveMsgdataSource.leaveCallMsg;
+            if ([smsContent isEqualToString:@""] || smsContent == nil) {
+                smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+            }
+            
+        }else{
+            smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+        }
+        
+        [Util sendInvite:[NSArray arrayWithObject:number] from:self andContent:smsContent];
+    }
 }
 
 
 #pragma mark---录音界面---
 
--(void)recBarButtonNow{
-    
-
-    UIImageView * blackImageView = [[UIImageView alloc]initWithFrame:self.view.bounds];
-    if (_blackImage) {
-        blackImageView.image = _blackImage;
-    }else{
-        [[UIColor lightGrayColor] colorWithAlphaComponent:0.01];
-    }
-    blackImageView.userInteractionEnabled = YES;
-    [self.view addSubview:blackImageView];
-    blackImageView.tag = 300;
-    
-    
-    UITapGestureRecognizer *soundTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideRec:)];
-    UIView * mainView = [[UIView alloc]initWithFrame:self.view.bounds];
-    mainView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.5];
-
-    [blackImageView addSubview:mainView];
-    mainView.userInteractionEnabled = YES;
-    [mainView addGestureRecognizer:soundTap];
-    mainView.tag = 200;
-    
-
-    timeLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth - 100)/2, (KDeviceHeight - 100)/3, 100, 50)];
-    timeLabel.backgroundColor = [UIColor yellowColor];
-    timeLabel.textAlignment = NSTextAlignmentCenter;
-    timeLabel.text = @"00:00";
-    [mainView addSubview:timeLabel];
-    
-    cancelLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth - 200)/2, timeLabel.frame.origin.y + timeLabel.frame.size.height, 200, 50)];
-    cancelLabel.textAlignment = NSTextAlignmentCenter;
-    cancelLabel.text = @"手指上滑，取消发送";
-    [mainView addSubview:cancelLabel];
-    
-    
-    speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth - 100)/2, (KDeviceHeight - 100)/3*2, 100, 100)];
-    [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
-    [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
-    UIImage * image = [UIImage imageNamed:@"animation1"];
-    [speakButton setImage:image forState:UIControlStateNormal];
-    
-    
-    speakButton.delegate = self;
-    [mainView addSubview:speakButton];
-    
-}
 
 -(void)hideRec:(UITapGestureRecognizer*)sender{
     [sender view].hidden = YES;
     [sender view].superview.hidden = YES;
-    if (fromContactInfo) {
+    if (fromContactInfo || fromCallVC) {
         [self popBack];
     }
 
+}
+
+
+
+-(void)ShowAnimation:(NSTimer*)timer{
+    
+    UIView * sendView = (UIView*)timer.userInfo;
+    [animationView setFrame:CGRectMake(sendView.frame.size.width/2-r/2, 168*KWidthCompare6+125*KWidthCompare6/2-r/2, r, r)];
+    UIColor * color = [UIColor colorWithRed:0 green:0 blue:0 alpha:1];
+    animationView.backgroundColor = [color colorWithAlphaComponent:0.5-((r > 125?r:290)/290)/2];
+    animationView.layer.cornerRadius = r/2;
+    r++;
+    if (r > 290) {
+        r = 0;
+    }
+}
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (alertView.tag == 55) {
+        if (buttonIndex == 0) {
+            isSendLeaveMsgs = NO;
+            [self sendAudio];
+            [self ToSendLeaveMsg];
+        }else{
+            isSendLeaveMsgs = YES;
+            [self sendAudio];
+        }
+        
+    }
+}
+- (void)ToSendLeaveMsg{
+    
+    [getAfterInfoHttp getAfterLoginInfo];
+    
+}
+-(void)showSendVIew{
+    
+    
+    UIView * sendView = [[UIView alloc]initWithFrame:CGRectMake((KDeviceWidth - 300*KWidthCompare6)/2, KDeviceHeight-519*KWidthCompare6, 300*KWidthCompare6, 400*KWidthCompare6)];
+    sendView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.0];
+    sendView.tag = 1000;
+    [self.view addSubview:sendView];
+    
+    if (!animationView) {
+        animationView = [[UIView alloc]init];
+    }
+    [animationView setFrame:CGRectMake(0, 0, 0, 0)];
+    [sendView addSubview:animationView];
+    r = 0;
+    speakDuration = 0;
+    animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.005 target:self
+                                                    selector:@selector(ShowAnimation:) userInfo:sendView repeats:YES];
+    microphoneImgView = [[UIImageView alloc]initWithFrame:CGRectMake(sendView.frame.size.width/2 - 125*KWidthCompare6/2, 168*KWidthCompare6, 125*KWidthCompare6, 125*KWidthCompare6)];
+    microphoneImgView.tag = 1001;
+    UIImage * microphoneImg = [UIImage imageNamed:@"Microphone"];
+    microphoneImgView.image = microphoneImg;
+    [sendView addSubview:microphoneImgView];
+    
+    
+    UIView * title = [[UIView alloc]initWithFrame:CGRectMake(sendView.frame.size.width/2 - 110*KWidthCompare6,microphoneImgView.frame.size.height + microphoneImgView.frame.origin.y + 35*KWidthCompare6 ,220*KWidthCompare6,71*KWidthCompare6)];
+    title.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7];
+    title.layer.cornerRadius = 71*KWidthCompare6/2;
+    [sendView addSubview:title];
+    
+    if (timeLabel == nil) {
+        timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 15*KWidthCompare6, title.frame.size.width, 20)];
+    }
+    timeLabel.font = [UIFont systemFontOfSize:18];
+    timeLabel.text = @"00:00";
+    timeLabel.textAlignment = NSTextAlignmentCenter;
+    timeLabel.textColor = [UIColor whiteColor];
+    [title addSubview:timeLabel];
+    
+    titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, title.frame.size.height -  31*KWidthCompare6, title.frame.size.width, 16*KWidthCompare6)];
+    titleLabel.text = @"手指上滑，取消发送";
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.textColor = [UIColor whiteColor];
+    [title addSubview:titleLabel];
+    
+    
+}
+
+
+- (void)messageComposeViewController :(MFMessageComposeViewController *)controller didFinishWithResult :( MessageComposeResult)result
+{
+    // Notifies users about errors associated with the interface
+    switch (result)
+    {
+            
+        case MessageComposeResultCancelled:
+            break;
+        case MessageComposeResultSent:
+        {
+
+        }
+            break;
+        case MessageComposeResultFailed:
+            break;
+        default:
+            break;
+    }
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(void)recBarButtonNow{
+    [chatBar.inputTextView resignFirstResponder];
 }
 
 

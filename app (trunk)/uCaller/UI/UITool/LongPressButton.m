@@ -75,7 +75,7 @@
         maxHeight = self.superview.bounds.size.height-105 ;
         minHeight = self.superview.bounds.size.height - 290;
         
-        maxWidth = 100;
+        maxWidth = KDeviceWidth;
         minWidth = 0;
         
 //        maxWidth = 250;
@@ -91,7 +91,19 @@
         [self.button addTarget:self action:@selector(buttonTouchUpOutside) forControlEvents:UIControlEventTouchUpOutside];
         [self.button addTarget:self action:@selector(buttonTouchDown) forControlEvents:UIControlEventTouchDown];
         [self.button setFrame:self.bounds];
+        self.button.titleLabel.font = [UIFont systemFontOfSize:16];
+        
+        [self.button setTitleEdgeInsets:UIEdgeInsetsMake(0, 12, 0, 0)];
+        
+
         [self addSubview:self.button];
+        
+        
+        
+     //   [self.button setTitleEdgeInsets:UIEdgeInsetsMake(0, 10, 18, 0)];
+        
+        
+        
         
         //added by cui
         UILongPressGestureRecognizer *longPress =
@@ -244,11 +256,11 @@
 
 -(void)setAnimation:(NSString*)imageName{
     
-    if (!mytimer) {
-        mytimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(runImage) userInfo:nil repeats:YES];
-    }
+    
+        UIImage * p = [UIImage imageNamed:imageName];
+    
+        [self setImage:p forState:UIControlStateNormal];
 
-      _time = 0;
 
 }
 
@@ -258,14 +270,14 @@
 
 -(void)runImage{
     
-    NSInteger jishu = _time%4+1;
-    NSString *name = [[NSString alloc]initWithFormat:@"animation%zd",jishu ];
-    
-    UIImage * p = [UIImage imageNamed:name];
-    
-    [self setImage:p forState:UIControlStateNormal];
-    
-    _time ++;
+//    NSInteger jishu = _time%4+1;
+//    NSString *name = [[NSString alloc]initWithFormat:@"animation%zd",jishu ];
+//    
+//    UIImage * p = [UIImage imageNamed:name];
+//    
+//    [self setImage:p forState:UIControlStateNormal];
+//    
+//    _time ++;
     
 }
 

@@ -38,5 +38,6 @@
 @interface WebViewController : BaseViewController<UIWebViewDelegate,TellFriendsVCDelegate,HTTPManagerControllerDelegate,IAPDelegate>
 
 @property (nonatomic,strong) NSString *webUrl;
+@property (nonatomic,assign) BOOL fromDismissModal;//dismissModal过来的。
 
 @end

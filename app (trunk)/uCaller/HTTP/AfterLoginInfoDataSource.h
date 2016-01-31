@@ -14,10 +14,13 @@
 @property (nonatomic,strong) NSString *signRuleUrl;
 @property (nonatomic,strong) NSString *qiangPiaoHelpUrl;
 
+
 +(AfterLoginInfoData *)sharedInstance;
 
 @end
 
 @interface AfterLoginInfoDataSource : HTTPDataSource
+
+@property (nonatomic,strong) NSString *leaveCallMsg;
 
 @end

@@ -58,6 +58,8 @@
 @synthesize lon;
 @synthesize lat;
 
+@synthesize isSendLeaveMsg;
+
 
 
 -(void)parseContent{

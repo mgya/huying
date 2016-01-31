@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import <MessageUI/MessageUI.h>
 #import "UAppDelegate.h"
 #import "UDefine.h"
 #import "BaseViewController.h"
@@ -20,10 +20,10 @@
 #import "MapViewController.h"
 #import "MesToXMPPContactViewController.h"
 
-@interface ChatViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate,ChatBarDelegate,AVAudioRecorderDelegate,AVAudioPlayerDelegate,UIAlertViewDelegate,EGORefreshTableHeaderDelegate,ChatCellDelegate,UIActionSheetDelegate,GlobalDelegate,recordDelegate,AudioBoxDelegate,callBarBtnDelegate,UIGestureRecognizerDelegate,mapViewDelegate,MsgRelayContactCellDelegate,HTTPManagerControllerDelegate,LongPressedDelegate>
+@interface ChatViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate,ChatBarDelegate,AVAudioRecorderDelegate,AVAudioPlayerDelegate,UIAlertViewDelegate,EGORefreshTableHeaderDelegate,ChatCellDelegate,UIActionSheetDelegate,GlobalDelegate,recordDelegate,AudioBoxDelegate,callBarBtnDelegate,UIGestureRecognizerDelegate,mapViewDelegate,MsgRelayContactCellDelegate,HTTPManagerControllerDelegate,LongPressedDelegate,MFMessageComposeViewControllerDelegate>
 
 @property (nonatomic,assign) BOOL fromContactInfo;
-@property (nonatomic,assign)BOOL fromCallView;
+@property (nonatomic,assign) BOOL fromCallVC;
 
 @property (nonatomic,assign)BOOL isbackRoot;
 

@@ -103,7 +103,7 @@
         adButton.hidden = YES;
         [adView addSubview:adButton];
         
-        makeCallsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0,LocationY + adView.frame.size.height, self.view.frame.size.width,KDeviceHeight) style:UITableViewStylePlain];
+        makeCallsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0,LocationY + adView.frame.size.height * KHeightCompare6, self.view.frame.size.width,KDeviceHeight) style:UITableViewStylePlain];
         [self showAdsContents:[GetAdsContentDataSource sharedInstance].taskArray];
         [self.view addSubview:adView];
         

@@ -1023,7 +1023,7 @@ void UMPSession::InternalLogout(E_ResultReason reason) {
 	switch (_stateMonitor.GetState()) {
 
 	case e_online:
-        _umpsEventSink.ForceEndCall(*this, reason);
+        //_umpsEventSink.ForceEndCall(*this, reason);
         _stateMonitor.SetState(e_offline);
 		_umpsEventSink.OnLogout(*this, reason);
 		break;
@@ -1080,6 +1080,7 @@ void UMPSession::OnResolved(AsyncNameResolver & /*anr*/, PBOOL success,
 	} else {
 		InternalLogout(e_r_invalidAddress);
 	}
+    U_INFO("set _serverNameToResove empty");
 	_serverNameToResove = "";
 }
 

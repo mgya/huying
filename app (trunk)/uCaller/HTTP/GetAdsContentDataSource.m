@@ -7,6 +7,7 @@
 //
 
 #import "GetAdsContentDataSource.h"
+#import "uconfig.h"
 
 @implementation GetAdsContentDataSource
 
@@ -65,8 +66,8 @@ static GetAdsContentDataSource * sharedInstance = nil;
     NSMutableArray *signCenterArray = [[NSMutableArray alloc]init];
     NSMutableArray *hotArry = [[NSMutableArray alloc]init];
     NSMutableArray *msgArray = [[NSMutableArray alloc]init];
-
     
+
     DDXMLElement *itemsElement = [rspElement elementForName:@"items"];
     NSArray *itemsArray = [itemsElement nodesForXPath :@"adds" error:nil];
     for (DDXMLElement *itemsObj in itemsArray) {
@@ -113,8 +114,12 @@ static GetAdsContentDataSource * sharedInstance = nil;
             NSString * ivrImgUrl = [itemsObj elementForName:@"imgurl"].stringValue;
             NSString * ivrWebUrl    = [itemsObj elementForName:@"url"].stringValue;
             NSString * ivrTitle =   [itemsObj elementForName:@"title"].stringValue;
-            NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:ivrImgUrl,@"ImageUrl",ivrWebUrl,@"Url",ivrTitle,@"ivrTitle", nil];
-            [ivrArray addObject:adsDict];
+            NSString * ivrDesc =   [itemsObj elementForName:@"desc"].stringValue;
+            NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:ivrImgUrl,@"ImageUrl",ivrWebUrl,@"Url",ivrTitle,@"ivrTitle", ivrDesc,@"ivrDesc" ,nil];
+            if (![UConfig getVersionReview]) {
+                [ivrArray addObject:adsDict];
+            }
+            
         }else if([typeName isEqualToString:@"sign"] &&
                     [subtypeName isEqualToString:@"top"]){
             //2.2.1及以上版本的“签到”界面的轮播条
@@ -148,6 +153,10 @@ static GetAdsContentDataSource * sharedInstance = nil;
             NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:adsImgUrl,@"ImageUrl",adsUrl,@"Url", jumptype,@"jumptype",nil];
             [hotArry addObject:adsDict];
             
+        } else  if([typeName isEqualToString:@"callrelease"] &&
+                    [subtypeName isEqualToString:@"center"]){
+            _urlCallrelease = [itemsObj elementForName:@"imgurl"].stringValue;
+            _imgUrlCallrelease    = [itemsObj elementForName:@"url"].stringValue;
         }
     }
     

@@ -7,7 +7,7 @@
 //
 
 
-#define  CHATBAR_HEIGHT 100
+#define  CHATBAR_HEIGHT 85
 #define  CHATBUTTON_WIDTH 34
 
 #define MAX_TEXT_NUMBER 2000

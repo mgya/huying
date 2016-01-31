@@ -24,6 +24,7 @@
 #import "TabBarViewController.h"
 #import "SearchExtendContactContainer.h"
 
+
 #define MAIN_VIEW_HEIGHT 345
 
 @interface ContactViewController (Private)

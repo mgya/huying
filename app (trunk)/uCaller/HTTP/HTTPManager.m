@@ -83,6 +83,7 @@
 #import "GetAccountBalanceDataSource.h"
 #import "UserDurationtransDataSource.h"
 #import "GetreserveaddressDataSource.h"
+#import "MsgLog.h"
 
 #define POST_URL @"http://pes.yxhuying.com:9999/httpservice"
 #define TOKEN_URL @"http://redirect.yxhuying.com:780/getlogintoken1"
@@ -1129,6 +1130,7 @@ static NSString *domainUrl = nil;
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"uid", @"Name", [UConfig getUID], @"Value", nil]];
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"v", @"Name", UCLIENT_UPDATE_VER, @"Value", nil]];
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"at",@"Name",[UConfig getAToken],@"Value",nil]];
+    
     [self sendHTTPRequest:params : SIGN_KEY_VERSION];
 }
 
@@ -1703,13 +1705,41 @@ static NSString *domainUrl = nil;
     _eType = RequestSendAudioMediaMsg;
     self.dataSource = [[SendMediaMsgDataSource alloc] init];
     self.dataSource.dataParams = dataParams;
+
     
     NSMutableArray *params = [[NSMutableArray alloc] init];
-    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"cmd",@"Name",@"msg_sendmediamsg",@"Value",nil]];
+    
+    if (recevierUid.length > 10) {
+        
+
+
+        if([[recevierUid substringToIndex:1] isEqualToString:@"s"]){
+            [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"receiver",@"Name",            [recevierUid substringFromIndex:1],@"Value",nil]];
+            
+        }else{
+
+            [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"receiver",@"Name",recevierUid,@"Value",nil]];
+        }
+        
+        
+        [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"cmd",@"Name",@"msg_sendmediamsgbyphone",@"Value",nil]];
+        [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"type",@"Name",@"4",@"Value",nil]];
+        [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"caller",@"Name",[UConfig getUNumber],@"Value",nil]];
+
+        MsgLog *msg = (MsgLog*)dataParams;
+        [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"isSms", @"Name", [NSString stringWithFormat:@"%d", msg.isSendLeaveMsg], @"Value", nil]];
+        
+    }else{
+        [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"cmd",@"Name",@"msg_sendmediamsg",@"Value",nil]];
+        [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"type",@"Name",@"2",@"Value",nil]];
+        [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"recevieruid",@"Name",recevierUid,@"Value",nil]];
+    }
+
+    
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"uid",@"Name",[UConfig getUID],@"Value",nil]];
-    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"recevieruid",@"Name",recevierUid,@"Value",nil]];
-    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"type",@"Name",@"2",@"Value",nil]];
-    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"duration", @"Name", [NSString stringWithFormat:@"%ld", duration], @"Value", nil]];
+
+
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"duration", @"Name", [NSString stringWithFormat:@"%zd", duration], @"Value", nil]];
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"filetype", @"Name", @"amr", @"Value", nil]];
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"v", @"Name", UCLIENT_UPDATE_VER, @"Value", nil]];
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"format", @"Name", @"json", @"Value", nil]];

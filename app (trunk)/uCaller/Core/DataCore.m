@@ -721,8 +721,16 @@ static DataCore *sharedInstance = nil;
                     msg.subData = wavFilePath;
                     msg.duration = dataSource.duration;
                     msg.fileType = dataSource.fileType;
-                    if(msg.content == nil && msg.content.length <= 0){
-                        msg.content = [NSString stringWithFormat:@"%d\"",msg.duration];
+                    if(msg.content == nil || msg.content.length <= 0){
+                        msg.content = [NSString stringWithFormat:@"来自%@的留言",dataSource.caller];
+                    }
+                    
+                    if (msg.number == nil || msg.number.length == 0) {
+                        msg.number = dataSource.caller;
+                    }
+                                     
+                    if (msg.nickname == nil || msg.nickname.length == 0) {
+                        msg.nickname = dataSource.caller;
                     }
                 }
                 
@@ -1376,6 +1384,16 @@ static DataCore *sharedInstance = nil;
                             [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadWithName:KAdsContent object:nil userInfo:notifyInfo];
                         }
                         
+                        
+                        //获取挂机广告图片，并显示
+                        url = [NSURL URLWithString:adsDataSource.urlCallrelease];
+                        imageData = [NSData dataWithContentsOfURL:url];
+                        image = [UIImage imageWithData:imageData];
+                        if (image != nil) {
+                            adsDataSource.imgCallrelease = image;
+                        }
+
+                    
                         //发现轮播条
                         for(NSMutableDictionary *adsDict in adsDataSource.adsArray)
                         {
@@ -1443,8 +1461,6 @@ static DataCore *sharedInstance = nil;
                         [notifyInfo setValue:adsDataSource.msgArray forKey:KValue];
                         [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadWithName:KAdsContent object:nil userInfo:notifyInfo];
                     }
-
-
 
                 });//dispatch_async
                 

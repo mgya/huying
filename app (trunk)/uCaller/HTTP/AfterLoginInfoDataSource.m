@@ -67,6 +67,8 @@ static AfterLoginInfoData * sharedInstance = nil;
         
         if ([keyName isEqualToString:@"signrule"]) {
             afterLoginData.signRuleUrl = urlStr;
+        }else if ([keyName isEqualToString:@"media_sms_content"]){
+            self.leaveCallMsg = urlStr;
         }else{
             afterLoginData.qiangPiaoHelpUrl = urlStr;
         }

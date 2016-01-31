@@ -51,6 +51,8 @@ typedef enum
     Gjdx                           = 15,//挂机短信
     /* 下面为自定义，与server无关 */
     QQOAuth                        = 16,
+    
+    Mediasms                       = 17,//留言短信
 
 }SharedType;//当前分享得类型
 typedef enum SharedType SharedAndGivegiftType;
@@ -86,7 +88,7 @@ typedef enum
 #define UCLIENT_UPDATE_CHANNEL  @"800"
 #define UCLIENT_VER_CODE 2
 
-#define UCLIENT_INFO_CLIENT_INSIDE ([NSString stringWithFormat:@"uCaller for iOS V%@.%@-b100",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
+#define UCLIENT_INFO_CLIENT_INSIDE ([NSString stringWithFormat:@"uCaller for iOS V%@.%@-b104",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 #define UCLIENT_INFO ([NSString stringWithFormat:@"uCaller for iOS V%@.%@",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 #define UCLIENT_UPDATE_VER ([NSString stringWithFormat:@"%@.%@",UCLIENT_APP_VER, UCLIENT_UPDATE_CHANNEL])
 
@@ -133,8 +135,10 @@ typedef enum
 #define KTabBarHeight 49.0f
 #define NAV 64.0f
 #define NAVI_HEIGHT 44
+//#define NAVI_MARGINS (12)
+//#define NAVI_BACK_FRAME (CGRectMake(NAVI_MARGINS, 0, 24, 44))
 #define NAVI_MARGINS (12)
-#define NAVI_BACK_FRAME (CGRectMake(NAVI_MARGINS, 0, 12, 44))
+#define NAVI_BACK_FRAME (CGRectMake(0, 0, 50, 44))
 
 #define SCHOOLNUMBERMAX 20 //学校上传字数限制
 
@@ -440,6 +444,7 @@ typedef enum
 #define KTENCENT @"tencent"//腾讯微博
 #define KSMS @"sms"//邀请联系人
 #define KSMSNotice @"smsnotice"//告诉朋友
+#define KMEDIASMS @"mediasms"  //留言推送短信
 
 #define KMissedCallCount @"missedCallCount"
 #define TAG_PASSWORD_CHANGED 600//客户端密码修改时提示

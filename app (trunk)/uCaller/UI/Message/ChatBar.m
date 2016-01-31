@@ -59,25 +59,37 @@
         
         
         //发送按钮
-        sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        sendButton.backgroundColor= [UIColor clearColor];
+        sendButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        sendButton.frame =  CGRectMake(KDeviceWidth-80*KWidthCompare6,6,70*KWidthCompare6,34);
+        sendButton.backgroundColor= [UIColor colorWithRed:217.0/255.0 green:217.0/255.0 blue:217.0/255.0 alpha:1.0];
         [sendButton setTitle:@"发送" forState:UIControlStateNormal];
-        [sendButton setTitleColor:[UIColor colorWithRed:0/255.0 green:161/255.0 blue:253.0/255.0 alpha:1.0] forState:UIControlStateNormal];
-        sendButton.titleLabel.font = [UIFont systemFontOfSize:13];
-        sendButton.enabled=NO;
+        [sendButton setTitleColor:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
+        sendButton.layer.cornerRadius = 5.0;
+        sendButton.titleLabel.font = [UIFont systemFontOfSize:15];
         [sendButton addTarget:self action:@selector(sendButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        sendButton.frame =  CGRectMake(KDeviceWidth-80*KWidthCompare6,10,80*KWidthCompare6,24);
         [self addSubview:sendButton];
+
+        UIImage *faceImage = [UIImage imageNamed:@"msg_face_keyboard"];
+        //        CGFloat faceBtnWidthMargin = self.bounds.size.width-inputTextView.frame.origin.x-inputTextView.frame.size.width-60.0-faceImage.size.width;
+        faceButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        faceButton.frame = CGRectMake(inputTextView.frame.size.width-24-5*KWidthCompare6,4,26,26);
+        [faceButton setBackgroundImage:faceImage forState:UIControlStateNormal];
+        [faceButton setBackgroundImage:[UIImage imageNamed:@"msg_face_keyboard_sel"] forState:UIControlStateHighlighted];
+        [faceButton addTarget:self action:@selector(faceBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [faceButton setTitle:@"1" forState:UIControlStateReserved];
+        [inputTextView addSubview:faceButton];
         
-        NSArray *picNameNor = [NSArray arrayWithObjects:@"more_call_nor",@"more_call_nor",@"more_msg_nor",@"more_card_nor",@"more_location_nor",@"msg_face_keyboard_sel" ,nil];
-        NSArray *picNameSel = [NSArray arrayWithObjects:@"more_call_sel",@"more_call_sel",@"more_msg_sel",@"more_card_sel",@"more_location_sel",@"msg_face_keyboard_sel",nil];
+
+        
+        NSArray *picNameNor = [NSArray arrayWithObjects:@"more_msg_nor",@"more_card_nor",@"more_location_nor" ,nil];
+        NSArray *picNameSel = [NSArray arrayWithObjects:@"more_msg_sel",@"more_card_sel",@"more_location_sel",nil];
         
         moreView = [[UIView alloc]initWithFrame:CGRectMake(0, inputTextView.frame.origin.y+inputTextView.frame.size.height+10,KDeviceWidth, 45*KWidthCompare6)];
         [self addSubview:moreView];
         
-        for (int i = 0; i<6; i++) {
-            if (i == 1) {
-                speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
+        for (int i = 0; i<5; i++) {
+            if (i == 0 || i == 1) {
+                speakButton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*5)/6+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*5)/6)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
                 speakButton.delegate = self;
                 [speakButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
                 [speakButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
@@ -85,18 +97,9 @@
                 [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
                 [moreView addSubview:speakButton];
             }
-            else if (i == 5){
-                
-                faceButton = [UIButton buttonWithType:UIButtonTypeCustom];
-                faceButton.frame = CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6);
-                [faceButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
-                [faceButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
-                [faceButton addTarget:self action:@selector(faceBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-                [faceButton setTitle:@"1" forState:UIControlStateReserved];
-                [moreView addSubview:faceButton];
-            }
+            
             else{
-                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
+                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*5)/6+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*5)/6)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
                 [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
                 [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
                 choiceBtn.tag = i;
@@ -139,7 +142,7 @@
         superView = aSuperView;
         
         //可以自适应高度的文本输入框
-        inputTextView = [[UIExpandingTextView alloc] initWithFrame:CGRectMake(10*KWidthCompare6,6,558.0/2*KWidthCompare6, 34)];
+        inputTextView = [[UIExpandingTextView alloc] initWithFrame:CGRectMake(10*KWidthCompare6,6,556.0/2*KWidthCompare6, 34)];
         if(iOS7)
         {
             //modified by huah in 2014-04-12
@@ -159,57 +162,62 @@
         faceBoard = [[FaceBoard alloc] init];
 
         //发送按钮
-        sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        sendButton.backgroundColor= [UIColor clearColor];
+        sendButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        sendButton.frame =  CGRectMake(KDeviceWidth-80*KWidthCompare6,6,70*KWidthCompare6,34);
+        sendButton.backgroundColor= [UIColor colorWithRed:217.0/255.0 green:217.0/255.0 blue:217.0/255.0 alpha:1.0];
         [sendButton setTitle:@"发送" forState:UIControlStateNormal];
-        [sendButton setTitleColor:[UIColor colorWithRed:0/255.0 green:161/255.0 blue:253.0/255.0 alpha:1.0] forState:UIControlStateNormal];
-        sendButton.titleLabel.font = [UIFont systemFontOfSize:13];
+        [sendButton setTitleColor:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
+        sendButton.layer.cornerRadius = 5.0;
+        sendButton.titleLabel.font = [UIFont systemFontOfSize:15];
         [sendButton addTarget:self action:@selector(sendButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        sendButton.frame =  CGRectMake(KDeviceWidth-80*KWidthCompare6,10,80*KWidthCompare6,24);
         [self addSubview:sendButton];
         
-        NSArray *picNameNor = [NSArray arrayWithObjects:@"more_call_nor",@"more_call_nor",@"more_msg_nor",@"more_card_nor",@"more_location_nor",@"msg_face_keyboard_sel" ,nil];
-        NSArray *picNameSel = [NSArray arrayWithObjects:@"more_call_sel",@"more_call_sel",@"more_msg_sel",@"more_card_sel",@"more_location_sel",@"msg_face_keyboard_sel",nil];
+        UIImage *faceImage = [UIImage imageNamed:@"msg_face_keyboard"];
+        //        CGFloat faceBtnWidthMargin = self.bounds.size.width-inputTextView.frame.origin.x-inputTextView.frame.size.width-60.0-faceImage.size.width;
+        faceButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        faceButton.frame = CGRectMake(inputTextView.frame.size.width-24-5*KWidthCompare6,4,26,26);
+        [faceButton setBackgroundImage:faceImage forState:UIControlStateNormal];
+        [faceButton setBackgroundImage:[UIImage imageNamed:@"msg_face_keyboard_sel"] forState:UIControlStateHighlighted];
+        [faceButton addTarget:self action:@selector(faceBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [faceButton setTitle:@"1" forState:UIControlStateReserved];
+        [inputTextView addSubview:faceButton];
+
         
-        moreView = [[UIView alloc]initWithFrame:CGRectMake(0, inputTextView.frame.origin.y+inputTextView.frame.size.height+10, KDeviceWidth, 45*KWidthCompare6)];
+        NSArray * titleName = [NSArray arrayWithObjects:@"打电话",@"语音留言",nil];
+        NSArray *picNameNor = [NSArray arrayWithObjects:@"more_msg_nor",@"more_card_nor",@"more_location_nor" ,nil];
+        NSArray *picNameSel = [NSArray arrayWithObjects:@"more_msg_sel",@"more_card_sel",@"more_location_sel",nil];
+        
+        moreView = [[UIView alloc]initWithFrame:CGRectMake(0, inputTextView.frame.origin.y+inputTextView.frame.size.height+10, KDeviceWidth, 35)];
+        moreView.backgroundColor = [UIColor clearColor];
         [self addSubview:moreView];
         
-        for (int i = 0; i<6; i++) {
-            if (i == 1) {
-
-                newSpeakButton = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,50, 45*KWidthCompare6, 45*KWidthCompare6)];
-
-                [newSpeakButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
-                [newSpeakButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
-                newSpeakButton.tag = 5;
-                [newSpeakButton addTarget:self action:@selector(moreClicked:) forControlEvents:UIControlEventTouchUpInside];
-                
-                
-                
-//                [speakButton addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
-//                [speakButton addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
-                [self addSubview:newSpeakButton];
-
-            }
-            else if (i == 5){
-                
-                faceButton = [UIButton buttonWithType:UIButtonTypeCustom];
-                faceButton.frame = CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6);
-                [faceButton setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
-                [faceButton setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
-                [faceButton addTarget:self action:@selector(faceBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-                [faceButton setTitle:@"1" forState:UIControlStateReserved];
-                [moreView addSubview:faceButton];
+        CGSize btnBtnFrame;
+        btnBtnFrame.width = (KDeviceWidth-231-20*KWidthCompare6)/4;
+       
+        for (int i = 0; i<5; i++) {
+            if (i == 0 || i == 1) {
+                UIButton *callButton = [[UIButton alloc]initWithFrame:CGRectMake(10*KWidthCompare6 + (btnBtnFrame.width+ 76.5)*i,moreView.frame.size.height-6-26, 76.5, 26)];
+                [callButton setTitle:titleName[i] forState:UIControlStateNormal];
+                callButton.titleLabel.font = [UIFont systemFontOfSize:15];
+                [callButton setTitleColor:[UIColor colorWithRed:0/255.0 green:161/255.0 blue:253.0/255.0 alpha:1.0] forState:UIControlStateNormal];
+                [callButton.layer setCornerRadius:8.0]; //设置矩圆角半径
+                [callButton.layer setBorderWidth:1.0]; //边框宽度
+                CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+                CGColorRef colorref = CGColorCreate(colorSpace,(CGFloat[]){ 0/255.0, 161/255.0, 253/255.0, 1.0});
+                [callButton.layer setBorderColor:colorref];//边框颜色
+                callButton.backgroundColor = [UIColor clearColor];
+                callButton.tag = i;
+                [callButton addTarget:self action:@selector(moreClicked:) forControlEvents:UIControlEventTouchUpInside];
+                [moreView addSubview:callButton];
             }
             else{
-                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-45*KWidthCompare6*6)/7+(45*KWidthCompare6+(KDeviceWidth-45*KWidthCompare6*6)/7)*i,0, 45*KWidthCompare6, 45*KWidthCompare6)];
-                [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameNor[i]] forState:UIControlStateNormal];
-                [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameSel[i]] forState:UIControlStateHighlighted];
+                UIButton *choiceBtn = [[UIButton alloc]initWithFrame:CGRectMake(153+10*KWidthCompare6+btnBtnFrame.width*2+(i-2)*(26+btnBtnFrame.width),moreView.frame.size.height-6-26, 26, 26)];
+                [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameNor[i-2]] forState:UIControlStateNormal];
+                [choiceBtn setBackgroundImage:[UIImage imageNamed:picNameSel[i-2]] forState:UIControlStateHighlighted];
                 choiceBtn.tag = i;
                 [choiceBtn addTarget:self action:@selector(moreClicked:) forControlEvents:UIControlEventTouchUpInside];
                 [moreView addSubview:choiceBtn];
             }
-            
         }
         speakOn = NO;
         
@@ -233,7 +241,12 @@
         if (delegate && [delegate respondsToSelector:@selector(callBarButtonNow)]) {
             [delegate callBarButtonNow];
         }
-    }else if (sender.tag == 2){
+    }else if (sender.tag == 1){
+        if (delegate && [delegate respondsToSelector:@selector(recBarButtonNow)]) {
+            [delegate recBarButtonNow];
+        }
+    }
+    else if (sender.tag == 2){
         [inputTextView resignFirstResponder];
         if (delegate && [delegate respondsToSelector:@selector(msgBarButtonNow)]) {
             [delegate msgBarButtonNow];
@@ -249,41 +262,47 @@
         if (delegate && [delegate respondsToSelector:@selector(locBarButtonNow)]) {
             [delegate locBarButtonNow];
         }
-        
-    }else if (sender.tag == 5){
-        if (delegate && [delegate respondsToSelector:@selector(recBarButtonNow)]) {
-            [delegate recBarButtonNow];
-        }
     }
+    
 }
 
 -(void)faceBtnClicked:(UIButton *)button
 {
     NSString *title = [button titleForState:UIControlStateReserved];
- 
+    if(speakButton.hidden == NO)
+    {
+        isFromSpeak = YES;
+//        [self switchButtonPressed];
+    }
     if([title isEqualToString:@"1"])
     {
         isShowFaceBoard = YES;
        
         [button setTitle:@"2" forState:UIControlStateReserved];
-        faceBoard.hidden = NO;
-        faceBoard.inputTextView = inputTextView.internalTextView;
-        inputTextView.internalTextView.inputView = faceBoard;
-        [button setBackgroundImage:[UIImage imageNamed:@"msg_hideface_keyboard"] forState:UIControlStateNormal];
-        [button setBackgroundImage:[UIImage imageNamed:@"msg_hideface_keyboard_sel"] forState:UIControlStateHighlighted];
+        
+            faceBoard.hidden = NO;
+            faceBoard.inputTextView = inputTextView.internalTextView;
+            inputTextView.internalTextView.inputView = faceBoard;
+            [button setBackgroundImage:[UIImage imageNamed:@"msg_face_keyboard_sel"] forState:UIControlStateNormal];
+//            [button setBackgroundImage:[UIImage imageNamed:@"msg_face_keyboard_sel"] forState:UIControlStateHighlighted];
+//        [button setBackgroundImage:[UIImage imageNamed:@"msg_hideface_keyboard"] forState:UIControlStateNormal];
+//        [button setBackgroundImage:[UIImage imageNamed:@"msg_hideface_keyboard_sel"] forState:UIControlStateHighlighted];
+//        
         
     }
     else
     {
         isShowFaceBoard = NO;
+       
         [button setTitle:@"1" forState:UIControlStateReserved];
-       
-
+        
+        
         inputTextView.internalTextView.inputView = nil;
-       
+        
             faceBoard.hidden = YES;
-            [button setBackgroundImage:[UIImage imageNamed:@"msg_face_keyboard"] forState:UIControlStateNormal];
-            [button setBackgroundImage:[UIImage imageNamed:@"msg_face_keyboard_sel"] forState:UIControlStateHighlighted];
+            [button setBackgroundImage:[UIImage imageNamed:@"msg_hideface_keyboard_sel"] forState:UIControlStateNormal];
+//            [button setBackgroundImage:[UIImage imageNamed:@"msg_face_keyboard_sel"] forState:UIControlStateHighlighted];
+        
         
     }
     
@@ -348,18 +367,17 @@
 -(void)expandingTextViewDidChange:(UIExpandingTextView *)expandingTextView
 {
     /* Enable/Disable the button */
-//    if ([inputTextView.text length] > 0)
-//    {
-//        sendButton.enabled = YES;
-//        sendButton.hidden = NO;
-//    }
-//    
-//    else
-//    {
-//        sendButton.hidden = YES;
-//        sendButton.enabled = NO;
-//    }
-
+    if ([inputTextView.text length] > 0)
+    {
+        sendButton.backgroundColor = [UIColor colorWithRed:0/255.0 green:161/255.0 blue:253.0/255.0 alpha:1.0];
+        sendButton.enabled = YES;
+    }
+    
+    else
+    {
+        sendButton.backgroundColor= [UIColor colorWithRed:217.0/255.0 green:217.0/255.0 blue:217.0/255.0 alpha:1.0];
+        sendButton.enabled = NO;
+    }
     if ([inputTextView.text length] == inputTextView.maxNumberOfText) {
         [[[iToast makeText:[NSString stringWithFormat:@"最多输入%d个字符。",inputTextView.maxNumberOfText]] setGravity:iToastGravityCenter] show];
         return;

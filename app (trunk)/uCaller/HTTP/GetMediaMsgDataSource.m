@@ -14,6 +14,7 @@
 @synthesize fileType;
 @synthesize content;
 @synthesize mediaData;
+@synthesize caller;
 
 -(id)init
 {
@@ -53,6 +54,10 @@
     
     if (![[dicHeader objectForKey:@"content"] isKindOfClass:[NSNull class]]) {
         content = [[dicHeader objectForKey:@"content"] stringValue];
+    }
+    
+    if (![[dicHeader objectForKey:@"caller"] isKindOfClass:[NSNull class]]) {
+        caller = [dicHeader objectForKey:@"caller"];
     }
     
     mediaData = [[NSData alloc] initWithData:data];

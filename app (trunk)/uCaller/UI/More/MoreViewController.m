@@ -39,6 +39,8 @@
 #import "MyTimeViewController.h"
 #import "CycleScrollView.h"
 #import "PhotoGuideView.h"
+#import "CreditWebViewController.h"
+#import "CreditNavigationController.h"
 
 typedef enum{
     webAlertTag,
@@ -83,7 +85,8 @@ typedef enum{
     UIImage *ivrImage;//ivr的图片
     NSString *ivrWebUrl;//点击ivr按钮，链接到的web页面
     NSString *ivrTitle;//ivr的标题
-    NSArray *ivrArray;
+    NSArray *ivrArray; 
+    bool adLoad;
 }
 
 @property (nonatomic, retain) CycleScrollView *mainScorllView;//广告位数量大于1的uicontrol
@@ -146,6 +149,7 @@ typedef enum{
         
         [[UCore sharedInstance] newTask:U_GET_TASKINFOTIME];
         [[UCore sharedInstance] newTask:U_GET_AFTERLOGININFO];
+        adLoad = NO;
     }
     return self;
 }
@@ -255,7 +259,8 @@ typedef enum{
 
 - (void)showAdsContents:(NSArray*)adArray
 {
-    if (adArray == nil||adArray.count == 0)
+    
+    if (adArray == nil||adArray.count == 0 || adLoad == NO)
         return;
     
     if (adArray.count == 1) {
@@ -288,6 +293,8 @@ typedef enum{
                 if (image != nil) {
                     [self.adImgArr addObject:image];
                     [self.adUrlArr addObject:[newAdsArr[i] objectForKey:@"Url"]];
+                }else{
+                    NSLog(@"!!!");
                 }
             }
         }
@@ -310,6 +317,7 @@ typedef enum{
         }
         self.mainScorllView.fetchContentViewAtIndex = ^UIView *(NSInteger pageIndex){
             return viewsArray[pageIndex];
+
         };
         
         __weak typeof(self)weakSelf = self;
@@ -354,7 +362,8 @@ typedef enum{
     if(event == AdsImgUrlMoreUpdate)
     {
         NSMutableArray *adsArray = [eventInfo objectForKey:KValue];
-         [self showAdsContents:adsArray];
+        adLoad = YES;
+        [self showAdsContents:adsArray];
     }
 }
 
@@ -503,13 +512,10 @@ typedef enum{
                 UIImage *img = [ivrArray[indexPath.section - 2] objectForKey:@"img"];
                 [cell setIcon:img
                         Title:[ivrArray[indexPath.section - 2] objectForKey:@"ivrTitle"]
-                  Description:@""
+                  Description:[ivrArray[indexPath.section - 2] objectForKey:@"ivrDesc"]
                     StatusImg:@"" HotImage:nil Point:nil];
             }
         }
-        
-    
-        
     }else{
         if (indexPath.section == 1)
         {
@@ -528,7 +534,6 @@ typedef enum{
                 }
             }
         }
-        
         if (indexPath.section == 2) {
             if (indexPath.row == 0){
                 UIImage *img = [UIImage imageNamed:@"doTask_nor"];
@@ -571,7 +576,7 @@ typedef enum{
                 UIImage *img = [ivrArray[indexPath.section - 3] objectForKey:@"img"];
                 [cell setIcon:img
                         Title:[ivrArray[indexPath.section - 3] objectForKey:@"ivrTitle"]
-                  Description:@""
+                  Description:[ivrArray[indexPath.section - 3] objectForKey:@"ivrDesc"]
                     StatusImg:@"" HotImage:nil Point:nil];
             }
         }
@@ -720,9 +725,33 @@ typedef enum{
 
 -(void)webFunction:(NSString *)urlStr
 {
-    WebViewController *webVC = [[WebViewController alloc]init];
-    webVC.webUrl = urlStr;
-    [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
+
+    
+    if ([[urlStr substringToIndex:12] isEqualToString:@"http://duiba"]) {
+        
+        NSString * temp;
+        if ([urlStr rangeOfString:@"{uid}"].length) {
+            
+            temp = [urlStr stringByReplacingCharactersInRange:[urlStr rangeOfString:@"{uid}"] withString:[UConfig getUID]];
+        }
+        CreditWebViewController *web=[[CreditWebViewController alloc]initWithUrlByPresent:temp];
+        CreditNavigationController *nav=[[CreditNavigationController alloc]initWithRootViewController:web];
+        [nav setNavColorStyle:[UIColor colorWithRed:195/255.0 green:0 blue:19/255.0 alpha:1]];
+        [self presentViewController:nav animated:YES completion:nil];
+    }
+
+    else{
+        WebViewController *webVC = [[WebViewController alloc]init];
+        webVC.webUrl = urlStr;
+        [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
+
+    }
+    
+    
+    
+
+    
+    
 }
 
 #pragma mark---HttpManagerDelegate---

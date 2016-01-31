@@ -42,6 +42,7 @@
 
 #import "GetAvatarDetailDataSource.h"
 #import "DataCore.h"
+#import "AfterLoginInfoDataSource.h"
 
 
 typedef enum{
@@ -132,7 +133,7 @@ typedef enum{
     
     UITableView *contactInfoTableView;
     
-    UIButton *btnSendLeave;
+    LongPressButton *btnSendLeave;
     UIButton *btnSendMsg;
     UIButton *addBtn;
     UIButton *starButton;
@@ -144,6 +145,7 @@ typedef enum{
     
     HTTPManager *getShareHttp;
     HTTPManager *httpGiveGift;
+    HTTPManager *getAfterInfoHttp;
     
     BOOL dropHasRemark;
     NSMutableArray *dropNameMarr;
@@ -168,6 +170,26 @@ typedef enum{
     UIView *addView;
     UIButton *rBtn;
     
+    
+    AVAudioSession *audioSession;
+    AVAudioRecorder *audioRecorder;
+    AVAudioPlayer *audioPlayer;
+
+    NSURL *recordFileURL;
+    BOOL isSpeaking;
+    int speakDuration;
+    
+    NSTimer *speakTimer;
+    
+    float r;
+    UIView * animationView;
+    NSTimer * animationTimer;
+    UILabel * timeLabel;
+    UILabel * titleLabel;
+    
+    BOOL isSendLeaveMsgs;
+    
+    NSString *smsContent;
 }
 
 @end
@@ -204,6 +226,8 @@ typedef enum{
         httpGetBigPhoto = [[HTTPManager alloc] init];
         httpGetBigPhoto.delegate = self;
         
+        getAfterInfoHttp = [[HTTPManager alloc]init];
+        getAfterInfoHttp.delegate = self;
         
         dropHasRemark = NO;
         dropNameMarr = [[NSMutableArray alloc]init];
@@ -213,7 +237,10 @@ typedef enum{
         [self addContactChangeMarrFunction];
         
         fromTel = NO;
+        
+        isSendLeaveMsgs = NO;
     
+        audioSession = [AVAudioSession sharedInstance];
     }
     return self;
 }
@@ -309,7 +336,7 @@ typedef enum{
     showTags3.showLabelColor = [UIColor whiteColor];
     [aView addSubview:showTags3];
     
-     addView = [[UIView alloc]initWithFrame:CGRectMake(0, KDeviceHeight-50*KHeightCompare6-LocationYWithoutNavi, KDeviceWidth, 50*KHeightCompare6+1)];
+     addView = [[UIView alloc]initWithFrame:CGRectMake(0, KDeviceHeight-52*KHeightCompare6-LocationYWithoutNavi, KDeviceWidth, 52*KHeightCompare6+1)];
     
    
     addView.backgroundColor = [UIColor clearColor];
@@ -325,20 +352,6 @@ typedef enum{
         if ([agreeNewContact.uNumber isEqualToString:contact.uNumber]&&agreeNewContact.status == STATUS_FROM) {
             break;
         }
-    }
-    if(contact.type == CONTACT_MySelf){
-        [addBtn setTitle:@"编辑资料" forState:UIControlStateNormal];
-        [addBtn addTarget:self action:@selector(editPersonInfo) forControlEvents:UIControlEventTouchUpInside];
-    }else if (agreeNewContact.status == STATUS_FROM){
-        [addBtn setTitle:@"同意添加" forState:UIControlStateNormal];
-        [addBtn addTarget:self action:@selector(onAgreeNewContact) forControlEvents:UIControlEventTouchUpInside];
-    }else if (self.fromChat == YES && [contact.number isEqualToString:@""]){
-        [addBtn setTitle:@"免费电话" forState:UIControlStateNormal];
-        [addBtn addTarget:self action:@selector(callButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    else {
-        [addBtn setTitle:@"添加好友" forState:UIControlStateNormal];
-        [addBtn addTarget:self action:@selector(addXMPP) forControlEvents:UIControlEventTouchUpInside];
     }
     [addView addSubview:addBtn];
    
@@ -381,27 +394,28 @@ typedef enum{
     [dropImgesMarr addObject:addBlackImg];
     
     nTop =  KDeviceHeight - 49-(60-LocationY)-3;
-    btnSendMsg = [UIButton buttonWithType:UIButtonTypeCustom];
-	btnSendMsg.frame = CGRectMake(0,0,KDeviceWidth/2,50*KHeightCompare6);
-	btnSendMsg.titleLabel.font = [UIFont boldSystemFontOfSize:16];
-    [btnSendMsg addTarget:self action:@selector(sendMsgButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [btnSendMsg setBackgroundColor:[UIColor whiteColor]];
-    [btnSendMsg setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
-    [btnSendMsg setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateHighlighted];
-	[addView addSubview:btnSendMsg];
-    btnSendMsg.hidden = YES;
+//    btnSendMsg = [UIButton buttonWithType:UIButtonTypeCustom];
+//	btnSendMsg.frame = CGRectMake(0,0,KDeviceWidth/2,50*KHeightCompare6);
+//	btnSendMsg.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+//    [btnSendMsg addTarget:self action:@selector(sendMsgButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+//    [btnSendMsg setBackgroundColor:[UIColor whiteColor]];
+//    [btnSendMsg setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
+//    [btnSendMsg setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateHighlighted];
+//	[addView addSubview:btnSendMsg];
+//    btnSendMsg.hidden = YES;
  
     
-    
-    btnSendLeave = [UIButton buttonWithType:UIButtonTypeCustom];
-	btnSendLeave.frame = CGRectMake(KDeviceWidth/2,0,KDeviceWidth/2,50*KHeightCompare6);
-	btnSendLeave.titleLabel.font = [UIFont boldSystemFontOfSize:16];
-	[btnSendLeave addTarget:self action:@selector(sendMsgButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [btnSendLeave setBackgroundColor:[UIColor whiteColor]];
-    [btnSendLeave setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateNormal];
-    [btnSendLeave setTitleColor:[[UIColor alloc]initWithRed:39.0/255.0 green:188.0/255.0 blue:255.0/255.0 alpha:1.0] forState:UIControlStateHighlighted];
+    if (btnSendLeave == nil) {
+        btnSendLeave = [[LongPressButton alloc]initWithFrame:CGRectMake(10,6,KDeviceWidth-20,40*KHeightCompare6)];
+    }
+    [btnSendLeave addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
+    [btnSendLeave addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+    btnSendLeave.delegate = self;
+
+    [btnSendLeave setBackgroundColor:ColorBlue];
+    btnSendLeave.layer.cornerRadius = 10;
 	[addView addSubview:btnSendLeave];
-    btnSendLeave.hidden = YES;
+
 
     UIView *btnxView = [[UIView alloc]initWithFrame:CGRectMake(0, btnSendMsg.frame.origin.y-0.6, self.view.frame.size.width, 0.6)];
     [btnxView setBackgroundColor:[[UIColor alloc]initWithRed:219.0/255.0 green:219.0/255.0 blue:219.0/255.0 alpha:1.0]];
@@ -436,20 +450,37 @@ typedef enum{
         starButton.selected = NO;
     }
     
-//    if (contact.type == CONTACT_LOCAL) {
-//        starButton.hidden = YES;
-//    }
-    btnSendMsg.hidden = NO;
-    btnSendLeave.hidden = NO;
-    addBtn.hidden = YES;
-    
-    if(contact.type == CONTACT_Recommend || contact.type == CONTACT_MySelf||contact.type == CONTACT_Unknow){
-        btnSendMsg.hidden = YES;
+    if (contact.type == CONTACT_MySelf) {
+        [addBtn setTitle:@"编辑资料" forState:UIControlStateNormal];
+        [addBtn addTarget:self action:@selector(editPersonInfo) forControlEvents:UIControlEventTouchUpInside];
         btnSendLeave.hidden = YES;
         addBtn.hidden = NO;
+     
+    }else if (agreeNewContact.status == STATUS_FROM && fromChat == NO){
+        [addBtn setTitle:@"同意添加" forState:UIControlStateNormal];
+        [addBtn addTarget:self action:@selector(onAgreeNewContact) forControlEvents:UIControlEventTouchUpInside];
+        btnSendLeave.hidden = YES;
+        addBtn.hidden = NO;
+    }
+    else if ((contact.type == CONTACT_Recommend || contact.type == CONTACT_Unknow)&& fromChat == NO ){
+        [addBtn setTitle:@"添加好友" forState:UIControlStateNormal];
+        [addBtn addTarget:self action:@selector(addXMPPContact) forControlEvents:UIControlEventTouchUpInside];
+        btnSendLeave.hidden = YES;
+        addBtn.hidden = NO;
+    }
+    else{
+        btnSendLeave.hidden = NO;
+        addBtn.hidden = YES;
+    }
+//    btnSendMsg.hidden = NO;
+    
+    
+    if(contact.type == CONTACT_Recommend || contact.type == CONTACT_MySelf||contact.type == CONTACT_Unknow){
+//        btnSendMsg.hidden = YES;
+        addBtn.hidden = NO;
         starButton.hidden = YES;
-        btnxView.hidden = YES;
-        btnyView.hidden = YES;
+//        btnxView.hidden = YES;
+//        btnyView.hidden = YES;
         rBtn.hidden = YES;
     }
     if (contact.type == CONTACT_OpUsers) {
@@ -495,7 +526,6 @@ typedef enum{
     
     if (fromTel) {
         btnSendMsg.hidden = YES;
-        btnSendLeave.hidden = YES;
         addView.hidden = YES;
         starButton.hidden = YES;
         rBtn.hidden = YES;
@@ -941,49 +971,56 @@ typedef enum{
     
     [self refreshRemark];
     
-    if([contact hasUNumber] || [contact.number startWith:TZ_PREFIX])
-    {
-        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateNormal)];
-        [btnSendMsg setTitle:@"发消息" forState:(UIControlStateNormal)];
-        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateHighlighted)];
-        [btnSendMsg setTitle:@"发消息" forState:(UIControlStateHighlighted)];
-        
-        
-        if(contact.hasUNumber)
-        {
-            [btnSendLeave setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateNormal)];
-            [btnSendLeave setTitle:@"留言" forState:(UIControlStateNormal)];
-            [btnSendLeave setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateHighlighted)];
-            [btnSendLeave setTitle:@"留言" forState:(UIControlStateHighlighted)];
-        }
-        else
-        {
-            [btnSendLeave setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateNormal)];
-            [btnSendLeave setTitle:@"添加好友" forState:(UIControlStateNormal)];
-            [btnSendLeave setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateHighlighted)];
-            [btnSendLeave setTitle:@"添加好友" forState:(UIControlStateHighlighted)];
-        }
-    }
-    else
-    {
-        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateNormal)];
-        [btnSendMsg setTitle:@"邀请" forState:(UIControlStateNormal)];
-        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateHighlighted)];
-        [btnSendMsg setTitle:@"邀请" forState:(UIControlStateHighlighted)];
-        
-        [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateNormal)];
-        [btnSendLeave setTitle:@"留言" forState:(UIControlStateNormal)];
-        [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateHighlighted)];
-        [btnSendLeave setTitle:@"留言" forState:(UIControlStateHighlighted)];
-        
-        if(![Util isPhoneNumber:contact.number])
-        {
-            btnSendLeave.enabled = NO;
-            [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_joinun.png"] forState:(UIControlStateNormal)];
-            [btnSendLeave setTitle:@"邀请加入" forState:(UIControlStateNormal)];
-            [btnSendLeave setTitleColor:[[UIColor alloc]initWithRed:171.0/255.0 green:226.0/255.0 blue:254.0/255.0 alpha:1.0] forState:UIControlStateNormal];
-        }
-    }
+    
+    [btnSendLeave setImage:[UIImage imageNamed:@"SendLeave"] forState:(UIControlStateNormal)];
+    [btnSendLeave setTitle:@"按下留言" forState:(UIControlStateNormal)];
+    
+    [btnSendLeave setImage:[UIImage imageNamed:@"SendLeave"] forState:(UIControlStateHighlighted)];
+    [btnSendLeave setTitle:@"按下留言" forState:(UIControlStateHighlighted)];
+    
+//    if([contact hasUNumber] || [contact.number startWith:TZ_PREFIX])
+//    {
+//        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateNormal)];
+//        [btnSendMsg setTitle:@"发消息" forState:(UIControlStateNormal)];
+//        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_free.png"] forState:(UIControlStateHighlighted)];
+//        [btnSendMsg setTitle:@"发消息" forState:(UIControlStateHighlighted)];
+//        
+//        
+//        if(contact.hasUNumber)
+//        {
+//            [btnSendLeave setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateNormal)];
+//            [btnSendLeave setTitle:@"留言" forState:(UIControlStateNormal)];
+//            [btnSendLeave setImage:[UIImage imageNamed:@"contact_call_message.png"] forState:(UIControlStateHighlighted)];
+//            [btnSendLeave setTitle:@"留言" forState:(UIControlStateHighlighted)];
+//        }
+//        else
+//        {
+//            [btnSendLeave setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateNormal)];
+//            [btnSendLeave setTitle:@"添加好友" forState:(UIControlStateNormal)];
+//            [btnSendLeave setImage:[UIImage imageNamed:@"contact_add_xmpp.png"] forState:(UIControlStateHighlighted)];
+//            [btnSendLeave setTitle:@"添加好友" forState:(UIControlStateHighlighted)];
+//        }
+//    }
+//    else
+//    {
+//        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateNormal)];
+//        [btnSendMsg setTitle:@"邀请" forState:(UIControlStateNormal)];
+//        [btnSendMsg setImage:[UIImage imageNamed:@"contact_call_phone.png"] forState:(UIControlStateHighlighted)];
+//        [btnSendMsg setTitle:@"邀请" forState:(UIControlStateHighlighted)];
+//        
+//        [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateNormal)];
+//        [btnSendLeave setTitle:@"留言" forState:(UIControlStateNormal)];
+//        [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_join.png"] forState:(UIControlStateHighlighted)];
+//        [btnSendLeave setTitle:@"留言" forState:(UIControlStateHighlighted)];
+//        
+//        if(![Util isPhoneNumber:contact.number])
+//        {
+//            btnSendLeave.enabled = NO;
+//            [btnSendLeave setImage:[UIImage imageNamed:@"contact_invite_joinun.png"] forState:(UIControlStateNormal)];
+//            [btnSendLeave setTitle:@"邀请加入" forState:(UIControlStateNormal)];
+//            [btnSendLeave setTitleColor:[[UIColor alloc]initWithRed:171.0/255.0 green:226.0/255.0 blue:254.0/255.0 alpha:1.0] forState:UIControlStateNormal];
+//        }
+//    }
 }
 -(void)refreshGender
 {
@@ -1086,32 +1123,32 @@ typedef enum{
         [self NotLogin];
     }
 }
--(void)sendMsgButtonPressed:(UIButton *)button
-{
-    if ([UConfig hasUserInfo])
-    {
-        if([contact hasUNumber])
-        {
-            [self showChatView];
-        }
-        else
-        {
-            if([contact.number startWith:TZ_PREFIX])
-            {
-                //添加好友
-                [self addXMPPContact];
-            }
-            else
-            {
-                //邀请加入
-                [self sendInvite];
-            }
-        }
-    }else {
-        [self NotLogin];
-    }
-    
-}
+//-(void)sendMsgButtonPressed:(UIButton *)button
+//{
+//    if ([UConfig hasUserInfo])
+//    {
+//        if([contact hasUNumber])
+//        {
+//            [self showChatView];
+//        }
+//        else
+//        {
+//            if([contact.number startWith:TZ_PREFIX])
+//            {
+//                //添加好友
+//                [self addXMPPContact];
+//            }
+//            else
+//            {
+//                //邀请加入
+//                [self sendInvite];
+//            }
+//        }
+//    }else {
+//        [self NotLogin];
+//    }
+//    
+//}
 
 - (void)addXMPPContact
 {
@@ -1134,7 +1171,13 @@ typedef enum{
             [msgLogManager updateNewMsgCountOfUID:contact.uid];
             
             ChatViewController *chatViewController = [[ChatViewController alloc] initWithContact:contact andNumber:contact.uNumber];
-            chatViewController.blackImage = [self screenView:self.view];
+            
+      //      - (UIImage*)screenView:(UIView *)view{
+            
+            UIImage * p = [self screenView:self.view];
+            
+            chatViewController.blackImage = p;
+            
             chatViewController.fromContactInfo = YES;
             [self.navigationController pushViewController:chatViewController animated:NO];
         }
@@ -1489,16 +1532,46 @@ typedef enum{
         
         if (contact.type != CONTACT_MySelf) {
             if ([title isEqualToString:INFO_UNUMBER]) {
-                UIImage *uContactInfoImg = [UIImage imageNamed:@"contact_info_call.png"];
-
-                UIButton *UcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-38*KWidthCompare6,(CELL_HEIGHT-uContactInfoImg.size.height)/2, uContactInfoImg.size.width, uContactInfoImg.size.height)];
-                [UcallBtn setImage:uContactInfoImg forState:UIControlStateNormal];
+                UIImage *uContactInfoImg = [UIImage imageNamed:@"contact_info_msg.png"];
+                UIButton *UmsgBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-uContactInfoImg.size.width, (CELL_HEIGHT-uContactInfoImg.size.height)/2, uContactInfoImg.size.width, uContactInfoImg.size.height)];
+                if (contact.type == CONTACT_uCaller) {
+                    //发消息
+                    [UmsgBtn setImage:uContactInfoImg forState:UIControlStateNormal];
+                    [UmsgBtn setImage:[UIImage imageNamed:@"contact_info_msg_sel.png"] forState:UIControlStateHighlighted];
+                    [UmsgBtn addTarget:self action:@selector(didUMsgToChat) forControlEvents:UIControlEventTouchUpInside];
+                }else if (contact.hasUNumber){
+                    if (fromChat) {
+                        if ([contact.uid isEqualToString:@"100001270"]) {
+                            //发消息
+                             [UmsgBtn setImage:uContactInfoImg forState:UIControlStateNormal];
+                             [UmsgBtn setImage:[UIImage imageNamed:@"contact_info_msg_sel.png"] forState:UIControlStateHighlighted];
+                             [UmsgBtn addTarget:self action:@selector(didUMsgToChat) forControlEvents:UIControlEventTouchUpInside];
+                        }else{
+                            //加好友
+                            [UmsgBtn setImage:[UIImage imageNamed:@"contact_info_addContact.png"] forState:UIControlStateNormal];
+                            [UmsgBtn setImage:[UIImage imageNamed:@"contact_info_addContact_sel.png"] forState:UIControlStateHighlighted];
+                            [UmsgBtn addTarget:self action:@selector(addXMPPContact) forControlEvents:UIControlEventTouchUpInside];
+                        }
+                        
+                    }else{
+                        //留言
+                        [UmsgBtn setImage:[UIImage imageNamed:@"contact_info_speak"] forState:UIControlStateNormal];
+                        [UmsgBtn setImage:[UIImage imageNamed:@"contact_info_speak_sel"] forState:UIControlStateHighlighted];
+                        [UmsgBtn addTarget:self action:@selector(DidUMsg:) forControlEvents:UIControlEventTouchUpInside];
+                    }
+                }
+                [cell.contentView addSubview:UmsgBtn];
+                
+                
+                UIButton *UcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(UmsgBtn.frame.origin.x-38*KWidthCompare6-uContactInfoImg.size.width,(CELL_HEIGHT-uContactInfoImg.size.height)/2, uContactInfoImg.size.width, uContactInfoImg.size.height)];
+                [UcallBtn setImage:[UIImage imageNamed:@"contact_info_call.png"] forState:UIControlStateNormal];
                 [UcallBtn setImage:[UIImage imageNamed:@"contact_info_call_sel.png"] forState:UIControlStateHighlighted];
                 [UcallBtn addTarget:self action:@selector(DidUCall:) forControlEvents:UIControlEventTouchUpInside];
                 [cell.contentView addSubview:UcallBtn];
                 
                 
                 if (fromTel) {
+                    UmsgBtn.hidden = YES;
                     UcallBtn.hidden = YES;
                 }
                 
@@ -1520,17 +1593,29 @@ typedef enum{
                 }
                 
             }else if([title isEqualToString:INFO_PNUMBER]){
-                UIImage *pContactInfoImg = [UIImage imageNamed:@"contact_info_call.png"];
+                UIImage *pContactInfoImg = [UIImage imageNamed:@"contact_info_invite.png"];
+                UIButton *PmsgBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-pContactInfoImg.size.width, (CELL_HEIGHT-pContactInfoImg.size.height)/2, pContactInfoImg.size.width, pContactInfoImg.size.height)];
+                [PmsgBtn setImage:pContactInfoImg forState:UIControlStateNormal];
+                [PmsgBtn setImage:[UIImage imageNamed:@"contact_info_invite_sel.png"] forState:UIControlStateHighlighted];
+                if (contact.hasUNumber) {
+                    PmsgBtn.hidden = YES;
+                }else{
+                    PmsgBtn.hidden = NO;
+                }
+                [PmsgBtn addTarget:self action:@selector(sendInvite) forControlEvents:UIControlEventTouchUpInside];
+                [cell.contentView addSubview:PmsgBtn];
                 
-                UIButton *PcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-15-38*KWidthCompare6-pContactInfoImg.size.width,(CELL_HEIGHT-pContactInfoImg.size.height)/2, pContactInfoImg.size.width, pContactInfoImg.size.height)];
-                [PcallBtn setImage:pContactInfoImg forState:UIControlStateNormal];
+                UIButton *PcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(PmsgBtn.frame.origin.x-38*KWidthCompare6-pContactInfoImg.size.width,(CELL_HEIGHT-pContactInfoImg.size.height)/2, pContactInfoImg.size.width, pContactInfoImg.size.height)];
+                [PcallBtn setImage:[UIImage imageNamed:@"contact_info_call.png"] forState:UIControlStateNormal];
                 [PcallBtn setImage:[UIImage imageNamed:@"contact_info_call_sel.png"] forState:UIControlStateHighlighted];
                 [PcallBtn addTarget:self action:@selector(DidPcall:) forControlEvents:UIControlEventTouchUpInside];
                 [cell.contentView addSubview:PcallBtn];
                 
                 if (fromTel) {
+                    PmsgBtn.hidden = YES;
                     PcallBtn.hidden = YES;
                 }
+                
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             contentLabel.textColor = [UIColor colorWithRed:64.0/255.0 green:64.0/255.0 blue:64.0/255.0 alpha:1.0];
@@ -1658,6 +1743,37 @@ typedef enum{
         [self NotLogin];
     }
 }
+- (void)didUMsgToChat{
+    if ([UConfig hasUserInfo])
+    {
+        if([contact hasUNumber])
+        {
+            [self showChatViewNow];
+        }
+    }else {
+        [self NotLogin];
+    }
+
+}
+-(void)showChatViewNow
+{
+    if(fromChat)
+    {
+        [self returnLastPage];
+    }
+    else
+    {
+        if(contact.hasUNumber)
+        {
+            MsgLogManager *msgLogManager = [MsgLogManager sharedInstance];
+            [msgLogManager updateNewMsgCountOfUID:contact.uid];
+            
+            ChatViewController *chatViewController = [[ChatViewController alloc] initWithContact:contact andNumber:contact.uNumber];
+            chatViewController.fromContactInfo = YES;
+            [self.navigationController pushViewController:chatViewController animated:YES];
+        }
+    }
+}
 - (void)DidPcall:(UIButton *)sender{
     if ([UConfig hasUserInfo])
     {
@@ -1758,6 +1874,22 @@ typedef enum{
 {
     if(!bResult)
     {
+        if (eType == RequestAfterLoginInfo) {
+            AfterLoginInfoDataSource *leaveMsgdataSource = (AfterLoginInfoDataSource *)theDataSource;
+            if(leaveMsgdataSource.nResultNum == 1 && leaveMsgdataSource.bParseSuccessed)
+            {
+                smsContent = leaveMsgdataSource.leaveCallMsg;
+                if ([smsContent isEqualToString:@""] || smsContent == nil) {
+                    smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+                }
+                
+            }else{
+                smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+            }
+            
+            [Util sendInvite:[NSArray arrayWithObject:contact.pNumber] from:self andContent:smsContent];
+        }
+
         return;
     }
     else
@@ -1781,9 +1913,22 @@ typedef enum{
                 //@"抱歉，操作发生错误\n请重试或联系客服。"
                 [[[iToast makeText:[NSString stringWithFormat:@"%@",@"抱歉，操作发生错误\n请重试或联系客服。"]] setGravity:iToastGravityCenter] show];
             }
-            
         }
-        
+        else if (eType == RequestAfterLoginInfo) {
+            AfterLoginInfoDataSource *leaveMsgdataSource = (AfterLoginInfoDataSource *)theDataSource;
+            if(leaveMsgdataSource.nResultNum == 1 && leaveMsgdataSource.bParseSuccessed)
+            {
+                smsContent = leaveMsgdataSource.leaveCallMsg;
+                if ([smsContent isEqualToString:@""] || smsContent == nil) {
+                    smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+                }
+                
+            }else{
+                smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+            }
+            
+            [Util sendInvite:[NSArray arrayWithObject:contact.pNumber] from:self andContent:smsContent];
+        }
     }
 }
 
@@ -1802,9 +1947,26 @@ typedef enum{
     if (buttonIndex == 1 && alertView.tag ==NotLoginAlertTag) {
         [uApp showLoginView:YES];
     }
+    if (alertView.tag == 55) {
+        if (buttonIndex == 0) {
+            isSendLeaveMsgs = NO;
+            [self sendAudio];
+            [self ToSendLeaveMsg];
+            
+        }else{
+            isSendLeaveMsgs = YES;
+            [self sendAudio];
+        }
+        
+    }
+
 }
 
+- (void)ToSendLeaveMsg{
 
+    [getAfterInfoHttp getAfterLoginInfo];
+
+}
 
 #pragma mark---上传头像----
 -(void)editPhoto
@@ -2094,11 +2256,343 @@ typedef enum{
     UIGraphicsBeginImageContext(rect.size);
     CGContextRef context = UIGraphicsGetCurrentContext();
     [view.layer renderInContext:context];
-   // [self.navigationController.view.layer renderInContext:context];
-
     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return img;
 }
+
+
+
+#pragma mark--开始录音---
+- (BOOL)startRecord
+{
+    NSError *error;
+    
+    if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:&error])
+    {
+        NSLog(@"Error setting session category: %@", error.localizedFailureReason);
+        return NO;
+    }
+    
+    if (![audioSession setActive:YES error:&error])
+    {
+        NSLog(@"Error activating audio session: %@", error.localizedFailureReason);
+        return NO;
+    }
+    
+    if(audioSession.inputIsAvailable == NO)
+        return NO;
+    
+    NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
+                              [NSNumber numberWithFloat: 8000],AVSampleRateKey,
+                              [NSNumber numberWithInt: kAudioFormatLinearPCM],AVFormatIDKey,
+                              [NSNumber numberWithInt:16],AVLinearPCMBitDepthKey,
+                              [NSNumber numberWithInt: 1], AVNumberOfChannelsKey,
+                              [NSNumber numberWithBool:NO],AVLinearPCMIsBigEndianKey,
+                              [NSNumber numberWithBool:NO],AVLinearPCMIsFloatKey,nil];
+    
+    NSString *fileName = [Util getAudioFileName:contact.number suffix:@".wav"];
+    //转码之后的文件名
+    recordFileURL= [NSURL fileURLWithPath:fileName];
+    if(audioRecorder)
+        [audioRecorder stop];
+    
+    NSString *cachesPaths = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *filePaths = [cachesPaths stringByAppendingPathComponent:fileName];
+    audioRecorder = [[AVAudioRecorder alloc] initWithURL:[NSURL URLWithString:filePaths] settings:settings error:&error];
+    if (!audioRecorder)
+    {
+        return NO;
+    }
+    
+    // Initialize degate, metering, etc.
+    audioRecorder.delegate = self;
+    audioRecorder.meteringEnabled = YES;
+    
+    if (![audioRecorder prepareToRecord])
+    {
+        NSLog(@"Error: Prepare to record failed");
+        return NO;
+    }
+    
+    if (![audioRecorder record])
+    {
+        NSLog(@"Error: Record failed");
+        return NO;
+    }
+    
+    uApp.inRecord = YES;
+    
+    return YES;
+}
+
+//结束录音
+- (void)stopRecord
+{
+    // This causes the didFinishRecording delegate method to fire
+    if(audioRecorder)
+    {
+        [audioRecorder stop];
+    }
+    audioRecorder = nil;
+    
+    uApp.inRecord = NO;
+    //Added by huah in 2013-12-10
+    //[audioSession setCategory:nil error:nil];
+}
+
+
+//点击按住说话按钮时触发
+-(void)startSpeak
+{
+    if(isSpeaking)
+        return;
+    
+    [self showSendVIew];
+
+    //Modified by huah in 2013-12-10
+    if([self startRecord] == YES)
+    {
+        isSpeaking = YES;
+        speakDuration = 0;
+        speakTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(speakTimerFire) userInfo:nil repeats:YES];
+   //     [speakButton setAnimation:@"animation"];
+    }
+    
+}
+
+-(void)stopSpeak
+{
+    if(isSpeaking == NO)
+        return;
+    isSpeaking = NO;
+    
+    [speakTimer invalidate];
+    [animationTimer invalidate];
+    //[speakDialog removeFromSuperview];
+    [self stopRecord];
+    if (speakDuration == 0) {
+        titleLabel.text = @"时间太短";
+        
+        for (UIView * temp in [self.view subviews]) {
+            
+            if (temp.tag == 1000) {
+                [self performSelector:@selector(hideBanner:) withObject:temp  afterDelay:1.0f];
+                return;
+            }
+        }
+    }
+    if (contact.hasUNumber == YES || (contact.number.length != 11 && contact.pNumber.length != 11) ) {
+        [self sendAudio];
+    }else{
+        if ([[contact.number substringAtIndex:0] isEqualToString:@"0"]) {
+            [self sendAudio];
+            
+        }else{
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"" message:@"留言已录制，发送短信通知对方将更快收到回复，是否发送？" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"取消",nil];
+            alertView.tag = 55;
+            [alertView show];
+        }
+
+    }
+    
+    for (UIView * temp in [self.view subviews]) {
+        
+        if (temp.tag == 1000) {
+            [temp removeFromSuperview];
+        }
+    }
+
+}
+
+-(void)sendAudio
+{
+
+    NSString *filePath = [recordFileURL path];
+    
+    MsgLog *msg = [[MsgLog alloc] init];
+    msg.type = MSG_AUDIO_SEND;
+    msg.content = [NSString stringWithFormat:@"%d\"",speakDuration];
+    msg.subData = filePath;
+    msg.status = MSG_SENT;
+    msg.time = [[NSDate date] timeIntervalSince1970];
+    msg.duration = speakDuration;
+    msg.fileType = @"amr";
+    msg.isSendLeaveMsg = isSendLeaveMsgs;
+    
+    msg.logContactUID = contact.pNumber;
+    msg.number = contact.pNumber;
+    msg.msgType = 3;
+    
+
+    if (contact.type == CONTACT_uCaller) {
+        msg.logContactUID = contact.uid;
+        msg.number = contact.number;
+        msg.msgType = 1;
+    }else if(contact.type == CONTACT_Recommend || contact.type == CONTACT_Unknow){
+        msg.logContactUID = @"";
+        
+        if (contact.number.length > 11) {
+            msg.number = contact.number;
+        }else{
+            msg.number = contact.pNumber;
+        }
+        
+        
+        [uCore newTask:U_ADD_STRANGERMSGLOG data:msg];
+    }else{
+        msg.logContactUID = @"";
+        [uCore newTask:U_ADD_STRANGERMSGLOG data:msg];
+    }
+    
+ 
+    [uCore newTask:U_SEND_MSG data:msg];
+    
+
+}
+
+-(void)speakTimerFire
+{
+    speakDuration++;
+    
+    //过程中
+//    if(speakDuration >= 60)
+//    {
+//#if 0
+//        if([recordingView isShow])
+//        {
+//            [recordingView cancelRecording:nil];
+//            recordingView = nil;
+//        }
+//#endif
+//        [speakDialog setShowText:@"语音时长已经超过60秒!"];
+//        [self showUpdateTimeBanner:@"语音时长已经超过60秒!" withbannerFrame:CGRectMake(120, 200, 80, 80)];
+//
+//        [chatBar.speakButton buttonTouchUpOutside];
+//    }
+//    speakDuration++;
+    NSString * timeed;
+    if (speakDuration > 9) {
+        timeed = [[NSString alloc]initWithFormat:@"00:%d",speakDuration];
+    }else{
+        timeed = [[NSString alloc]initWithFormat:@"00:0%d",speakDuration];
+    }
+    
+    timeLabel.text = timeed;
+    
+}
+
+-(void)showSendVIew{
+    
+    
+    UIView * sendView = [[UIView alloc]initWithFrame:CGRectMake((KDeviceWidth - 300*KWidthCompare6)/2, KDeviceHeight-519*KWidthCompare6, 300*KWidthCompare6, 400*KWidthCompare6)];
+    sendView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.0];
+    sendView.tag = 1000;
+    [self.view addSubview:sendView];
+
+    if (!animationView) {
+        animationView = [[UIView alloc]init];
+    }
+    [animationView setFrame:CGRectMake(0, 0, 0, 0)];
+    [sendView addSubview:animationView];
+    speakDuration = 0;
+    r = 0;
+    animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.005 target:self
+                                                 selector:@selector(ShowAnimation:) userInfo:sendView repeats:YES];
+    UIImageView * microphoneImgView = [[UIImageView alloc]initWithFrame:CGRectMake(sendView.frame.size.width/2 - 125*KWidthCompare6/2, 168*KWidthCompare6, 125*KWidthCompare6, 125*KWidthCompare6)];
+    microphoneImgView.tag = 1001;
+    UIImage * microphoneImg = [UIImage imageNamed:@"Microphone"];
+    microphoneImgView.image = microphoneImg;
+    [sendView addSubview:microphoneImgView];
+    
+    
+    UIView * title = [[UIView alloc]initWithFrame:CGRectMake(sendView.frame.size.width/2 - 110*KWidthCompare6,microphoneImgView.frame.size.height + microphoneImgView.frame.origin.y + 35*KWidthCompare6 ,220*KWidthCompare6,71*KWidthCompare6)];
+    title.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7];
+    title.layer.cornerRadius = 71*KWidthCompare6/2;
+    [sendView addSubview:title];
+    
+    if (timeLabel == nil) {
+        timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 15*KWidthCompare6, title.frame.size.width, 20)];
+    }
+    timeLabel.font = [UIFont systemFontOfSize:18];
+    timeLabel.text = @"00:00";
+    timeLabel.textAlignment = NSTextAlignmentCenter;
+    timeLabel.textColor = [UIColor whiteColor];
+    [title addSubview:timeLabel];
+    
+    titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, title.frame.size.height -  31*KWidthCompare6, title.frame.size.width, 16)];
+    titleLabel.text = @"手指上滑，取消发送";
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.textColor = [UIColor whiteColor];
+    [title addSubview:titleLabel];
+}
+
+-(void)ShowAnimation:(NSTimer*)timer{
+    
+    UIView * sendView = (UIView*)timer.userInfo;
+    [animationView setFrame:CGRectMake(sendView.frame.size.width/2-r/2, 230*KWidthCompare6-r/2, r, r)];
+    UIColor * color = [UIColor colorWithRed:0 green:0 blue:0 alpha:1];
+    animationView.backgroundColor = [color colorWithAlphaComponent:0.5-((r > 125?r:280)/280)/2];
+    animationView.layer.cornerRadius = r/2;
+    r++;
+    if (r > 280) {
+        r = 0;
+    }
+}
+
+-(void)setCancelRecordingState
+{
+    
+    [speakTimer invalidate];
+    [animationTimer invalidate];
+    titleLabel.textColor = [UIColor colorWithRed:0xff/255.0 green:0x59/255.0 blue:0x6d/255.0 alpha:1.0];
+    for (UIView * temp in [self.view subviews]) {
+        
+        if (temp.tag == 1000) {
+            
+            for (UIImageView * subView in [temp subviews]) {
+                if (subView.tag == 1001) {
+                    subView.image = [UIImage imageNamed:@"cancleMic"];
+                    [animationView setFrame:CGRectMake(0, 0, 0, 0)];
+                }
+            }
+            
+        }
+    }
+    
+}
+
+-(void)cancelRecording
+{
+    
+    for (UIView * temp in [self.view subviews]) {
+        
+        if (temp.tag == 1000) {
+            [temp removeFromSuperview];
+        }
+    }
+    
+    if(isSpeaking == NO)
+        return;
+    
+    isSpeaking = NO;
+    [speakTimer invalidate];
+    [self stopRecord];
+    
+}
+
+//实现浮动banner消失的动画效果
+-(void)hideBanner:(id)who
+{
+    UIView *view=(UIView*)who;//[map viewWithTag:TAG_V_POIINFO];
+    if(view == nil)
+    {
+        return;
+    }
+    
+    [view removeFromSuperview];
+}
+
+
 
 @end

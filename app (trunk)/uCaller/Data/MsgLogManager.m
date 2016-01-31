@@ -166,9 +166,12 @@ static MsgLogManager *sharedInstance = nil;
     if([self checkNewMsg:newMsgLog])
     {
         if (newMsgLog.msgType == 1 || newMsgLog.msgType == 2 || newMsgLog.msgType == 3) {
-            newMsgLog.newMsgOfNumber = 1;
-            newMsgCount++;
-            [self refreshNewMsgCount];
+            if (newMsgLog.isRecv) {
+                newMsgLog.newMsgOfNumber = 1;
+                newMsgCount++;
+                [self refreshNewMsgCount];
+
+            }
         }
     }
 
@@ -200,6 +203,7 @@ static MsgLogManager *sharedInstance = nil;
     @synchronized(dbManager){
         [dbManager addMsgLog:newMsgLog];
     }
+    
     [self refreshMsgLogs];
 }
 - (void)relayMsgLog:(MsgLog *)newMsgLog

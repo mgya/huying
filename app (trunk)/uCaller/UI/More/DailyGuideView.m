@@ -58,7 +58,7 @@
         
         [mainView addSubview:adView];
         
-        titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 400*KHeightCompare6/2, mainView.frame.size.width, 16*KHeightCompare6)];
+        titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 400*KHeightCompare6/2, mainView.frame.size.width, 18*KHeightCompare6)];
         titleLabel.text = @"签到成功";
         titleLabel.font = [UIFont systemFontOfSize:16];
         titleLabel.textAlignment = NSTextAlignmentCenter;

@@ -28,13 +28,16 @@
 #import "ShareContent.h"
 #import "CheckRegisterDataSource.h"
 #import "ActivitytipDataSource.h"
-#import "ShareContent.h"
 #import "ShareManager.h"
 #import "NewSendSmsDataSource.h"
 #import "MsgLog.h"
 #import "MsgLogManager.h"
 #import "DataCore.h"
 #import "ChatViewController.h"
+#import "ContactManager.h"
+#import "GetAdsContentDataSource.h"
+#import "WebViewController.h"
+#import "AfterLoginInfoDataSource.h"
 
 #define KDisMissViewTime 1.0
 
@@ -169,10 +172,28 @@ typedef enum ECallbackStep
     MenuEditView *editMenuView;//挂机键、键盘弹起等
     UIView *phonePadView;//键盘View
     UIView *choiceView;
-    UIButton *leaveBtn;
+    LongPressButton *leaveMsgBtn;
+    UILabel *leaveMsgLabel;
     UIButton *callBackBtn;
+    UILabel *callBackLabel;
     UIButton *backBtn;
-    UIView *callAdView;
+    UILabel *backLabel;
+    UILabel *statusLabel;
+    
+    AVAudioRecorder *audioRecorder;
+    AVAudioPlayer *audioPlayer;
+    NSTimer *speakTimer;
+    
+    NSURL *recordFileURL;
+    BOOL isSpeaking;
+    int speakDuration;
+    NSTimer * animationTimer;
+    
+    float r;
+    UIView * animationView;
+    UILabel * timeLabel;
+    UILabel * titleLabel;
+    
     
     BOOL callOK;
     BOOL isHangUp;
@@ -191,6 +212,7 @@ typedef enum ECallbackStep
     HTTPManager* httpCheckUser;
     HTTPManager* httpTips;
     HTTPManager* httpGiveGift;
+    HTTPManager *getShareHttp;
     BOOL isCouldInviteCaller;
     
     //for 拒接 服务器下发短信
@@ -201,6 +223,16 @@ typedef enum ECallbackStep
     BOOL isHideTabBar;//联系人ui，show时候纪录是否隐藏tabbar，本窗口销毁时候恢复tabbar状态
     
     ShareContent   *shareContent;
+    BOOL isSendMSgs;
+    
+    UIImageView *closeAdBtn;
+    UIButton *downCallAdsBtn;
+    UITapGestureRecognizer *closeTap;
+    UIView *shadeView;
+    
+    HTTPManager *getAfterInfoHttp;
+    NSString *smsContent;
+    
 }
 
 @property(nonatomic,strong)NSString *callNumber;
@@ -233,6 +265,7 @@ typedef enum ECallbackStep
         bPasswordChanged = NO;
         isCouldInviteCaller = NO;
         isShowContacts = NO;
+        isSendMSgs = NO;
         
         device = [UIDevice currentDevice];
         device.proximityMonitoringEnabled = YES;
@@ -264,6 +297,14 @@ typedef enum ECallbackStep
         httpNewSendSms.delegate = self;
         
         shareContent = [[ShareContent alloc]init];
+        getShareHttp = [[HTTPManager alloc] init];
+        getShareHttp.delegate = self;
+        
+        getAfterInfoHttp = [[HTTPManager alloc]init];
+        getAfterInfoHttp.delegate = self;
+        
+        
+        
     }
     return self;
 }
@@ -347,8 +388,14 @@ typedef enum ECallbackStep
     callinBottomBar.hidden = YES;
     [self.view addSubview:callinBottomBar];
     
-    
-    
+    statusLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height+23*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6)];
+    statusLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.1];
+    statusLabel.layer.cornerRadius = 160*KWidthCompare6/7;
+    statusLabel.clipsToBounds = YES;
+    statusLabel.textColor = [UIColor whiteColor];
+    statusLabel.textAlignment = NSTextAlignmentCenter;
+    statusLabel.hidden = YES;
+    [bgView addSubview:statusLabel];
     
     CGFloat menuViewOriginY = KDeviceHeight-downMargin-callEditHeight;
     editMenuView = [[MenuEditView alloc]initWithFrame:CGRectMake(marginLeft, menuViewOriginY, callMVWidth, callEditHeight)];
@@ -357,39 +404,72 @@ typedef enum ECallbackStep
     [editMenuView hideDialAndMenuBtn:NO End:NO EndEnabled:YES  Sure:YES RedialAndCancel:YES];
     [bgView addSubview:editMenuView];
     
-    choiceView = [[UIView alloc]initWithFrame:CGRectMake(0,  KDeviceHeight-downMargin-callEditHeight-callMVMargin-mute_no_img.size.height, KDeviceWidth, 150)];
+    choiceView = [[UIView alloc]initWithFrame:CGRectMake(0, infoView.frame.origin.y+infoView.frame.size.height+100*KWidthCompare6, KDeviceWidth, 210*KWidthCompare6)];
     choiceView.hidden = YES;
+    choiceView.backgroundColor = [UIColor clearColor];
     [bgView addSubview:choiceView];
     
-    leaveBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 10, 50, 50)];
-    leaveBtn.backgroundColor = [UIColor greenColor];
-    [leaveBtn addTarget:self action:@selector(speak) forControlEvents:UIControlEventTouchUpInside];
-    [choiceView addSubview:leaveBtn];
+    leaveMsgBtn = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth-65*KWidthCompare6)/2, 0, 65*KWidthCompare6, 65*KWidthCompare6)];
+    leaveMsgBtn.delegate = self;
+    leaveMsgBtn.layer.cornerRadius = 65*KWidthCompare6/2;
+    [leaveMsgBtn setBackgroundImage:[UIImage imageNamed:@"leaveMsgPic"] forState:UIControlStateNormal];
+    [leaveMsgBtn setBackgroundImage:[UIImage imageNamed:@"leaveMsgPic_sel"] forState:UIControlStateHighlighted];
+    //    [leaveMsgBtn addTarget:self action:@selector(leaveMsg) forControlEvents:UIControlEventTouchUpInside];
+    [leaveMsgBtn addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
+    [leaveMsgBtn addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+    [choiceView addSubview:leaveMsgBtn];
+    leaveMsgLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth-100*KWidthCompare6)/2, leaveMsgBtn.frame.origin.y+leaveMsgBtn.frame.size.height+12*KWidthCompare6,  100*KWidthCompare6, 20)];
+    leaveMsgLabel.backgroundColor = [UIColor clearColor];
+    leaveMsgLabel.textAlignment = UITextAlignmentCenter;
+    leaveMsgLabel.font = [UIFont systemFontOfSize:16];
+    leaveMsgLabel.textColor = [UIColor whiteColor];
+    [choiceView addSubview:leaveMsgLabel];
     
-    callBackBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 100, 50, 50)];
-    callBackBtn.backgroundColor = [UIColor redColor];
+    callBackBtn = [[UIButton alloc]initWithFrame:CGRectMake(75*KWidthCompare6,leaveMsgLabel.frame.origin.y+leaveMsgLabel.frame.size.height+18*KWidthCompare6, 65*KWidthCompare6, 65*KWidthCompare6)];
     [callBackBtn addTarget:self action:@selector(callButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [choiceView addSubview:callBackBtn];
+    callBackLabel = [[UILabel alloc]initWithFrame:CGRectMake(callBackBtn.frame.origin.x-35/2*KWidthCompare6, callBackBtn.frame.origin.y+callBackBtn.frame.size.height+12*KWidthCompare6,  100*KWidthCompare6, 20)];
+    callBackLabel.backgroundColor = [UIColor clearColor];
+    callBackLabel.textAlignment = UITextAlignmentCenter;
+    callBackLabel.font = [UIFont systemFontOfSize:16];
+    callBackLabel.textColor = [UIColor whiteColor];
+    [choiceView addSubview:callBackLabel];
     
-    backBtn = [[UIButton alloc]initWithFrame:CGRectMake(200, 100, 50, 50)];
-    backBtn.backgroundColor = [UIColor yellowColor];
-    [backBtn setTitle:@"返回" forState:UIControlStateNormal];
+    
+    backBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-75*KWidthCompare6-65*KWidthCompare6, leaveMsgLabel.frame.origin.y+leaveMsgLabel.frame.size.height+18*KWidthCompare6,  65*KWidthCompare6,  65*KWidthCompare6)];
+    backBtn.backgroundColor = [UIColor clearColor];
+    [backBtn setBackgroundImage:[UIImage imageNamed:@"backdown"] forState:UIControlStateNormal];
+    [backBtn setBackgroundImage:[UIImage imageNamed:@"backdown_sel"] forState:UIControlStateHighlighted];
     [backBtn addTarget:self action:@selector(dismissViewe) forControlEvents:UIControlEventTouchUpInside];
     [choiceView addSubview:backBtn];
+    backLabel = [[UILabel alloc]initWithFrame:CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6,  100*KWidthCompare6, 20)];
+    backLabel.backgroundColor = [UIColor clearColor];
+    backLabel.text = @"返回";
+    backLabel.textAlignment = UITextAlignmentCenter;
+    backLabel.font = [UIFont systemFontOfSize:16];
+    backLabel.textColor = [UIColor whiteColor];
+    [choiceView addSubview:backLabel];
     
+
     
-    callAdView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth, KDeviceHeight)];
-    callAdView.backgroundColor = [UIColor colorWithRed:0/255.0 green:161/255.0 blue:253.0/255.0 alpha:0.8];
-    callAdView.hidden = YES;
-    [self.view addSubview:callAdView];
-    UIImageView *callAdImgView = [[UIImageView alloc]initWithFrame:CGRectMake((KDeviceWidth-100)/2, (KDeviceHeight-100)/2, 100, 100)];
-    callAdImgView.userInteractionEnabled = YES;
-    callAdImgView.backgroundColor = [UIColor blackColor];
-    [callAdView addSubview:callAdImgView];
-    UIButton *closeAdBtn = [[UIButton alloc]initWithFrame:CGRectMake(90, -5, 20, 20)];
-    [closeAdBtn setImage:[UIImage imageNamed:@"adsClose.png"] forState:UIControlStateNormal];
-    [closeAdBtn addTarget:self action:@selector(closeAd) forControlEvents:UIControlEventTouchUpInside];
-    [callAdImgView addSubview:closeAdBtn];
+    shadeView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth, KDeviceHeight)];
+    shadeView.backgroundColor = [UIColor colorWithRed:0/255.0 green:0/255.0 blue:0/255.0 alpha:0.6];
+    shadeView.hidden = YES;
+    [self.view addSubview:shadeView];
+    downCallAdsBtn = [[UIButton alloc]initWithFrame:CGRectMake((KDeviceWidth-273*KWidthCompare6)/2, (KDeviceHeight-314*KWidthCompare6)/2,  273*KWidthCompare6, 314*KWidthCompare6)];
+    [downCallAdsBtn setBackgroundImage:[GetAdsContentDataSource sharedInstance].imgCallrelease forState:UIControlStateNormal];
+    downCallAdsBtn.layer.cornerRadius = 10.0;
+    downCallAdsBtn.layer.masksToBounds = YES;
+    [downCallAdsBtn addTarget:self action:@selector(toCallAdsInfo) forControlEvents:UIControlEventTouchUpInside];
+    [shadeView addSubview:downCallAdsBtn];
+    UIImage *closeImg = [UIImage imageNamed:@"call_offBtn_nor"];
+    closeAdBtn = [[UIImageView alloc]initWithFrame:CGRectMake(downCallAdsBtn.frame.origin.x+downCallAdsBtn.frame.size.width-closeImg.size.width/2,downCallAdsBtn.frame.origin.y-closeImg.size.height/2, closeImg.size.width,closeImg.size.height)];
+    closeAdBtn.userInteractionEnabled = YES;
+    closeAdBtn.image = closeImg;
+    closeTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeAd)];
+    [closeAdBtn addGestureRecognizer:closeTap];
+    [shadeView addSubview:closeAdBtn];
+    
     
     //键盘
     CGFloat phonePadHeight = 458.0/2*kKHeightCompare6;
@@ -411,6 +491,343 @@ typedef enum ECallbackStep
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onCoreEvent:)
                                                  name:NUMPVoIPEvent object:nil];
+}
+#pragma mark--开始录音---
+- (BOOL)startRecord
+{
+    NSError *error;
+    
+    if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:&error])
+    {
+        NSLog(@"Error setting session category: %@", error.localizedFailureReason);
+        return NO;
+    }
+    
+    if (![audioSession setActive:YES error:&error])
+    {
+        NSLog(@"Error activating audio session: %@", error.localizedFailureReason);
+        return NO;
+    }
+    
+    if(audioSession.inputIsAvailable == NO)
+        return NO;
+    
+    NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
+                              [NSNumber numberWithFloat: 8000],AVSampleRateKey,
+                              [NSNumber numberWithInt: kAudioFormatLinearPCM],AVFormatIDKey,
+                              [NSNumber numberWithInt:16],AVLinearPCMBitDepthKey,
+                              [NSNumber numberWithInt: 1], AVNumberOfChannelsKey,
+                              [NSNumber numberWithBool:NO],AVLinearPCMIsBigEndianKey,
+                              [NSNumber numberWithBool:NO],AVLinearPCMIsFloatKey,nil];
+    
+    NSString *fileName = [Util getAudioFileName:callNumber suffix:@".wav"];
+    //转码之后的文件名
+    recordFileURL= [NSURL fileURLWithPath:fileName];
+    if(audioRecorder)
+        [audioRecorder stop];
+    
+    NSString *cachesPaths = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *filePaths = [cachesPaths stringByAppendingPathComponent:fileName];
+    audioRecorder = [[AVAudioRecorder alloc] initWithURL:[NSURL URLWithString:filePaths] settings:settings error:&error];
+    if (!audioRecorder)
+    {
+        return NO;
+    }
+    
+    // Initialize degate, metering, etc.
+    audioRecorder.delegate = self;
+    audioRecorder.meteringEnabled = YES;
+    
+    if (![audioRecorder prepareToRecord])
+    {
+        NSLog(@"Error: Prepare to record failed");
+        return NO;
+    }
+    
+    if (![audioRecorder record])
+    {
+        NSLog(@"Error: Record failed");
+        return NO;
+    }
+    
+    uApp.inRecord = YES;
+    
+    return YES;
+}
+
+//结束录音
+- (void)stopRecord
+{
+    // This causes the didFinishRecording delegate method to fire
+    if(audioRecorder)
+    {
+        [audioRecorder stop];
+    }
+    audioRecorder = nil;
+    
+    uApp.inRecord = NO;
+    
+    if (animationTimer) {
+        [animationTimer invalidate];
+        animationTimer = nil;
+    }
+    //Added by huah in 2013-12-10
+    //[audioSession setCategory:nil error:nil];
+}
+
+
+//点击按住说话按钮时触发
+-(void)startSpeak
+{
+    infoView.hidden = YES;
+    statusLabel.hidden = YES;
+    if(isSpeaking)
+        return;
+    
+    [self showSendVIew];
+    
+    //Modified by huah in 2013-12-10
+    if([self startRecord] == YES)
+    {
+        isSpeaking = YES;
+        speakDuration = 0;
+        speakTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(speakTimerFire) userInfo:nil repeats:YES];
+        //     [speakButton setAnimation:@"animation"];
+    }
+    
+}
+
+-(void)stopSpeak
+{
+    if(isSpeaking == NO)
+        return;
+    isSpeaking = NO;
+    
+    [speakTimer invalidate];
+    //[speakDialog removeFromSuperview];
+    [self stopRecord];
+    if (speakDuration == 0) {
+        titleLabel.text = @"时间太短";
+        
+        for (UIView * temp in [bgView subviews]) {
+            if (temp.tag == 1000) {
+                [self performSelector:@selector(hideBanner:) withObject:temp  afterDelay:1.0f];
+                
+                return;
+            }
+        }
+    }
+    infoView.hidden = NO;
+    statusLabel.hidden = NO;
+    if ([[callNumber substringToIndex:5] isEqualToString:@"95013"]) {
+        [self sendAudio];
+    }else{
+        
+        if ([[callNumber substringAtIndex:0] isEqualToString:@"0"]) {
+            [self sendAudio];
+            
+        }else{
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"" message:@"留言已录制，发送短信通知对方将更快收到回复，是否发送？" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"取消",nil];
+            alertView.tag = 55;
+            [alertView show];
+        }
+        
+    }
+    
+    for (UIView * temp in [bgView subviews]) {
+        
+        if (temp.tag == 1000) {
+            [temp removeFromSuperview];
+        }
+    }
+    [animationTimer invalidate];
+}
+//实现浮动banner消失的动画效果
+-(void)hideBanner:(id)who
+{
+    UIView *view=(UIView*)who;//[map viewWithTag:TAG_V_POIINFO];
+    if(view == nil)
+    {
+        return;
+    }
+    
+    [view removeFromSuperview];
+    infoView.hidden = NO;
+    statusLabel.hidden = NO;
+}
+-(void)sendAudio
+{
+    NSString *filePath = [recordFileURL path];
+    
+    MsgLog *msg = [[MsgLog alloc] init];
+    msg.type = MSG_AUDIO_SEND;
+    msg.content = [NSString stringWithFormat:@"%d\"",speakDuration];
+    msg.subData = filePath;
+    msg.status = MSG_SENT;
+    msg.time = [[NSDate date] timeIntervalSince1970];
+    msg.duration = speakDuration;
+    UContact *contact = [[ContactManager sharedInstance] getContactByUNumber:callNumber];
+    msg.number = callNumber;
+    msg.fileType = @"amr";
+    msg.isSendLeaveMsg = isSendMSgs;
+
+
+    if (contact.type == CONTACT_uCaller) {
+        msg.logContactUID = contact.uid;
+        msg.number = contact.number;
+        msg.msgType = 1;
+    }else{
+        msg.msgType = 3;
+        msg.logContactUID = @"";
+        [uCore newTask:U_ADD_STRANGERMSGLOG data:msg];
+    }
+
+    [uCore newTask:U_SEND_MSG data:msg];
+
+}
+
+-(void)speakTimerFire
+{
+    speakDuration++;
+    
+    NSString * timeed;
+    if (speakDuration > 9) {
+        timeed = [[NSString alloc]initWithFormat:@"00:%d",speakDuration];
+    }else{
+        timeed = [[NSString alloc]initWithFormat:@"00:0%d",speakDuration];
+    }
+    
+    timeLabel.text = timeed;
+    
+}
+
+-(void)showSendVIew{
+    
+    UIView * sendView = [[UIView alloc]initWithFrame:CGRectMake(0,0,KDeviceWidth,350*KWidthCompare6)];
+    sendView.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.0];
+    sendView.tag = 1000;
+    [bgView addSubview:sendView];
+    
+    if (!animationView) {
+        animationView = [[UIView alloc]init];
+    }
+    [animationView setFrame:CGRectMake(0, 0, 0, 0)];
+    [sendView addSubview:animationView];
+    r = 0;
+    animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.005 target:self
+                                                    selector:@selector(ShowAnimation:) userInfo:sendView repeats:YES];
+    UIImageView * microphoneImgView = [[UIImageView alloc]init];
+    if (IPHONE4) {
+         microphoneImgView.frame = CGRectMake(sendView.frame.size.width/2 - 125*KWidthCompare6/2, 50*KWidthCompare6, 125*KWidthCompare6, 125*KWidthCompare6);
+    }else{
+         microphoneImgView.frame = CGRectMake(sendView.frame.size.width/2 - 125*KWidthCompare6/2, 91*KWidthCompare6, 125*KWidthCompare6, 125*KWidthCompare6);
+    }
+   
+    microphoneImgView.tag = 1001;
+    UIImage * microphoneImg = [UIImage imageNamed:@"leaveMSpeak.png"];
+    microphoneImgView.image = microphoneImg;
+    [sendView addSubview:microphoneImgView];
+    
+    
+    UIView * title = [[UIView alloc]initWithFrame:CGRectMake(sendView.frame.size.width/2 - 110*KWidthCompare6,microphoneImgView.frame.size.height + microphoneImgView.frame.origin.y + 55*KWidthCompare6 ,220*KWidthCompare6,71*KWidthCompare6)];
+    title.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.1];
+    title.layer.cornerRadius = 71*KWidthCompare6/2;
+    [sendView addSubview:title];
+    
+    if (timeLabel == nil) {
+        timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 15*KWidthCompare6, title.frame.size.width, 20*KWidthCompare6)];
+    }
+    timeLabel.font = [UIFont systemFontOfSize:18];
+    timeLabel.text = @"00:00";
+    timeLabel.textAlignment = UITextAlignmentCenter;
+    timeLabel.textColor = [UIColor whiteColor];
+    [title addSubview:timeLabel];
+    
+    titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, title.frame.size.height -  31*KWidthCompare6, title.frame.size.width, 16)];
+    titleLabel.text = @"手指上滑，取消发送";
+    titleLabel.textAlignment = UITextAlignmentCenter;
+    titleLabel.textColor = [UIColor whiteColor];
+    [title addSubview:titleLabel];
+}
+-(void)ShowAnimation:(NSTimer*)timerInfo{
+    
+    UIView * sendView = (UIView*)timerInfo.userInfo;
+    if (IPHONE4) {
+        [animationView setFrame:CGRectMake(sendView.frame.size.width/2-r/2,50*KWidthCompare6+125.0/2*KWidthCompare6-r/2, r, r)];
+
+    }else{
+        [animationView setFrame:CGRectMake(sendView.frame.size.width/2-r/2,91*KWidthCompare6+125.0/2*KWidthCompare6-r/2, r, r)];
+
+    }
+    UIColor * color = [UIColor colorWithRed:0 green:0 blue:0 alpha:1];
+    animationView.backgroundColor = [color colorWithAlphaComponent:0.5-((r > 125?r:280)/280)/2];
+    animationView.layer.cornerRadius = r/2;
+    r++;
+    if (r > 280) {
+        r = 0;
+    }
+}
+-(void)setCancelRecordingState
+{
+    if (animationTimer) {
+        [animationTimer invalidate];
+        animationTimer = nil;
+    }
+    [speakTimer invalidate];
+    [animationTimer invalidate];
+    titleLabel.textColor = [UIColor colorWithRed:0xff/255.0 green:0x59/255.0 blue:0x6d/255.0 alpha:1.0];
+    for (UIView * temp in [bgView subviews]) {
+        
+        if (temp.tag == 1000) {
+            
+            for (UIImageView * subView in [temp subviews]) {
+                if (subView.tag == 1001) {
+                    subView.image = [UIImage imageNamed:@"cancleMic"];
+                    [animationView setFrame:CGRectMake(0, 0, 0, 0)];
+                }
+            }
+            
+        }
+    }
+    
+}
+
+-(void)cancelRecording
+{
+    
+    for (UIView * temp in [bgView subviews]) {
+        
+        if (temp.tag == 1000) {
+            [temp removeFromSuperview];
+        }
+    }
+    
+    if(isSpeaking == NO)
+        return;
+    
+    isSpeaking = NO;
+    [speakTimer invalidate];
+    [self stopRecord];
+    
+    infoView.hidden = NO;
+    statusLabel.hidden = NO;
+ 
+    
+}
+- (void)toCallAdsInfo{
+    
+      [self webFunction:[GetAdsContentDataSource sharedInstance].imgUrlCallrelease];
+}
+-(void)webFunction:(NSString *)urlStr
+{
+    if (urlStr == nil || [urlStr isEqualToString:@""]) {
+        return;
+    }
+    WebViewController *webVC = [[WebViewController alloc]init];
+    webVC.webUrl = urlStr;
+    webVC.fromDismissModal = YES;
+    [self presentModalViewController:webVC animated:YES];
+//    [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
 }
 - (void)dismissViewe{
     [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
@@ -555,6 +972,7 @@ typedef enum ECallbackStep
         infoView.status = @"你在3G环境下，接听来电会消耗少量流量";
     }
     else if ( 0 == [strOnlineStatus compare:@"Wifi"]) {
+        
         infoView.status = @"你在WIFI环境下，接听来电完全免费";
     }
     else {
@@ -850,6 +1268,8 @@ typedef enum ECallbackStep
 - (void)onCallEnd:(NSString *)releaseReason
 {
     
+    phonePadView.hidden = YES;
+
     if ((callOK == NO)&&(releaseReason.integerValue == 0x100 || releaseReason.intValue == 0x101
                          ||releaseReason.intValue == 0x301)) {
         [uCore newTask:U_UMP_CALL_OUT data:callNumber];
@@ -887,6 +1307,7 @@ typedef enum ECallbackStep
         newCallCount++;
         [UConfig setMissedCallCount:[NSString stringWithFormat:@"%zd",newCallCount]];
         [uApp.rootViewController.tabBarViewController updateNewCallCount:newCallCount];
+        
     }
     
     if([Util isEmpty:releaseReason] == NO &&
@@ -929,8 +1350,11 @@ typedef enum ECallbackStep
             
         }
     }
+    if(isCallIn == YES)
+    {
+        uApp.inCalling = NO;
+    }
 }
-
 
 -(void)onTimeout
 {
@@ -1071,22 +1495,34 @@ typedef enum ECallbackStep
         msg.pNumber = msg.contact.pNumber;
     }
     
-    
+    statusLabel.hidden = NO;
+    [infoView setStatus:@""];
     if(isCallIn){
         msg.type = MSG_CALLLOG_RECV;
         if(callSec > 0){
             msg.content = [self getProgress];
-            [infoView setStatus:[NSString stringWithFormat:@"%@",callDuration]];
+            
+            statusLabel.text = callDuration;
             editMenuView.hidden = YES;
             callMenuView.hidden = YES;
             callinBottomBar.hidden = YES;
             choiceView.hidden = NO;
-            leaveBtn.hidden = YES;
+            leaveMsgBtn.hidden = YES;
+            leaveMsgLabel.hidden = YES;
             callBackBtn.hidden = YES;
-            callAdView.hidden = NO;
-            backBtn.frame = CGRectMake(150, 100, 50, 50);
+            callBackLabel.hidden = YES;
+            BOOL isReview = [UConfig getVersionReview];
+            if ([GetAdsContentDataSource sharedInstance].imgCallrelease == nil || isReview) {
+                shadeView.hidden = YES;
+                
+            }else{
+                shadeView.hidden = NO;
+            }
+            backBtn.frame = CGRectMake((KDeviceWidth-65*KWidthCompare6)/2,(choiceView.frame.size.height-97*KWidthCompare6)/2, 65*KWidthCompare6, 65*KWidthCompare6);
+            backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6, 100*KWidthCompare6, 20);
             
         }else{
+            [uApp stopRing];
             if(releaseReason.integerValue == RR_OK){
                 msg.content = [self getProgress];
             }
@@ -1101,14 +1537,15 @@ typedef enum ECallbackStep
             else{
                 msg.content = @"未接听";
             }
-            
-            [infoView setStatus:@"已拒绝"];
+            statusLabel.text = @"已挂断";
             editMenuView.hidden = YES;
             callMenuView.hidden = YES;
             callinBottomBar.hidden = YES;
             choiceView.hidden = NO;
-            [leaveBtn setTitle:@"语音留言" forState:UIControlStateNormal];
-            [callBackBtn setTitle:@"回电" forState:UIControlStateNormal];
+            leaveMsgLabel.text = @"按下留言";
+            callBackLabel.text = @"回电";
+            [callBackBtn setBackgroundImage:[UIImage imageNamed:@"callBackPic"] forState:UIControlStateNormal];
+            [callBackBtn setBackgroundImage:[UIImage imageNamed:@"callBackPic_sel"] forState:UIControlStateHighlighted];
             
         }
     }
@@ -1117,16 +1554,25 @@ typedef enum ECallbackStep
         //call out
         if(callSec > 0){
             msg.content = [self getProgress];
-            msg.content = [self getProgress];
-            [infoView setStatus:[NSString stringWithFormat:@"%@",callDuration]];
+            statusLabel.text = callDuration;
             editMenuView.hidden = YES;
             callMenuView.hidden = YES;
             choiceView.hidden = NO;
-            leaveBtn.hidden = YES;
+            leaveMsgBtn.hidden = YES;
+            leaveMsgLabel.hidden = YES;
             callBackBtn.hidden = YES;
-            callAdView.hidden = NO;
-            backBtn.frame = CGRectMake(150, 100, 50, 50);
+            callBackLabel.hidden = YES;
+            BOOL isReview = [UConfig getVersionReview];
+            if ([GetAdsContentDataSource sharedInstance].imgCallrelease == nil || isReview) {
+                shadeView.hidden = YES;
+                
+            }else{
+                shadeView.hidden = NO;
+            }
+            backBtn.frame = CGRectMake((KDeviceWidth-65*KWidthCompare6)/2,(choiceView.frame.size.height-97*KWidthCompare6)/2, 65*KWidthCompare6, 65*KWidthCompare6);
+            backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6, 100*KWidthCompare6, 20);
         }else{
+            statusLabel.text = @"未接通";
             if (releaseReason.integerValue == RR_BUSY) {
                 msg.content = @"对方挂断";
                 
@@ -1135,6 +1581,8 @@ typedef enum ECallbackStep
             {
                 //主叫超时，无人接听
                 msg.content = @"无人接听";
+                statusLabel.text = @"对方未接听";
+                
             }
             else if(releaseReason.integerValue == 1){
                 msg.content = [self getProgress];
@@ -1142,12 +1590,13 @@ typedef enum ECallbackStep
             else {
                 msg.content = @"未接听";
             }
-            [infoView setStatus:@"未接通"];
             editMenuView.hidden = YES;
             callMenuView.hidden = YES;
             choiceView.hidden = NO;
-            [leaveBtn setTitle:@"语音留言" forState:UIControlStateNormal];
-            [callBackBtn setTitle:@"重播" forState:UIControlStateNormal];
+            leaveMsgLabel.text = @"按下留言";
+            callBackLabel.text = @"重播";
+            [callBackBtn setBackgroundImage:[UIImage imageNamed:@"reCallPic"] forState:UIControlStateNormal];
+            [callBackBtn setBackgroundImage:[UIImage imageNamed:@"reCallPic_sel"] forState:UIControlStateHighlighted];
             
         }
     }
@@ -1274,7 +1723,33 @@ typedef enum ECallbackStep
     isShowContacts = NO;
     [self dismissViewControllerAnimated:animate completion:nil];
 }
-
+- (void)leaveMsg{
+    
+    MsgLogManager *msgLogManager = [MsgLogManager sharedInstance];
+    UContact *contact = [[ContactManager sharedInstance] getContactByUNumber:callNumber];
+    [msgLogManager updateNewMsgCountOfUID:contact.uid];
+    
+    ChatViewController *chatViewController = [[ChatViewController alloc] initWithContact:contact andNumber:callNumber];
+    
+    //      - (UIImage*)screenView:(UIView *)view{
+    
+    UIImage * p = [self screenView:self.view];
+    
+    chatViewController.blackImage = p;
+    
+    chatViewController.fromCallVC = YES;
+    [self presentViewController:chatViewController animated:NO completion:nil];
+    
+}
+- (UIImage*)screenView:(UIView *)view{
+    CGRect rect = view.frame;
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    [view.layer renderInContext:context];
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+}
 #pragma mark -- PadDelegate Methods
 - (void)phonePad:(id)phonepad keyDown:(NSString *)key
 {
@@ -1423,7 +1898,7 @@ typedef enum ECallbackStep
         else {
             //取消发送邀请
             isEnd = YES;
-            [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+            //            [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
         }
     }
     else if(alertView.tag == KCallEnd_Common){
@@ -1434,16 +1909,48 @@ typedef enum ECallbackStep
             return;
         }
         isEnd = YES;
-//        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+        //        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+    }
+    
+    if (alertView.tag == 55) {
+        if (buttonIndex == 0) {
+            isSendMSgs = NO;
+            [self sendAudio];
+            [self sendMsg];
+            
+        }else{
+            isSendMSgs = YES;
+            [self sendAudio];
+        }
+        
     }
 }
-
+- (void)sendMsg{
+    
+    [getAfterInfoHttp getAfterLoginInfo];
+    
+}
 #pragma mark --- http回调
 -(void)dataManager:(HTTPManager *)dataManager dataCallBack:(HTTPDataSource *)theDataSource type:(RequestType)eType bResult:(BOOL)bResult
 {
     
     if(!bResult)
     {
+        if (eType == RequestAfterLoginInfo) {
+            AfterLoginInfoDataSource *leaveMsgdataSource = (AfterLoginInfoDataSource *)theDataSource;
+            if(leaveMsgdataSource.nResultNum == 1 && leaveMsgdataSource.bParseSuccessed)
+            {
+                smsContent = leaveMsgdataSource.leaveCallMsg;
+                if ([smsContent isEqualToString:@""] || smsContent == nil) {
+                    smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+                }
+                
+            }else{
+                smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+            }
+            
+            [Util sendInvite:[NSArray arrayWithObject:callNumber] from:self andContent:smsContent];
+        }
         return;
     }
     
@@ -1561,6 +2068,22 @@ typedef enum ECallbackStep
             NSLog(@"NewSendSms is success!");
         }
     }
+    else if (eType == RequestAfterLoginInfo) {
+        AfterLoginInfoDataSource *leaveMsgdataSource = (AfterLoginInfoDataSource *)theDataSource;
+        if(leaveMsgdataSource.nResultNum == 1 && leaveMsgdataSource.bParseSuccessed)
+        {
+            smsContent = leaveMsgdataSource.leaveCallMsg;
+            if ([smsContent isEqualToString:@""] || smsContent == nil) {
+                smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+            }
+            
+        }else{
+            smsContent = [NSMutableString stringWithFormat:@"我给你发送了一条留言，登录呼应可收听，下载地址：http://t.cn/RAOxRVf"];
+        }
+        
+        [Util sendInvite:[NSArray arrayWithObject:callNumber] from:self andContent:smsContent];
+    }
+
 }
 
 -(void)callbackCallend
@@ -1769,7 +2292,7 @@ typedef enum ECallbackStep
         [self performSelector:@selector(StartInviteCaller) withObject:nil afterDelay:interval];
     }
     else {
-        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
+        //        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
     }
 }
 
@@ -1954,29 +2477,9 @@ typedef enum ECallbackStep
     [manager Caller:callNumber Contact:callLog.contact ParentView:self Forced:RequestCallerType_Unknow];
     
 }
-
-
--(void)speak{
-    
-    
-    ChatViewController *chatViewController = [[ChatViewController alloc] initWithContact:callLog.contact andNumber:callLog.contact.uNumber];
-    chatViewController.blackImage = [self screenView:self.view];
-    
-    self.view.hidden = YES;
-   // chatViewController.fromContactInfo = YES;
-    
-    
-//    UINavigationController *contactNav = [[UINavigationController alloc] initWithRootViewController:chatViewController];
-//    
-//    [self presentViewController:contactNav animated:YES completion:nil];
-  //  [contactNav pushViewController:chatViewController animated:NO];
-    
-    [[UAppDelegate uApp].rootViewController.navigationController pushViewController:chatViewController animated:YES];
-}
-
-
 - (void)closeAd{
-    [callAdView removeFromSuperview];
+    phonePadView.hidden = YES;
+    [shadeView removeFromSuperview];
 }
 #pragma mark ---对callNumber类型的判断---
 -(BOOL)checkCallInNumberType:(numberSubtype)numberType
@@ -2008,17 +2511,4 @@ typedef enum ECallbackStep
     return numType;
 }
 
-
-
-- (UIImage*)screenView:(UIView *)view{
-    CGRect rect = view.frame;
-    UIGraphicsBeginImageContext(rect.size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    [view.layer renderInContext:context];
-    // [self.navigationController.view.layer renderInContext:context];
-    
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return img;
-}
 @end

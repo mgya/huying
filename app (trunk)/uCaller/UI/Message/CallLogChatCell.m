@@ -254,7 +254,10 @@
 {
     if(delegate && [delegate respondsToSelector:@selector(closeInput)])
     {
-        [delegate closeInput];
+        if (msgLog.isSend) {
+            [delegate closeInput];
+        }
+
     }
 
     

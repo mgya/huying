@@ -147,6 +147,11 @@ typedef enum{
     adView.frame = CGRectMake(0, 0, KDeviceWidth,138);
     adView.backgroundColor = [UIColor clearColor];
     
+    closeBtn = [[UIButton alloc] initWithFrame:CGRectMake(KDeviceWidth-40,10,25,25)];
+    [closeBtn addTarget:self action:@selector(didClose) forControlEvents:UIControlEventTouchUpInside];
+    closeBtn.backgroundColor = [UIColor clearColor];
+    [closeBtn setImage:[UIImage imageNamed:@"adsClose.png"] forState:UIControlStateNormal];
+    
     if ([UConfig getSignType]) {
         adButton = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 125*KWidthCompare6-20)];
         adButton.backgroundColor = [UIColor clearColor];
@@ -164,13 +169,6 @@ typedef enum{
     adView.backgroundColor = [UIColor clearColor];
     [bgScrollView addSubview:adView];
     [bgScrollView addSubview:signView];
-
-    
-    closeBtn = [[UIButton alloc] initWithFrame:CGRectMake(KDeviceWidth-40,10,25,25)];
-    [closeBtn addTarget:self action:@selector(didClose) forControlEvents:UIControlEventTouchUpInside];
-    closeBtn.backgroundColor = [UIColor clearColor];
-    [closeBtn setImage:[UIImage imageNamed:@"adsClose.png"] forState:UIControlStateNormal];
-    
     
     
     //连续签到天数

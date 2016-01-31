@@ -27,7 +27,7 @@
     CGRect curFrame;
     
     SvGifView * _gifView;
-
+    
 }
 
 @synthesize contact;
@@ -37,7 +37,7 @@
 
 
 + (UILabel *)createLabel:(CGRect)rect font:(UIFont *)font
-{  
+{
     UILabel *label = [[UILabel alloc] initWithFrame:rect];
     label.backgroundColor = [UIColor clearColor];
     label.adjustsFontSizeToFitWidth = YES;
@@ -56,7 +56,7 @@
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
-	if (self)
+    if (self)
     {
         curFrame = frame;
         self.backgroundColor = [UIColor clearColor];
@@ -71,7 +71,7 @@
         CGRect photoFrame = CGRectMake((photoBgView.frame.size.width-defaultPhotoWidth)/2,(photoBgView.frame.size.height-defaultPhotoWidth)/2,defaultPhotoWidth,defaultPhotoWidth);
         photoImgView = [[UIImageView alloc] initWithFrame:photoFrame];
         [photoBgView addSubview:photoImgView];
-
+        
         
         CGRect labelFrame = CGRectMake(0, photoBgView.frame.origin.y + photoBgView.frame.size.height + 2.0, KDeviceWidth, 20);
         nameLabel = [CallInfoView createLabel:labelFrame font:[UIFont systemFontOfSize:16.0f]];
@@ -117,7 +117,7 @@
         [self addSubview:bgImgView];
         
     }
-	return self;
+    return self;
 }
 
 - (id)initWithDefaultSize
@@ -248,7 +248,7 @@
 }
 
 -(void)startGif{
-     [_gifView startGif];
+    [_gifView startGif];
 }
 
 @end

@@ -691,10 +691,10 @@
     }
     
     netStatus = curStatus;
-    if (uCore.isOnline) {
+   // if (uCore.isOnline) {
         NSLog(@"onNetChanged U_UMP_GOAWAY");
         [uCore newTask:U_UMP_GOAWAY];
-    }
+  //  }
     
     if(curStatus == kReachableViaWWAN ||
        curStatus == kReachableViaWiFi){

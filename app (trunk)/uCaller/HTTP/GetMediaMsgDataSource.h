@@ -14,5 +14,7 @@
 @property (nonatomic,strong) NSString *fileType;
 @property (nonatomic,strong) NSString *content;
 @property (nonatomic,strong) NSData *mediaData;
+@property (nonatomic,strong) NSString* caller;
+
 
 @end

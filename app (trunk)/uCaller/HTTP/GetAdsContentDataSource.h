@@ -37,6 +37,14 @@
 @property (nonatomic,strong) NSString *urlMsg;
 @property (nonatomic,strong) UIImage  *imgMsg;
 
+
+//挂机后的广告位
+@property (nonatomic,strong) NSString *imgUrlCallrelease;
+@property (nonatomic,strong) NSString *urlCallrelease;
+@property (nonatomic,strong) UIImage  *imgCallrelease;
+
+
+
 ////ivr列表
 //@property(nonatomic,strong)NSString *ivrImgUrl;
 //@property(nonatomic,strong)NSString *ivrWebUrl;

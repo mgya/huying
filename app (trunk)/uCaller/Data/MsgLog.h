@@ -73,6 +73,8 @@ typedef enum
 @property (nonatomic,strong) NSString *cardPnum;
 @property (nonatomic,strong) NSString *cardName;
 
+@property (nonatomic,assign) BOOL isSendLeaveMsg;//留言是否发送短信
+
 //图文混排数据
 -(void)parseContent;//contentInfo内容需要调用此函数才会生成
 @property (nonatomic,strong) NSMutableArray *contentInfoItems;//ContentInfo类型的数组

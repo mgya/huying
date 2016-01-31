@@ -91,6 +91,10 @@
     HTTPManager *iapPayManager;
     
     IAPObserver *iapObserver;
+    
+    UIButton *closeBtn;
+    
+    NSInteger index;
 
 }
 @end
@@ -104,7 +108,7 @@
     if (self = [super init]) {
         addStatHttp = [[HTTPManager alloc]init];
         addStatHttp.delegate = self;
-        
+        index = 0;
         backLock = NO;
     }
     return self;
@@ -124,8 +128,18 @@
     
     [huyingWebView setBackgroundColor:[UIColor clearColor]];
     [(UIScrollView *)[[huyingWebView subviews] objectAtIndex:0] setBounces:NO];
-    //[absWebView.scrollView setScrollEnabled:YES];
     [self.view addSubview:huyingWebView];
+    
+    
+    closeBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth-50, 7, 44, 30)];
+    closeBtn.backgroundColor = [UIColor clearColor];
+    [closeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [closeBtn setTitle:@"关闭" forState:UIControlStateNormal];
+    [closeBtn addTarget:self action:@selector(closeWin) forControlEvents:UIControlEventTouchUpInside];
+    closeBtn.titleLabel.font = [UIFont systemFontOfSize:18.0];
+    [self addNaviSubView:closeBtn];
+    closeBtn.hidden = YES;
+    
     
     //添加右滑返回
     [UIUtil addBackGesture:self andSel:@selector(rightReturnLastPage:)];
@@ -174,18 +188,50 @@
 
 -(void)rightReturnLastPage:(UISwipeGestureRecognizer * )swipeGesture{
     if ([swipeGesture locationInView:self.view].x < 100) {
-        [self.navigationController popViewControllerAnimated:YES];
-
+        [self returnLastPage];
     }
 }
 
 -(void)returnLastPage
 {
+    
+    if ([huyingWebView canGoBack]) {
+        [huyingWebView goBack];
+        index--;
+        
+        if (index == 0) {
+            closeBtn.hidden = NO;
+        }else{
+            closeBtn.hidden = YES;
+        }
+
+    }else{
+        [self clearWebView];
+        backLock =NO;
+        huyingWebView = nil;
+        [self.view endEditing:YES];
+        
+        if (_fromDismissModal) {
+            [self dismissModalViewControllerAnimated:YES];
+        }else{
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+    }
+
+}
+
+
+-(void)closeWin{
     [self clearWebView];
     backLock =NO;
     huyingWebView = nil;
     [self.view endEditing:YES];
-    [self.navigationController popViewControllerAnimated:YES];
+    
+    if (_fromDismissModal) {
+        [self dismissModalViewControllerAnimated:YES];
+    }else{
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 
 }
 
@@ -228,7 +274,7 @@
     [huyingWebView loadRequest:request];
     
     huyingWebView.delegate = self;
-    
+
 }
 
 -(NSString *)checkParameter:(BOOL)isShareWX
@@ -268,6 +314,11 @@
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
     
+    if ([huyingWebView canGoBack]) {
+        closeBtn.hidden = NO;
+    }else{
+        closeBtn.hidden = YES;
+    }
 
     NSString *userAgent = [request valueForHTTPHeaderField:@"User-Agent"];
     NSLog(@"userAgent = %@",userAgent);
@@ -573,9 +624,7 @@
             }
           }else if ([funcStr isEqualToString:KBuyInfo]){
                NSString *funcInfo = [arrFucnameAndParameter objectAtIndex:1];
-             //  funcInfo =@"huying:com.ucaller.buyInfo?wareID=100004&payFee=6&iapID=com.huying.ucaller.p6";
-              
-              
+
               NSRange liftRange = [funcInfo rangeOfString:@"wareID="];
               NSRange rightRange =[funcInfo rangeOfString:@"&payFee"];
               NSRange range;
@@ -627,7 +676,7 @@
 -(void)webViewDidFinishLoad:(UIWebView *)webView
 {
     self.navTitleLabel.text = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-    
+    index++;
     backLock = YES;
     [self backFunction];
 }

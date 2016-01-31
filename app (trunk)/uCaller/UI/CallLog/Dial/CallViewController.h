@@ -15,6 +15,16 @@
 #import "TellFriendsViewController.h"
 #import "MenuEditView.h"
 
+#import <UIKit/UIKit.h>
+#import "BaseViewController.h"
+#import "UContact.h"
+#import "UAdditions.h"
+#import <MessageUI/MessageUI.h>
+
+
+#import "RecordingView.h"
+#import "LongPressButton.h"
+
 @class CTCallCenter;
 
 @protocol CallViewControllerDelegate <NSObject>
@@ -23,7 +33,7 @@
 
 @end
 
-@interface CallViewController : UIViewController<MenuCallViewDelegate,PadDelegate,UIAlertViewDelegate, HTTPManagerControllerDelegate, MFMessageComposeViewControllerDelegate, ShowContactViewDelegate,TellFriendsVCDelegate,MenuEditViewDelegate,UIActionSheetDelegate>
+@interface CallViewController : UIViewController<MenuCallViewDelegate,PadDelegate,UIAlertViewDelegate, HTTPManagerControllerDelegate, MFMessageComposeViewControllerDelegate, ShowContactViewDelegate,TellFriendsVCDelegate,MenuEditViewDelegate,UIActionSheetDelegate,AVAudioRecorderDelegate,LongPressedDelegate>
 
 @property(nonatomic,assign) BOOL isCallIn;//判断是否是打入电话
 @property(nonatomic,strong) UIWindow *window;

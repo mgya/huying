@@ -119,6 +119,11 @@
         {
             curType = TellFriends;
         }
+        else if([sharedType isEqualToString: KMEDIASMS])
+        {
+            curType = Mediasms;
+        }
+        
         
         if (curType == SharedType_Unknow) {
             continue;

@@ -195,18 +195,14 @@ static CallerManager *sharedInstance = nil;
     }//3g
     else if ( 0 == [strOnlineStatus compare:@"Wifi"])
     {
-        if ( [UConfig WifiCaller] == ECallerType_UnKnow ||
-            [UConfig WifiCaller] == ECallerType_Wifi_Direct) {
-            [self DirectCaller];
-        }
-        else if ([UConfig WifiCaller] == ECallerType_Wifi_Callback) {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"" message:@"您拨打的号码有误" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil,nil];
-            callNumber = caller;
-            [alertView show];
-            
-            
-            [self CallbackCaller];
-        }
+            if ( [UConfig WifiCaller] == ECallerType_UnKnow ||
+                [UConfig WifiCaller] == ECallerType_Wifi_Direct) {
+                [self DirectCaller];
+            }
+            else if ([UConfig WifiCaller] == ECallerType_Wifi_Callback) {
+                [self CallbackCaller];
+            }
+
     }//wifi
     
     

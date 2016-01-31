@@ -15,10 +15,12 @@
 #import "DropMenuView.h"
 #import "CallerManager.h"
 #import "PersonalInfoViewController.h"
+#import "RecordingView.h"
+#import "LongPressButton.h"
 
 
 
-@interface ContactInfoViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,MFMessageComposeViewControllerDelegate,DropViewDelegate,HTTPManagerControllerDelegate,UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,ContactInfoDelegate>
+@interface ContactInfoViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,MFMessageComposeViewControllerDelegate,DropViewDelegate,HTTPManagerControllerDelegate,UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,ContactInfoDelegate,AVAudioRecorderDelegate,LongPressedDelegate>
 
 -(id)initWithContact:(UContact *)aContact;
 
@@ -26,6 +28,8 @@
 @property (nonatomic,assign) BOOL fromChat;
 
 @property (nonatomic,assign)BOOL fromTel;
+
+
 
 @end
 

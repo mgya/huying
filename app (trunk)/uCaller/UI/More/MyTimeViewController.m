@@ -245,60 +245,62 @@
     if ([UConfig getVersionReview]) {
         buttonExchange.hidden = YES;
     }
-    UIView * bestView = [[UIView alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height, KDeviceWidth, 45)];
-    bestView.backgroundColor = [UIColor whiteColor];
-    [self.view addSubview:bestView];
-    UIImageView *bestImageView = [[UIImageView alloc]initWithFrame:CGRectMake(12, 9,27, 27)];
-    bestImageView.image = [UIImage imageNamed:@"BestPackage"];
-    [bestView addSubview:bestImageView];
-    UILabel * bearText = [[UILabel alloc]initWithFrame:CGRectMake(49, 0, 100, 45)];
-    bearText.text = @"精选优惠";
-    bearText.font = [UIFont systemFontOfSize:16];
-    CGSize bsize = [bearText.text sizeWithFont:bearText.font constrainedToSize:CGSizeMake(180.0f, 1000.0f) lineBreakMode:UILineBreakModeWordWrap];
-    bearText.frame = CGRectMake(49, 0, bsize.width,45);
-    bearText.backgroundColor = [UIColor clearColor];
-    [bestView addSubview:bearText];
-    
-    UIView *grayBestLineView = [[UIView alloc]initWithFrame:CGRectMake(0,45-0.5, KDeviceWidth, 0.5 )];
-    grayBestLineView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
-    [bestView addSubview:grayBestLineView];
-    
-    moneyView = [[UIView alloc]initWithFrame:CGRectMake(0,backImgView.frame.size.height+bestView.frame.size.height, KDeviceWidth, 117*KWidthCompare6)];
 
-    moneyView.backgroundColor = [UIColor colorWithRed:250.0/255.0 green:250.0/255.0 blue:250.0/255.0 alpha:1.0];
-    [self.view addSubview:moneyView];
     
     
     
     hotArry = [GetAdsContentDataSource sharedInstance].hotArray;
     
-    
-    
-    for (int i = 0; i<3; i++) {
-        UIButton *moneyBtn = [[UIButton alloc]initWithFrame:CGRectMake(12*KWidthCompare6+121*KWidthCompare6*i, 15*KWidthCompare6, 109*KWidthCompare6, 87*KWidthCompare6)];
-        [moneyBtn setBackgroundImage:[UIImage imageNamed:@"BestPackage"] forState:UIControlStateNormal];
-        moneyBtn.tag = i;
-        [moneyBtn addTarget:self action:@selector(jumpInfo:) forControlEvents:UIControlEventTouchUpInside];
-        [moneyView addSubview:moneyBtn];
+    if (hotArry.count == 3) {
+        UIView * bestView = [[UIView alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height, KDeviceWidth, 45)];
+        bestView.backgroundColor = [UIColor whiteColor];
+        [self.view addSubview:bestView];
+        UIImageView *bestImageView = [[UIImageView alloc]initWithFrame:CGRectMake(12, 9,27, 27)];
+        bestImageView.image = [UIImage imageNamed:@"BestPackage"];
+        [bestView addSubview:bestImageView];
+        UILabel * bearText = [[UILabel alloc]initWithFrame:CGRectMake(49, 0, 100, 45)];
+        bearText.text = @"精选优惠";
+        bearText.font = [UIFont systemFontOfSize:16];
+        CGSize bsize = [bearText.text sizeWithFont:bearText.font constrainedToSize:CGSizeMake(180.0f, 1000.0f) lineBreakMode:UILineBreakModeWordWrap];
+        bearText.frame = CGRectMake(49, 0, bsize.width,45);
+        bearText.backgroundColor = [UIColor clearColor];
+        [bestView addSubview:bearText];
         
-        NSNumber *NSi = [NSNumber numberWithInt:i];
+        UIView *grayBestLineView = [[UIView alloc]initWithFrame:CGRectMake(0,45-0.5, KDeviceWidth, 0.5 )];
+        grayBestLineView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
+        [bestView addSubview:grayBestLineView];
         
-        NSInvocationOperation * Operation= [[NSInvocationOperation alloc]initWithTarget:self selector:@selector(getHotImage:) object:NSi];
-        NSOperationQueue * queue = [[NSOperationQueue alloc]init];
-        [queue addOperation:Operation];
-    
+        moneyView = [[UIView alloc]initWithFrame:CGRectMake(0,backImgView.frame.size.height+bestView.frame.size.height, KDeviceWidth, 117*KWidthCompare6)];
         
+        moneyView.backgroundColor = [UIColor colorWithRed:250.0/255.0 green:250.0/255.0 blue:250.0/255.0 alpha:1.0];
+        [self.view addSubview:moneyView];
+        for (int i = 0; i<3; i++) {
+            UIButton *moneyBtn = [[UIButton alloc]initWithFrame:CGRectMake(12*KWidthCompare6+121*KWidthCompare6*i, 15*KWidthCompare6, 109*KWidthCompare6, 87*KWidthCompare6)];
+            [moneyBtn setBackgroundImage:[UIImage imageNamed:@"BestPackage"] forState:UIControlStateNormal];
+            moneyBtn.tag = i;
+            [moneyBtn addTarget:self action:@selector(jumpInfo:) forControlEvents:UIControlEventTouchUpInside];
+            [moneyView addSubview:moneyBtn];
+            
+            NSNumber *NSi = [NSNumber numberWithInt:i];
+            
+            NSInvocationOperation * Operation= [[NSInvocationOperation alloc]initWithTarget:self selector:@selector(getHotImage:) object:NSi];
+            NSOperationQueue * queue = [[NSOperationQueue alloc]init];
+            [queue addOperation:Operation];
+        }
     }
+    
+
     UIView *grayMLineView = [[UIView alloc]initWithFrame:CGRectMake(0,117*KWidthCompare6-0.5, KDeviceWidth, 0.5 )];
     grayMLineView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
     [moneyView addSubview:grayMLineView];
     
     
-    
-    
-    
     //套餐按钮
     UIButton * buttonPackage = [[UIButton alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height+45+127*KWidthCompare6, KDeviceWidth, 45)];
+    
+    if (hotArry.count != 3) {
+        [buttonPackage setFrame:CGRectMake(0, backImgView.frame.size.height, KDeviceWidth, 45)];
+    }
     
     buttonPackage.backgroundColor = [UIColor whiteColor];
     

@@ -445,7 +445,7 @@
     logDataArray = [[NSMutableArray alloc]init];
     for (int i = 0; i<callLogManager.allCallLogs.count; i++) {
         if ([callLogManager.allCallLogs[i] contact] == nil) {
-            [logDataArray addObject:[callLogManager.allCallLogs[i] number]];
+            [logDataArray addObject:[(CallLog*)(callLogManager.allCallLogs[i]) number]];
         }
     }
     //获取全部联系人
