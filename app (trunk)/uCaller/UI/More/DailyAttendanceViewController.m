@@ -144,7 +144,7 @@ typedef enum{
     //轮播广告
     adView = [[UIView alloc]init];
     adView.backgroundColor = PAGE_BACKGROUND_COLOR;
-    adView.frame = CGRectMake(0, 0, KDeviceWidth,138);
+    adView.frame = CGRectMake(0, 0, KDeviceWidth,224.0/2*KWidthCompare6+10);
     adView.backgroundColor = [UIColor clearColor];
     
     closeBtn = [[UIButton alloc] initWithFrame:CGRectMake(KDeviceWidth-40,10,25,25)];
@@ -153,7 +153,7 @@ typedef enum{
     [closeBtn setImage:[UIImage imageNamed:@"adsClose.png"] forState:UIControlStateNormal];
     
     if ([UConfig getSignType]) {
-        adButton = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 125*KWidthCompare6-20)];
+        adButton = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, KDeviceWidth-20,224.0/2*KWidthCompare6)];
         adButton.backgroundColor = [UIColor clearColor];
         adButton.hidden = YES;
         [adView addSubview:adButton];
@@ -165,8 +165,7 @@ typedef enum{
         adView.hidden = YES;
         signView =[[UIView alloc]initWithFrame:CGRectMake(0,0, self.view.frame.size.width, bgScrollView.frame.size.height)];
     }
-    
-    adView.backgroundColor = [UIColor clearColor];
+    signView.backgroundColor = [UIColor clearColor];
     [bgScrollView addSubview:adView];
     [bgScrollView addSubview:signView];
     
@@ -177,12 +176,12 @@ typedef enum{
     
     if (IPHONE4) {
         //如果是iPhone4让此控件相比iphone4以上的设备上移一些使参与抽奖下的规则能被看到
-        bgView.frame = CGRectMake((self.view.frame.size.width/2-dailyDaysImg.size.width/2), 16, dailyDaysImg.size.width, dailyDaysImg.size.height);
+        bgView.frame = CGRectMake((self.view.frame.size.width/2-dailyDaysImg.size.width/2), 10, dailyDaysImg.size.width, dailyDaysImg.size.height);
     }else{
-        bgView.frame = CGRectMake((self.view.frame.size.width/2-dailyDaysImg.size.width/2), 26, dailyDaysImg.size.width, dailyDaysImg.size.height);
+        bgView.frame = CGRectMake((self.view.frame.size.width/2-dailyDaysImg.size.width/2), 20, dailyDaysImg.size.width, dailyDaysImg.size.height);
     }
 
-    
+    bgView.backgroundColor = [UIColor clearColor];
     bgView.image = dailyDaysImg;
     [signView addSubview:bgView];
     
@@ -358,7 +357,7 @@ typedef enum{
             }
         }
         if (!self.mainScorllView) {
-            self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 236/2) animationDuration:3];
+            self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(10, 10, KDeviceWidth-20,224.0/2*KWidthCompare6) animationDuration:3];
         }
 
         self.mainScorllView.backgroundColor = [UIColor clearColor];
@@ -370,7 +369,7 @@ typedef enum{
             self.automaticallyAdjustsScrollViewInsets = NO;//解决scrollView不从左上角显示
         }
         for (int i = 0; i < self.adImgArr.count; ++i) {
-            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 236/2)];
+            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 224.0/2*KWidthCompare6)];
             tempImgView.image = (UIImage *)[self.adImgArr objectAtIndex:i];
             [viewsArray addObject:tempImgView];
         }

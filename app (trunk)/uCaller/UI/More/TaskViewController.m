@@ -93,17 +93,17 @@
     //轮播广告
     adView = [[UIView alloc]init];
     adView.backgroundColor = PAGE_BACKGROUND_COLOR;
-    adView.frame = CGRectMake(0, LocationY, KDeviceWidth,138);
+    adView.frame = CGRectMake(0, LocationY, KDeviceWidth,244.0/2*KWidthCompare6+10+(10-KMore_TableViewCell_FooterSecion_Height/2));
     adView.backgroundColor = [UIColor clearColor];
 
 
     if ([UConfig getTaskType]) {
-        adButton = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 125*KWidthCompare6-20)];
+        adButton = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 244.0/2*KWidthCompare6)];
         adButton.backgroundColor = [UIColor clearColor];
         adButton.hidden = YES;
         [adView addSubview:adButton];
         
-        makeCallsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0,LocationY + adView.frame.size.height * KHeightCompare6, self.view.frame.size.width,KDeviceHeight) style:UITableViewStylePlain];
+        makeCallsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0,LocationY + adView.frame.size.height, self.view.frame.size.width,KDeviceHeight) style:UITableViewStylePlain];
         [self showAdsContents:[GetAdsContentDataSource sharedInstance].taskArray];
         [self.view addSubview:adView];
         
@@ -178,7 +178,7 @@
             }
         }
         
-        self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 236.0/2) animationDuration:3];
+        self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 244.0/2) animationDuration:3];
         self.mainScorllView.backgroundColor = [UIColor clearColor];
         
         NSMutableArray *viewsArray = [@[] mutableCopy];
@@ -187,7 +187,7 @@
             self.automaticallyAdjustsScrollViewInsets = NO;//解决scrollView不从左上角显示
         }
         for (int i = 0; i < self.adImgArr.count; ++i) {
-            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 236.0/2)];
+            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KDeviceWidth, 244.0/2)];
             tempImgView.image = (UIImage *)[self.adImgArr objectAtIndex:i];
             [viewsArray addObject:tempImgView];
         }

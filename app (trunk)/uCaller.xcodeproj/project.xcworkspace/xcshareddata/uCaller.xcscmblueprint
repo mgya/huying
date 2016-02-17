@@ -2,9 +2,7 @@
   "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "3530a9aa-1d36-4169-9ad6-e0fbab5621bc++2393",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
     "3530a9aa-1d36-4169-9ad6-e0fbab5621bc++2393" : {
-      "DVTSourceControlWorkingCopyRepositoryBranchesLocationKey" : "mobile\/IOS\/app\/branches",
-      "DVTSourceControlWorkingCopyRepositoryTagsLocationKey" : "mobile\/IOS\/app\/tags",
-      "DVTSourceControlWorkingCopyRepositoryPrimaryBranchLocationKey" : "mobile\/IOS\/app\/trunk"
+
     }
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {

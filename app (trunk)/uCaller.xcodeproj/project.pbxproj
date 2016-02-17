@@ -861,7 +861,6 @@
 		3FB21D0B18D196FB009B6010 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB21C3E18D196FA009B6010 /* ASIInputStream.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3FB21D0C18D196FB009B6010 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB21C4018D196FA009B6010 /* ASINetworkQueue.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3FB21D0D18D196FB009B6010 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB21C4418D196FA009B6010 /* Reachability.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		3FB21D5718D19717009B6010 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FB21D5618D19717009B6010 /* libxml2.dylib */; };
 		3FB7D245195126CB004E2F7B /* TextAndMoodMsgContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB7D244195126CB004E2F7B /* TextAndMoodMsgContentView.m */; };
 		3FB7D24D195137BF004E2F7B /* GifView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB7D24C195137BF004E2F7B /* GifView.m */; };
 		3FB822B81954183200EC87DE /* more_share_unenable.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FB822B61954183200EC87DE /* more_share_unenable.png */; };
@@ -1902,6 +1901,7 @@
 		C85CBA1D1B969E44000CA367 /* nopackage@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C85CBA1A1B969E44000CA367 /* nopackage@2x.png */; };
 		C85CBA1E1B969E44000CA367 /* nopackage@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C85CBA1B1B969E44000CA367 /* nopackage@3x.png */; };
 		C86A126F1C2BA082004A1E8E /* DailyGuideView.m in Sources */ = {isa = PBXBuildFile; fileRef = C86A126E1C2BA082004A1E8E /* DailyGuideView.m */; };
+		C870EF361C72FD0F00720E8D /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C870EF351C72FD0F00720E8D /* libxml2.tbd */; };
 		C88035D61C474C120081AF4F /* speak.png in Resources */ = {isa = PBXBuildFile; fileRef = C88035D01C474C120081AF4F /* speak.png */; };
 		C88035D71C474C120081AF4F /* speak@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C88035D11C474C120081AF4F /* speak@2x.png */; };
 		C88035D81C474C120081AF4F /* speak@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C88035D21C474C120081AF4F /* speak@3x.png */; };
@@ -3044,7 +3044,6 @@
 		3FB21C4118D196FA009B6010 /* ASIProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIProgressDelegate.h; sourceTree = "<group>"; };
 		3FB21C4318D196FA009B6010 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		3FB21C4418D196FA009B6010 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		3FB21D5618D19717009B6010 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		3FB7D243195126CB004E2F7B /* TextAndMoodMsgContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextAndMoodMsgContentView.h; sourceTree = "<group>"; };
 		3FB7D244195126CB004E2F7B /* TextAndMoodMsgContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextAndMoodMsgContentView.m; sourceTree = "<group>"; };
 		3FB7D24B195137BF004E2F7B /* GifView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GifView.h; sourceTree = "<group>"; };
@@ -4159,7 +4158,6 @@
 		848233701B14606100088D14 /* CalleeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalleeViewController.m; sourceTree = "<group>"; };
 		84824EB71B1AB5C500D781CE /* GetFriendRecommendlistDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GetFriendRecommendlistDataSource.h; sourceTree = "<group>"; };
 		84824EB81B1AB5C500D781CE /* GetFriendRecommendlistDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GetFriendRecommendlistDataSource.m; sourceTree = "<group>"; };
-		8484CAA019F657AE00A0744D /* libz.1.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.5.dylib; path = usr/lib/libz.1.2.5.dylib; sourceTree = SDKROOT; };
 		8484CAA219F657B900A0744D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		8484CAA419F657D700A0744D /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		848637301A4829CE009C86BF /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -4353,6 +4351,7 @@
 		C85CBA1B1B969E44000CA367 /* nopackage@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nopackage@3x.png"; sourceTree = "<group>"; };
 		C86A126D1C2BA082004A1E8E /* DailyGuideView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DailyGuideView.h; sourceTree = "<group>"; };
 		C86A126E1C2BA082004A1E8E /* DailyGuideView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DailyGuideView.m; sourceTree = "<group>"; };
+		C870EF351C72FD0F00720E8D /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		C87D74D51BFAF1C000DE15C8 /* WBHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WBHttpRequest.h; sourceTree = "<group>"; };
 		C87D74D61BFAF1C000DE15C8 /* WBHttpRequest+WeiboGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WBHttpRequest+WeiboGame.h"; sourceTree = "<group>"; };
 		C87D74D71BFAF1C000DE15C8 /* WBHttpRequest+WeiboShare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WBHttpRequest+WeiboShare.h"; sourceTree = "<group>"; };
@@ -4552,6 +4551,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C870EF361C72FD0F00720E8D /* libxml2.tbd in Frameworks */,
 				C8DD9F8E1C27E6F900CFFD59 /* libz.tbd in Frameworks */,
 				3FC9DB0518D1993C0046168C /* SystemConfiguration.framework in Frameworks */,
 				8486C4CA1B677D84000BA53E /* Security.framework in Frameworks */,
@@ -4587,7 +4587,6 @@
 				3FC9DB0118D199210046168C /* AVFoundation.framework in Frameworks */,
 				843DD1D41B6107F4004DD39B /* AlipaySDK.framework in Frameworks */,
 				3F466FBA18D198E1006E365E /* libresolv.dylib in Frameworks */,
-				3FB21D5718D19717009B6010 /* libxml2.dylib in Frameworks */,
 				3FD7958D18C95EB8001AA386 /* UIKit.framework in Frameworks */,
 				3FD7958918C95EB8001AA386 /* Foundation.framework in Frameworks */,
 				8426FCE41A09FB890021AD6E /* libWeiboSDK.a in Frameworks */,
@@ -6659,6 +6658,7 @@
 		3FD7958718C95EB8001AA386 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C870EF351C72FD0F00720E8D /* libxml2.tbd */,
 				C8DD9F8D1C27E6F900CFFD59 /* libz.tbd */,
 				C8C894021BDDE37F009DFCAB /* libstdc++.6.0.9.tbd */,
 				C8C894001BDDE350009DFCAB /* libsqlite3.0.tbd */,
@@ -6670,7 +6670,6 @@
 				848637301A4829CE009C86BF /* AudioToolbox.framework */,
 				8484CAA419F657D700A0744D /* CoreMotion.framework */,
 				8484CAA219F657B900A0744D /* Security.framework */,
-				8484CAA019F657AE00A0744D /* libz.1.2.5.dylib */,
 				3F43B30518D58BB700AFAD4B /* Accelerate.framework */,
 				3FDCDF2818D2D78E00C68A0A /* Accelerate.framework */,
 				3F5C5C1218D972A200FB1588 /* Accounts.framework */,
@@ -6693,7 +6692,6 @@
 				3F2EBF2618D6F4CE0017958E /* libsqlite3.dylib */,
 				3FDCDF2C18D2D7EE00C68A0A /* libsqlite3.dylib */,
 				3F2EBF2A18D6F4F00017958E /* libstdc++.dylib */,
-				3FB21D5618D19717009B6010 /* libxml2.dylib */,
 				3FC9DB0218D1992E0046168C /* libz.dylib */,
 				3FBDC34919231D92007FE85D /* MessageUI.framework */,
 				3FDCDF1818D2D72100C68A0A /* MobileCoreServices.framework */,
