@@ -26,7 +26,6 @@
 #import "UOperate.h"
 #import "CheckShareDataSource.h"
 
-#import "OpenAppView.h"
 
 
 #define RANGE (KDeviceWidth*0.82)  // 缩放范围
@@ -37,6 +36,9 @@
     
     CGFloat x;
     BOOL bType;
+    
+    UITapGestureRecognizer* ad;
+    OpenAppView *vc;
 }
 @end
 
@@ -64,24 +66,22 @@
     UIColor *myColorRGB = [UIColor colorWithRed:25/255.0  green:29/255.0  blue:37/255.0  alpha: 1.0];
     self.view.backgroundColor  = myColorRGB;
 
+
     sideMenuViewController = [[SideMenuViewController alloc]init];
     sideMenuViewController.delegate = self;
     sideMenuViewController.view.frame = self.view.frame;
     sideMenuViewController.itemHeight = 100;
-    [self.view addSubview: sideMenuViewController.view];
     
-    tabBarViewController = [[TabBarViewController alloc] init];
     
-    tabBarViewController.view.frame = self.view.frame;
-    tabBarViewController.delegate = self;
-    [self.view addSubview: tabBarViewController.view];
+
+    
     
     RESideMenuItem *inviteItem = [[RESideMenuItem alloc]  initWithTitle:@"邀请好友" image:@"friend" action:^(RESideMenuItem *item) {
         
         InviteContactViewController *inviteViewContoller = [[InviteContactViewController alloc] init];
         [self.navigationController pushViewController:inviteViewContoller animated:YES];
         [self initZoom];
-    
+        
     }];
     RESideMenuItem *exchangeItem = [[RESideMenuItem alloc] initWithTitle:@"邀请码/兑换时长" image:@"Exchange" action:^(RESideMenuItem *item) {
         
@@ -119,49 +119,64 @@
     
     
     
-//#ifdef HOLIDAY
-//    
-//        RESideMenuItem *billItem = [[RESideMenuItem alloc] initWithTitle:@"充值"  image:@"double11Side" action:^(RESideMenuItem *item) {
-//            BillMainViewController *billmainViewController = [[BillMainViewController alloc] init];
-//            [self.navigationController pushViewController:billmainViewController animated:YES];
-//            [self initZoom];
-//        }];
-//    
-//#else
-//        RESideMenuItem *billItem = [[RESideMenuItem alloc] initWithTitle:@"充值"  image:@"bill" action:^(RESideMenuItem *item) {
-////            BillMainViewController *billmainViewController = [[BillMainViewController alloc] init];
-////            [self.navigationController pushViewController:billmainViewController animated:YES];
-//            WebViewController *shopViewController = [[WebViewController alloc]init];
-//            shopViewController.webUrl = @"http://www.yxhuying.com/new_site/activity/ivr/index.do?uid=109457785&version=2.2.1.800";
-//            [self.navigationController pushViewController:shopViewController animated:YES];
-//            [self initZoom];
-//        }];
-//    
-//#endif
-    
-    
-
-    
     sideMenuViewController.items  =[[NSArray alloc]initWithObjects:inviteItem  ,exchangeItem, calleeItem,callerItem,nil];
+    
+    vc = [[OpenAppView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    vc.delegate = self;
+    vc.isVisible  = YES;
+    
+    
+    ad = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(closeAdView:)];
+    [self.view addGestureRecognizer:ad];
+    [self.view addSubview:vc];
+    
     
     //右滑侧边栏
     panGes = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(viewZoom:)];
     panGes.delegate = self;
     panGes.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:panGes];
     
     [CheckShareDataSource clean];
     
+}
+
+
+
+
+-(void)closeAdView:(UITapGestureRecognizer*)tap{
     
-    OpenAppView *vc = [[OpenAppView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    if (vc.hidden) {
+        return;
+    }
+    [self.view removeGestureRecognizer:ad];
+    vc.hidden = YES;
+
+
+    tabBarViewController = [[TabBarViewController alloc] init];
     
-    vc.isVisible  = YES;
+    tabBarViewController.view.frame = self.view.frame;
+    tabBarViewController.delegate = self;
+    [self.view addSubview: sideMenuViewController.view];
+    [self.view addSubview: tabBarViewController.view];
     
     
-    
-    
-    [self.view addSubview:vc];
+    if (tap) {
+        WebViewController * vc2 = [[WebViewController alloc]init];
+        vc2.webUrl = @"http://www.sina.com";
+        [self.navigationController pushViewController:vc2 animated:YES];
+    }
+
     
 }
+
+
+
+
+
+
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

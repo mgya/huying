@@ -8,6 +8,7 @@
 
 #import "BaseViewController.h"
 #import "SideMenuViewController.h"
+#import "OpenAppView.h"
 
 @protocol MainViewDelegate <NSObject>
 
@@ -21,7 +22,7 @@
 @end
 
 
-@interface MainViewController : BaseViewController<UIGestureRecognizerDelegate,SideMenuDelegate,MainViewDelegate>
+@interface MainViewController : BaseViewController<UIGestureRecognizerDelegate,SideMenuDelegate,MainViewDelegate,OpenAppViewDelegate>
 
 @property(nonatomic,strong)TabBarViewController *tabBarViewController;
 

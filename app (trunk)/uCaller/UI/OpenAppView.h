@@ -8,13 +8,22 @@
 
 #import <UIKit/UIKit.h>
 
-@interface OpenAppView : UIView
+@protocol OpenAppViewDelegate <NSObject>
 
+
+@required
+-(void)closeAdView:(UITapGestureRecognizer*)tap;
+@end
+
+
+
+
+@interface OpenAppView : UIView
 
 
 @property(nonatomic,assign)BOOL isVisible;
 
 
-
+@property (nonatomic, weak) id<OpenAppViewDelegate> delegate;
 
 @end

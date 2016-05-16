@@ -30,13 +30,27 @@
     
     visible = isVisible;
     
+    if (!isVisible) {
+        self.hidden = YES;
+        return;
+    }
+    
     self.backgroundColor = [UIColor redColor];
     
     
+    UIImageView * ad = [[UIImageView alloc]initWithFrame:self.frame];
+    ad.image = [UIImage imageNamed:@"myTimeBackImg11"];
+    [self addSubview:ad];
     
+    [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(hideSelf) userInfo:nil repeats:NO];
+
     
 }
 
-
+-(void)hideSelf{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(closeAdView:)]) {
+        [self.delegate closeAdView:nil];
+     }
+}
 
 @end
