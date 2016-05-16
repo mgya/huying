@@ -21,7 +21,7 @@
     UIButton *bgImageView;
     
     UIImageView *picImgView;
-    MYLabel *picLabel;
+    UILabel *picLabel;
     UIButton *picBtn;
     
     UIView *infoView;
@@ -54,16 +54,16 @@
         if (!mainView) {
             mainView = [[UIView alloc] init];
         }
-
+        
         mainView.backgroundColor = [UIColor clearColor];
         
         //        isChanged = NO;
         
         //        imgDict = [UAppDelegate uApp].imageDict;
         if (!contactPhotoView) {
-                contactPhotoView = [[UIImageView alloc] initWithFrame:CGRectMake(12,timeLabel.frame.origin.y+timeLabel.frame.size.height+18*kKHeightCompare6, 37, 37)];
+            contactPhotoView = [[UIImageView alloc] initWithFrame:CGRectMake(12,timeLabel.frame.origin.y+timeLabel.frame.size.height+18*kKHeightCompare6, 37, 37)];
         }
-
+        
         UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onPhotoTapped)];
         [contactPhotoView addGestureRecognizer:tapGesture];
         contactPhotoView.userInteractionEnabled = YES;
@@ -73,29 +73,29 @@
         if (!bgImageView) {
             bgImageView = [UIButton buttonWithType:UIButtonTypeCustom];
         }
-
+        
         bgImageView.backgroundColor = [UIColor clearColor];
-
+        
         bgImageView.userInteractionEnabled = YES;
-
-       
-        picImgView = [[UIImageView alloc]initWithFrame:CGRectMake(15*KWidthCompare6, 9, 218*KWidthCompare6, 127*KWidthCompare6)];
+        
+        
+        picImgView = [[UIImageView alloc]initWithFrame:CGRectMake(15*KWidthCompare6, 9, 238*KWidthCompare6, 127*KWidthCompare6)];
         picImgView.backgroundColor = [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
         
         defImage = [UIImage imageNamed:@"sendPhotoImg"];
         defaultPicImageView = [[UIImageView alloc]initWithFrame:CGRectMake((picImgView.frame.size.width - defImage.size.width/2)/2, (picImgView.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
         defaultPicImageView.image = defImage;
         [picImgView addSubview:defaultPicImageView];
-
+        
         picImgView.userInteractionEnabled = YES;
-        picLabel = [[MYLabel alloc]initWithFrame:CGRectMake(0, 90*KWidthCompare6, 218*KWidthCompare6, 36*KWidthCompare6)];
+        picLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 90*KWidthCompare6, 238*KWidthCompare6, 42*KWidthCompare6)];
         picLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7];
         picLabel.textColor = [UIColor whiteColor];
         picLabel.font = [UIFont systemFontOfSize:15];
-        [picLabel setVerticalAlignment:VerticalAlignmentMiddle];
+        picLabel.numberOfLines = 2;
         [picImgView addSubview:picLabel];
         
-        picBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 218*KWidthCompare6, 127*KWidthCompare6)];
+        picBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 238*KWidthCompare6, 127*KWidthCompare6)];
         [picImgView addSubview:picBtn];
         
         
@@ -136,7 +136,7 @@
     
     
     msgLog = aMsgLog;
-
+    
     
     //绘制时间
     if(showTime == YES)
@@ -151,8 +151,8 @@
     
     
     CGRect mainFrame,photoFrame;
-     CGSize mainSize;
-    mainSize.width = 240*KWidthCompare6;
+    CGSize mainSize;
+    mainSize.width = 260*KWidthCompare6;
     mainSize.height = 135*KWidthCompare6 + (msgLog.contentInfoItems.count-1)*64*KWidthCompare6;
     
     //set mainFrame
@@ -183,9 +183,9 @@
             [contactPhotoView makeDefaultPhotoView:[UIFont systemFontOfSize:24]];
         }
         [self.contentView addSubview:contactPhotoView];
-  
+        
         ContentInfo *msgInfoBig = msgLog.contentInfoItems[0];
-
+        
         
         if (msgInfoBig.pic) {
             picImgView.image = msgInfoBig.pic;
@@ -197,23 +197,22 @@
         [infoTitleArr addObject:msgInfoBig.title];
         picBtn.tag = 0;
         [picBtn addTarget:self action:@selector(jump:) forControlEvents:UIControlEventTouchUpInside];
-
+        
         for (int i = 1; i<msgLog.contentInfoItems.count; i++) {
             ContentInfo *msgInfo = msgLog.contentInfoItems[i];
-            infoView = [[UIView alloc]initWithFrame:CGRectMake(7*KWidthCompare6, 145*KWidthCompare6 + ((i-1)*57*KWidthCompare6), 231*KWidthCompare6, 57*KWidthCompare6)];
+            infoView = [[UIView alloc]initWithFrame:CGRectMake(7*KWidthCompare6, 145*KWidthCompare6 + ((i-1)*57*KWidthCompare6), 251*KWidthCompare6, 57*KWidthCompare6)];
             infoBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 57*KWidthCompare6)];
             [infoView addSubview:infoBtn];
-            nameLabel = [[MYLabel alloc]initWithFrame:CGRectMake(9*KWidthCompare6, 2,160*KWidthCompare6,55*KWidthCompare6)];
+            nameLabel = [[MYLabel alloc]initWithFrame:CGRectMake(9*KWidthCompare6, 2,180*KWidthCompare6,55*KWidthCompare6)];
             [nameLabel setVerticalAlignment:VerticalAlignmentMiddle];
             nameLabel.numberOfLines = 0;
             nameLabel.font = [UIFont systemFontOfSize:14];
             nameLabel.backgroundColor = [UIColor clearColor];
             [infoView addSubview:nameLabel];
-            infoImgView = [[UIImageView alloc]initWithFrame:CGRectMake(183*KWidthCompare6, 6*KWidthCompare6, 45*KWidthCompare6, 45*KWidthCompare6)];
+            infoImgView = [[UIImageView alloc]initWithFrame:CGRectMake(194*KWidthCompare6, 3*KWidthCompare6, 52*KWidthCompare6, 52*KWidthCompare6)];
             infoImgView.backgroundColor =  [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
-            
             [infoView addSubview:infoImgView];
-            UIView *dividView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 468.0/2*KWidthCompare6, 1)];
+            UIView *dividView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 508.0/2*KWidthCompare6, 1)];
             dividView.backgroundColor = [UIColor colorWithRed:227.0/255.0 green:227.0/255.0 blue:227.0/255.0 alpha:1.0];
             [infoView addSubview:dividView];
             
@@ -223,7 +222,7 @@
             }else{
                 infoImgView.image = msgInfo.pic;
             }
-
+            
             nameLabel.text = msgInfo.title;
             [linkUrlArr addObject:msgInfo.link];
             [jumpTypeArr addObject: msgInfo.jump];
@@ -257,7 +256,7 @@
     //绘制背景
     [self.contentView addSubview:mainView];
     [mainView setFrame:mainFrame];
-//    callBtn.frame = CGRectMake(0, 0, mainFrame.size.width, mainFrame.size.height);
+    //    callBtn.frame = CGRectMake(0, 0, mainFrame.size.width, mainFrame.size.height);
     
     //气泡
     NSString *bgImgName;
@@ -280,10 +279,10 @@
     [bgImageView setBackgroundImage:norImage forState:UIControlStateNormal];
     [bgImageView setBackgroundImage:selImage forState:UIControlStateHighlighted];
     [bgImageView setBackgroundImage:selImage forState:UIControlStateSelected];
-//    [bgImageView addTarget:self action:@selector(callBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    //    [bgImageView addTarget:self action:@selector(callBtnClick) forControlEvents:UIControlEventTouchUpInside];
     [mainView addSubview:bgImageView];
     [bgImageView addSubview:picImgView];
-
+    
     
 }
 
@@ -302,7 +301,7 @@
     if (menu) {
         menu.menuVisible = NO;
     }
-
+    
     if ([jumpTypeArr[sender.tag] isEqualToString:@"no"]) {
         return;
     }else{

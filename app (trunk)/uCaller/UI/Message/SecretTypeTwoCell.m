@@ -46,7 +46,7 @@
         timeLabel.font = [UIFont systemFontOfSize:13.0];
         timeLabel.textColor = [UIColor lightGrayColor];
         timeLabel.backgroundColor = [UIColor clearColor];
-      
+        
         mainView = [[UIView alloc] init];
         mainView.backgroundColor = [UIColor clearColor];
         
@@ -59,14 +59,14 @@
         contactPhotoView.userInteractionEnabled = YES;
         
         myPhotoView = [[UIImageView alloc] initWithFrame:CGRectMake(KDeviceWidth-49,timeLabel.frame.origin.y+timeLabel.frame.size.height, 37, 37)];
-
+        
         //chatlogcell最底层
         bgImageView = [UIButton buttonWithType:UIButtonTypeCustom];
         bgImageView.backgroundColor = [UIColor clearColor];
         bgImageView.userInteractionEnabled = YES;
         
         
-        titleLabel = [[MYLabel alloc]initWithFrame:CGRectMake(18*KWidthCompare6,0, 240*KWidthCompare6-26*KWidthCompare6, 60*KWidthCompare6)];
+        titleLabel = [[MYLabel alloc]initWithFrame:CGRectMake(18*KWidthCompare6,0, 260*KWidthCompare6-26*KWidthCompare6, 60*KWidthCompare6)];
         titleLabel.textAlignment = NSTextAlignmentLeft;
         titleLabel.backgroundColor = [UIColor clearColor];
         [titleLabel setVerticalAlignment:VerticalAlignmentMiddle];
@@ -75,18 +75,18 @@
         titleLabel.numberOfLines = 2;
         [bgImageView addSubview:titleLabel];
         
-        picImgView = [[UIImageView alloc]initWithFrame:CGRectMake(18*KWidthCompare6, 60*KWidthCompare6, 426.0/2*KWidthCompare6, 183.0/2*KWidthCompare6)];
+        picImgView = [[UIImageView alloc]initWithFrame:CGRectMake(18*KWidthCompare6, 60*KWidthCompare6, 466.0/2*KWidthCompare6, 183.0/2*KWidthCompare6)];
         picImgView.backgroundColor =  [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
-
+        
         UIImage * defImage = [UIImage imageNamed:@"sendPhotoImg"];
         defaultPicImageView = [[UIImageView alloc]initWithFrame:CGRectMake((picImgView.frame.size.width - defImage.size.width/2)/2, (picImgView.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
         defaultPicImageView.image = defImage;
         [picImgView addSubview:defaultPicImageView];
-
-    
+        
+        
         
         [bgImageView addSubview:picImgView];
-       
+        
         
         nameLabel = [[MYLabel alloc]init];
         nameLabel.backgroundColor = [UIColor clearColor];
@@ -157,14 +157,14 @@
     }else{
         yPos = 18*kKHeightCompare6;
     }
-
+    
     
     CGRect mainFrame,photoFrame;
     CGSize mainSize;
     
-    mainSize.width = 240*KWidthCompare6;
+    mainSize.width = 260*KWidthCompare6;
     
-
+    
     //set mainFrame
     //set photo
     if(msgLog.isRecv)
@@ -179,7 +179,7 @@
         picImgView.image = msgInfo.pic;
         link = msgInfo.link;
         jumpType = msgInfo.jump;
-
+        
         if (msgInfo.text.length > 50) {
             msgInfo.text = [msgInfo.text substringToIndex:50];
             msgInfo.text = [msgInfo.text stringByAppendingString:@"..."];
@@ -187,7 +187,7 @@
         
         CGSize size = [msgInfo.text sizeWithFont:[UIFont systemFontOfSize:13] constrainedToSize:CGSizeMake(mainSize.width, MAXFLOAT) lineBreakMode:NSLineBreakByCharWrapping];
         
-        nameLabel.frame = CGRectMake(18*KWidthCompare6, picImgView.frame.origin.y+picImgView.frame.size.height,438.0/2*KWidthCompare6, size.height+24*KWidthCompare6);
+        nameLabel.frame = CGRectMake(18*KWidthCompare6, picImgView.frame.origin.y+picImgView.frame.size.height,478.0/2*KWidthCompare6, size.height+24*KWidthCompare6);
         mainSize.height = 152*KWidthCompare6+nameLabel.frame.size.height;
         nameLabel.backgroundColor = [UIColor clearColor];
         nameLabel.text = msgInfo.text;
@@ -199,7 +199,7 @@
         photoFrame.origin.y = mainFrame.origin.y + mainFrame.size.height - photoFrame.size.height;
         photoFrame.origin.x = mainFrame.origin.x+mainFrame.size.width+10;
         myPhotoView.frame = CGRectMake(KDeviceWidth-49, photoFrame.origin.y, photoFrame.size.width, photoFrame.size.height);
-    
+        
         if (showTime == NO) {
             contactPhotoView.frame = CGRectMake(12, 18*kKHeightCompare6, 37, 37);
         }else{
@@ -217,13 +217,13 @@
         }
         [self.contentView addSubview:contactPhotoView];
         
-       
+        
         
         CGSize picViewSize;
         
-        picViewSize.width = 240*KWidthCompare6 - 24*KWidthCompare6;
+        picViewSize.width = 260*KWidthCompare6 - 24*KWidthCompare6;
         picViewSize.height = 92*KWidthCompare6;
-
+        
     }
     else {
         mainFrame = CGRectMake(KDeviceWidth - 49 - mainSize.width - 5, yPos, mainSize.width, mainSize.height);
@@ -291,7 +291,7 @@
     if (menu) {
         menu.menuVisible = NO;
     }
-
+    
     if ([jumpType isEqualToString:@"no"]) {
         return;
     }else{
@@ -299,7 +299,7 @@
             [delegate forInfo:link andJumpType:jumpType andTitle:infoTitle];
         }
     }
-   
+    
 }
 -(void)onPhotoTapped
 {

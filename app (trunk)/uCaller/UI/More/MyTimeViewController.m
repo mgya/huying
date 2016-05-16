@@ -35,6 +35,8 @@
 
 #import "TimeBiViewController.h"
 
+
+
 //#import "PhotoGuideView.h"
 @interface MyTimeViewController ()<UITableViewDataSource,UITableViewDelegate>
 {

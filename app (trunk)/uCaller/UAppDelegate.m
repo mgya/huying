@@ -51,10 +51,6 @@
 //#import <tingyunApp/NBSAppAgent.h>
 
 
-
-
-
-
 @interface UAppDelegate (Private)
 
 - (void)beginBackgroudTask;
@@ -191,6 +187,19 @@
     
     [self startup];
     
+    
+
+    
+//    UIView *ad = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 100, 100)];
+//    
+//    ad.backgroundColor = [UIColor blueColor];
+//    
+//    [self.window addSubview:ad];
+    
+    
+    
+    
+    
     if([UConfig hasUserInfo] && [UConfig getAToken])
     {
         [self showMainView];
@@ -210,12 +219,12 @@
     
 /////////////////////////////////////////////
     //本地推送
-    application.applicationIconBadgeNumber = 0;
-    if (iOS8) {
-        UIUserNotificationType type=UIUserNotificationTypeBadge | UIUserNotificationTypeAlert | UIUserNotificationTypeSound;
-        UIUserNotificationSettings *setting=[UIUserNotificationSettings settingsForTypes:type categories:nil];
-        [[UIApplication sharedApplication]registerUserNotificationSettings:setting];
-    }
+//    application.applicationIconBadgeNumber = 0;
+//    if (iOS8) {
+//        UIUserNotificationType type=UIUserNotificationTypeBadge | UIUserNotificationTypeAlert | UIUserNotificationTypeSound;
+//        UIUserNotificationSettings *setting=[UIUserNotificationSettings settingsForTypes:type categories:nil];
+//        [[UIApplication sharedApplication]registerUserNotificationSettings:setting];
+//    }
     
     
 

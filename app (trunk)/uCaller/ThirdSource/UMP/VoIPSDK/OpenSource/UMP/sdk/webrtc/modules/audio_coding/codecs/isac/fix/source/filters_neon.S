@@ -9,7 +9,7 @@
 @
 @ Reference code in filters.c. Output is bit-exact.
 
-#include "webrtc/system_wrappers/interface/asm_defines.h"
+#include "../../../../webrtc/system_wrappers/interface/asm_defines.h"
 
 GLOBAL_FUNCTION WebRtcIsacfix_AutocorrNeon
 .align  2

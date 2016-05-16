@@ -45,7 +45,7 @@
         timeLabel.backgroundColor = [UIColor clearColor];
         mainView = [[UIView alloc] init];
         mainView.backgroundColor = [UIColor clearColor];
-//        mainView.userInteractionEnabled = YES;
+        //        mainView.userInteractionEnabled = YES;
         
         //        isChanged = NO;
         
@@ -61,7 +61,7 @@
         bgImageView.backgroundColor = [UIColor clearColor];
         bgImageView.adjustsImageWhenHighlighted = NO;
         [mainView addSubview:bgImageView];
-    
+        
         picBtn = [[UIButton alloc]init];
         picBtn.backgroundColor = [UIColor colorWithRed:0xf2/255.0 green:0xf2/255.0 blue:0xf2/255.0 alpha:1.0];
         picBtn.adjustsImageWhenHighlighted = NO;
@@ -70,10 +70,10 @@
         defaultPicImageView = [[UIImageView alloc]initWithFrame:CGRectMake((picBtn.frame.size.width - defImage.size.width/2)/2, (picBtn.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
         defaultPicImageView.image = defImage;
         [picBtn addSubview:defaultPicImageView];
-
+        
         [bgImageView addSubview:picBtn];
         
-        myLabel = [[MYLabel alloc]initWithFrame:CGRectMake(18*KWidthCompare6,0, 220*KWidthCompare6, 60*KWidthCompare6)];
+        myLabel = [[MYLabel alloc]initWithFrame:CGRectMake(18*KWidthCompare6,0, 240*KWidthCompare6, 60*KWidthCompare6)];
         myLabel.numberOfLines = 2;
         myLabel.backgroundColor = [UIColor clearColor];
         myLabel.textAlignment = NSTextAlignmentLeft;
@@ -144,18 +144,18 @@
     
     CGRect mainFrame,photoFrame;
     CGSize mainSize;
-  
-    mainSize.width = 240*KWidthCompare6;
-   
+    
+    mainSize.width = 260*KWidthCompare6;
+    
     //set mainFrame
     //set photo
     if(msgLog.isRecv)
     {
         
         ContentInfo * msgInfo = msgLog.contentInfoItems[0];
-        myLabel.text = msgInfo.title;       
+        myLabel.text = msgInfo.title;
         picImage = msgInfo.pic;
-
+        
         if (picImage == nil) {
             picImage = [UIImage imageNamed:@"sendPhotoImg"];
         }else{
@@ -169,23 +169,23 @@
             picBtn.frame = CGRectMake(18*KWidthCompare6, myLabel.frame.origin.y+myLabel.frame.size.height,  70*KWidthCompare6,picImage.size.height * (70*KWidthCompare6/picImage.size.width));
         }
         else if (picImage.size.width > 211*KWidthCompare6){
-            picBtn.frame = CGRectMake(18*KWidthCompare6, myLabel.frame.origin.y+myLabel.frame.size.height, 211*KWidthCompare6, picImage.size.height * (211*KWidthCompare6/picImage.size.width));
+            picBtn.frame = CGRectMake(18*KWidthCompare6, myLabel.frame.origin.y+myLabel.frame.size.height, 211*KWidthCompare6, picImage.size.height * (231*KWidthCompare6/picImage.size.width));
         }
         else
         {
             picBtn.frame = CGRectMake(18*KWidthCompare6, myLabel.frame.origin.y+myLabel.frame.size.height, picImage.size.width, picImage.size.height);
         }
-
+        
         [defaultPicImageView setFrame:CGRectMake((picBtn.frame.size.width - defImage.size.width/2)/2, (picBtn.frame.size.height - defImage.size.height/2)/2, defImage.size.width/2, defImage.size.height/2)];
-    
+        
         mainSize.height = picBtn.frame.size.height + myLabel.frame.origin.y+myLabel.frame.size.height + 12*KWidthCompare6;
-                
+        
         
         [picBtn addTarget:self action:@selector(maxPhotoImg:) forControlEvents:UIControlEventTouchUpInside];
         
         [bgImageView addSubview:picBtn];
         
-         mainFrame = CGRectMake(54 + 5, yPos, mainSize.width, mainSize.height);
+        mainFrame = CGRectMake(54 + 5, yPos, mainSize.width, mainSize.height);
         
         photoFrame = contactPhotoView.frame;
         if (showTime == NO) {
@@ -205,7 +205,7 @@
         }
         [self.contentView addSubview:contactPhotoView];
         
-
+        
     }
     else {
         mainFrame = CGRectMake(KDeviceWidth - 49 - mainSize.width - 5, yPos, mainSize.width, mainSize.height);
@@ -253,7 +253,7 @@
     [bgImageView setBackgroundImage:selImage forState:UIControlStateHighlighted];
     [bgImageView setBackgroundImage:selImage forState:UIControlStateSelected];
     [mainView addSubview:bgImageView];
-
+    
 }
 -(void)onPhotoTapped
 {
@@ -270,7 +270,7 @@
     if (menu) {
         menu.menuVisible = NO;
     }
-
+    
     ContentInfo * msgInfo = msgLog.contentInfoItems[0];
     if ([msgInfo.jump isEqualToString:@"no"]) {
         if (delegate && [delegate respondsToSelector:@selector(forMaxImg:andSmallImg:)]) {

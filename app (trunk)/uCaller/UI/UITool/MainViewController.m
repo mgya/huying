@@ -26,6 +26,8 @@
 #import "UOperate.h"
 #import "CheckShareDataSource.h"
 
+#import "OpenAppView.h"
+
 
 #define RANGE (KDeviceWidth*0.82)  // 缩放范围
 
@@ -148,6 +150,17 @@
     panGes.cancelsTouchesInView = NO;
     
     [CheckShareDataSource clean];
+    
+    
+    OpenAppView *vc = [[OpenAppView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    
+    vc.isVisible  = YES;
+    
+    
+    
+    
+    [self.view addSubview:vc];
+    
 }
 
 - (void)didReceiveMemoryWarning {

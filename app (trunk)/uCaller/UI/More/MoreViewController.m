@@ -41,6 +41,7 @@
 #import "PhotoGuideView.h"
 #import "CreditWebViewController.h"
 #import "CreditNavigationController.h"
+#import <DIOpenSDK/DIOpenSDK.h>
 
 typedef enum{
     webAlertTag,
@@ -738,9 +739,13 @@ typedef enum{
         CreditNavigationController *nav=[[CreditNavigationController alloc]initWithRootViewController:web];
         [nav setNavColorStyle:[UIColor colorWithRed:195/255.0 green:0 blue:19/255.0 alpha:1]];
         [self presentViewController:nav animated:YES completion:nil];
-    }
-
-    else{
+    }else if ([urlStr isEqualToString:@"huying:com.yxhuying.thirdparty.didi"]){
+        
+        [DIOpenSDK registerApp:@"didi644344644F69736F6A326976526355" secret:@"f0045afac660f5d2c6ff955bf7b0bb92"];
+        
+        [DIOpenSDK showDDPage:self animated:YES params:nil delegate:self];
+        
+    }else{
         WebViewController *webVC = [[WebViewController alloc]init];
         webVC.webUrl = urlStr;
         [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
