@@ -21,7 +21,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.3.0</string>
+	<string>2.4.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -90,7 +90,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>2.3.0.0</string>
+	<string>2.4.1</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>weixin</string>
@@ -109,10 +109,16 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>请确认权限</string>
 	<key>NSContactsUsageDescription</key>
-	<string>我们将访问您的通讯录，帮您找到已开通"呼应"的通讯录好友，通讯录信息不会被保存。</string>
+	<string>请确认权限</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>请确认权限</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>请确认权限</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>voip</string>

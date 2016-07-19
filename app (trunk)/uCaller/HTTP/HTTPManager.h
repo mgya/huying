@@ -88,6 +88,9 @@ typedef enum {
     RequestGetAccountBalance = 108,
     RequestDurationtrans = 109,
     RequestGetreserveaddress = 102,
+    RequestupdateSafeState = 103,
+    RequestgetSafeState = 104,
+    Requestmediatips = 105,
     
     /*pes没有协议号*/
     RequestUpdatePushInfo=100001,
@@ -151,6 +154,8 @@ typedef enum
 - (void)getShareMsgForAppDelegate;//每次且进程的时候会请求一次分享内容
 -(void)checkUser:(NSString *)phoneNumber;//检查当前手机号是否注册
 -(void)getUserInfo:(GetUserInfoType)curType andNumper:(NSString *)curNumber andPassWord:(NSString *)passWord;
+-(void)updateSafeState:(NSString*)userUid andSafeState:(NSString*)state;
+-(void)getSafeState:(NSString*)userUid;
 -(void)giveGift:(NSString *)type andSubType:(NSString *)subType andInviteNumber:(NSArray *)numbers;//获取赠送时常
 -(void)getUserTimer:(NSString *)type;//获取剩余时常
 
@@ -271,6 +276,13 @@ typedef enum
 -(void)getUserDurationtrans:(NSString*)month page:(NSString*)index pageSize:(NSString*)size;
 //备选域名
 -(void)getreserveaddress;
+
+
+//开机广告
+-(void)getMediatips;
+
+
+
 @end
 
 @protocol HTTPManagerControllerDelegate

@@ -25,6 +25,9 @@
 #import "RESideMenuItem.h"
 #import "UOperate.h"
 #import "CheckShareDataSource.h"
+#import "HTTPManager.h"
+#import "RequestgetSafeStateDatasource.h"
+#import "UCore.h"
 
 
 
@@ -39,6 +42,10 @@
     
     UITapGestureRecognizer* ad;
     OpenAppView *vc;
+    
+    HTTPManager *getSafeStateHttp;
+    UCore *uCore;
+
 }
 @end
 
@@ -52,6 +59,11 @@
         x = 0;
         bType = YES;
         aType = YES;
+        
+        getSafeStateHttp = [[HTTPManager alloc]init];
+        getSafeStateHttp.delegate = self;
+        
+        uCore = [UCore sharedInstance];
     }
     
     return self;
@@ -66,23 +78,61 @@
     UIColor *myColorRGB = [UIColor colorWithRed:25/255.0  green:29/255.0  blue:37/255.0  alpha: 1.0];
     self.view.backgroundColor  = myColorRGB;
 
-
+    
     sideMenuViewController = [[SideMenuViewController alloc]init];
     sideMenuViewController.delegate = self;
     sideMenuViewController.view.frame = self.view.frame;
     sideMenuViewController.itemHeight = 100;
+    [self.view addSubview: sideMenuViewController.view];
     
+    tabBarViewController = [[TabBarViewController alloc] init];
+    tabBarViewController.view.frame = self.view.frame;
+    tabBarViewController.delegate = self;
+    [self.view addSubview: tabBarViewController.view];
     
+    startAdInfo * adInfo = [UConfig getStartAdInfo];
+    if (adInfo) {
+        vc = [[OpenAppView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+        vc.delegate = self;
+        vc.info = adInfo;
+        vc.isVisible  = YES;
+        ad = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(closeAdView:)];
+        [vc addGestureRecognizer:ad];
+        
+    }
+    [self.view addSubview:vc];
+    
+    //安全通话接口
+    [getSafeStateHttp getSafeState:[UConfig getUID]];
 
     
+    [self updateSideMenView];
     
-    RESideMenuItem *inviteItem = [[RESideMenuItem alloc]  initWithTitle:@"邀请好友" image:@"friend" action:^(RESideMenuItem *item) {
-        
-        InviteContactViewController *inviteViewContoller = [[InviteContactViewController alloc] init];
-        [self.navigationController pushViewController:inviteViewContoller animated:YES];
-        [self initZoom];
-        
-    }];
+    //右滑侧边栏
+    panGes = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(viewZoom:)];
+    panGes.delegate = self;
+    panGes.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:panGes];
+    
+    [CheckShareDataSource clean];
+    
+}
+- (void)updateSideMenView{
+    RESideMenuItem *inviteItem;
+    if ([uCore.recommended isEqualToString:@"1"]) {
+        inviteItem = [[RESideMenuItem alloc]  initWithTitle:@"推荐有奖" image:@"commendSide" action:^(RESideMenuItem *item) {
+            
+            WebViewController * commendVC = [[WebViewController alloc]init];
+            commendVC.webUrl = @"http://www.yxhuying.com/jsp/recommend/share.jsp?uid={uid}&version={version}";
+            [self.navigationController pushViewController:commendVC animated:YES];
+         
+            [self initZoom];
+            
+        }];
+    }else{
+        inviteItem = nil;
+    }
+    
     RESideMenuItem *exchangeItem = [[RESideMenuItem alloc] initWithTitle:@"邀请码/兑换时长" image:@"Exchange" action:^(RESideMenuItem *item) {
         
         ExchangeViewController *exchangeViewContoller = [[ExchangeViewController alloc] init];
@@ -117,66 +167,59 @@
         }
     }];
     
-    
-    
-    sideMenuViewController.items  =[[NSArray alloc]initWithObjects:inviteItem  ,exchangeItem, calleeItem,callerItem,nil];
-    
-    vc = [[OpenAppView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-    vc.delegate = self;
-    vc.isVisible  = YES;
-    
-    
-    ad = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(closeAdView:)];
-    [self.view addGestureRecognizer:ad];
-    [self.view addSubview:vc];
-    
-    
-    //右滑侧边栏
-    panGes = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(viewZoom:)];
-    panGes.delegate = self;
-    panGes.cancelsTouchesInView = NO;
-    [self.view addGestureRecognizer:panGes];
-    
-    [CheckShareDataSource clean];
-    
+    if (inviteItem == nil) {
+        sideMenuViewController.items  =[[NSArray alloc]initWithObjects:exchangeItem, calleeItem,callerItem,nil];
+    }else{
+        sideMenuViewController.items  =[[NSArray alloc]initWithObjects:inviteItem  ,exchangeItem, calleeItem,callerItem,nil];
+    }
+
 }
+-(void)dataManager:(HTTPManager *)dataManager dataCallBack:(HTTPDataSource *)theDataSource type:(RequestType)eType bResult:(BOOL)bResult
+
+{
+//    if (!bResult) {
+//        XAlertView *alert = [[XAlertView alloc] initWithTitle:@"提示" message:@"连接服务器超时，请稍后再试" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+//        [alert show];
+//        return;
+//    }
+    
+    if (eType == RequestgetSafeState) {
+        if(theDataSource.bParseSuccessed && theDataSource.nResultNum == 1)
+        {
+            RequestgetSafeStateDatasource *safeStateDataSource = (RequestgetSafeStateDatasource*)theDataSource;
+
+            if ([safeStateDataSource.safeState isEqualToString:@"3"]) {
+                safeStateDataSource.safeState = @"0";
+            }
+            uCore.safeState = safeStateDataSource.safeState;
+            
+            uCore.buySafeUrl = safeStateDataSource.safeBuyUrl;
+            
+        }else{
+            
+        }
+    }
+
+}
+
 
 
 
 
 -(void)closeAdView:(UITapGestureRecognizer*)tap{
-    
+    [vc removeGestureRecognizer:ad];
     if (vc.hidden) {
         return;
     }
-    [self.view removeGestureRecognizer:ad];
     vc.hidden = YES;
-
-
-    tabBarViewController = [[TabBarViewController alloc] init];
-    
-    tabBarViewController.view.frame = self.view.frame;
-    tabBarViewController.delegate = self;
-    [self.view addSubview: sideMenuViewController.view];
-    [self.view addSubview: tabBarViewController.view];
-    
-    
     if (tap) {
         WebViewController * vc2 = [[WebViewController alloc]init];
-        vc2.webUrl = @"http://www.sina.com";
+        vc2.webUrl = vc.info.url;
         [self.navigationController pushViewController:vc2 animated:YES];
     }
 
     
 }
-
-
-
-
-
-
-
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -260,7 +303,8 @@
     
     //开始和移动的时候要加上x基础点
     if (panGesInput.state == UIGestureRecognizerStateBegan ||panGesInput.state == UIGestureRecognizerStateChanged) {
-     
+        [self updateSideMenView];
+        [sideMenuViewController.menuTableView reloadData];
         translatedPoint.x = translatedPoint.x+x;
        
     }
@@ -296,7 +340,8 @@
     //tabbar位移动画
     [UIView animateWithDuration:0.1 animations:^{
         
-        tabBarViewController.view.frame= CGRectMake(translatedPoint.x, tabBarViewController.view.frame.origin.y, KDeviceWidth, tabBarViewController.view.frame.size.height);    }];
+        tabBarViewController.view.frame= CGRectMake(translatedPoint.x, tabBarViewController.view.frame.origin.y, KDeviceWidth, tabBarViewController.view.frame.size.height);
+    }];
     
     
     //ad为缩放比例 txty为平移
@@ -386,6 +431,7 @@
         case 2:
         {
             
+            [MobClick event:@"e_leftmenu_sign"];
             MoodViewController *moodViewContoller = [[MoodViewController alloc] init];
             [self.navigationController pushViewController:moodViewContoller animated:YES];
             break;
@@ -517,6 +563,8 @@
 //主界面缩小，侧边栏显示
 -(void)quitZoomIn{
     tabBarViewController.bKeyboard = NO;
+    [self updateSideMenView];
+    [sideMenuViewController.menuTableView reloadData];
 
     bType = NO;
     //ad为缩放比例 txty为平移
@@ -598,8 +646,11 @@
 }
 
 -(void)delayMethod{
+   
     aType = YES;
 }
+
+
 /*
 #pragma mark - Navigation
 

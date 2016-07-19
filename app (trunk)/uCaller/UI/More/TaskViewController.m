@@ -52,6 +52,7 @@
     UIView *adView;//包含了mainScorllView 或者 adButton 的uicontrol
     
     UIButton *close;
+    BOOL isReview;
 
 
 }
@@ -96,8 +97,8 @@
     adView.frame = CGRectMake(0, LocationY, KDeviceWidth,138);
     adView.backgroundColor = [UIColor clearColor];
 
-
-    if ([UConfig getTaskType]) {
+    isReview = [UConfig getVersionReview];
+    if ([UConfig getTaskType]&&!isReview) {
         adButton = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, KDeviceWidth-20, 125*KWidthCompare6-20)];
         adButton.backgroundColor = [UIColor clearColor];
         adButton.hidden = YES;
@@ -133,6 +134,8 @@
     
     //添加右滑返回
     [UIUtil addBackGesture:self andSel:@selector(returnLastPage:)];
+    
+    [MobClick event:@"e_check_task"];
 }
 
 

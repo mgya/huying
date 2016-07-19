@@ -33,6 +33,9 @@
 @synthesize interest;
 @synthesize self_tags;
 
+@synthesize state;
+@synthesize userState;
+@synthesize recommended;
 
 -(id)init
 {
@@ -168,6 +171,21 @@
     if (![[dic objectForKey:@"self_tags"] isKindOfClass:[NSNull class]]) {
         self_tags = [dic objectForKey:@"self_tags"];
     }
+    NSDictionary *packages = [[NSDictionary alloc]init];
+
+    if (![[dic objectForKey:@"packages"] isKindOfClass:[NSNull class]]) {
+        packages = [dic objectForKey:@"packages"];
+    }
+    self.state = [packages objectForKey:@"safe"];
+    self.recommended = [packages objectForKey:@"recommended"];
+    
+    NSDictionary *userPackages = [[NSDictionary alloc]init];
+    
+    if (![[dic objectForKey:@"userPackages"] isKindOfClass:[NSNull class]]) {
+        userPackages = [dic objectForKey:@"userPackages"];
+    }
+    self.userState = [userPackages objectForKey:@"safe"];
+    
 }
 
 @end

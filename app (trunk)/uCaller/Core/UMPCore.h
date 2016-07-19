@@ -29,6 +29,9 @@ typedef enum EUMPMsgType
 
 -(BOOL)isOnline;
 
+-(BOOL)isIPV6;
+
+
 -(void)requestSendMsg:(NSDictionary *)userInfo;//发送在线消息
 
 - (void)requestCardSendMsg:(NSDictionary *)userInfo;//发送在线图片

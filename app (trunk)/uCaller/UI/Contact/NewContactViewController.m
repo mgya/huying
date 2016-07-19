@@ -158,10 +158,12 @@
 {
     [super viewWillAppear:animated];
 //    UContact *curUContact = [contactManager getUCallerContact:@"95013799999990"];
+    YMBLOG("新的朋友界面");
 }
 
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
+    YMELOG("新的朋友界面");
      [pendingTableView setEditing:NO];
 }
 

@@ -80,7 +80,7 @@
     
 //    UIImageView *imageView = [[UIImageView alloc] initWithImage:[imageData objectForKey:@"normal"] highlightedImage:[imageData objectForKey:@"highlighted"]];
     
-    UIImageView* imageView=[[UIImageView alloc] initWithFrame:CGRectMake(0,0,15, 15)];
+    UIImageView* imageView=[[UIImageView alloc] initWithFrame:CGRectMake(0,0,9, 9)];
     imageView.backgroundColor = [UIColor clearColor];
     imageView.image = [imageData objectForKey:@"normal"];
     imageView.highlightedImage = [imageData objectForKey:@"highlighted"];
@@ -107,7 +107,7 @@
         UIImageView *imageView = [self imageViewForKey:key];
         
         CGRect frame = imageView.frame;
-        frame.origin.x = xOffset;
+        frame.origin.x = xOffset+9*i;
         imageView.frame = frame;
         imageView.highlighted = (i == self.page);
         
@@ -115,9 +115,7 @@
         [_pageViews addObject:imageView];
         
         xOffset = xOffset + frame.size.width;
-        if ( !imageView.highlighted ) {
-            imageView.frame = CGRectMake(imageView.frame.origin.x+(imageView.frame.size.width-11)/2, (imageView.frame.size.height-2)/2, 11, 2);
-        }
+
 
     }
 }

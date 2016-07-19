@@ -49,14 +49,23 @@
         for (int i = 0; i < PAGE_COUNT; i++)
         {
             NSString *introImageName = nil;
-            introImageName = [NSString stringWithFormat:@"guild%d.jpg", i+1];
+            if (IPHONE3GS||IPHONE4) {
+                introImageName = [NSString stringWithFormat:@"guid_IPhone4_%d", i+1];
+            }else if (IPHONE5){
+                introImageName = [NSString stringWithFormat:@"guid_IPhone5_%d", i+1];
+            }else if (IPHONE6){
+                introImageName = [NSString stringWithFormat:@"guid_IPhone6_%d", i+1];
+            }else{
+                introImageName = [NSString stringWithFormat:@"guid_IPhone6p_%d", i+1];
+            }
+            
             
             UIImage *img = [UIImage imageNamed:introImageName];
             UIImageView *imgView = [[UIImageView alloc] initWithImage:img];
             imgView.frame = CGRectMake(i * srView.frame.size.width, 0.0f,srView.frame.size.width,srView.frame.size.height);
             [srView addSubview:imgView];
             if (i == 3) {
-                UIButton *experienceBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth/2-175*KWidthCompare6/2, KDeviceHeight-20-13-50*KHeightCompare6, 175*KWidthCompare6, 48*KHeightCompare6)];
+                UIButton *experienceBtn = [[UIButton alloc]initWithFrame:CGRectMake(KDeviceWidth/2-167*KWidthCompare6/2, KDeviceHeight-78*KWidthCompare6-42*KHeightCompare6, 175*KWidthCompare6, 42*KHeightCompare6)];
                 if (IPHONE3GS) {
                     experienceBtn.frame = CGRectMake(KDeviceWidth/2-175*KWidthCompare6/2, KDeviceHeight-20-35-50*KHeightCompare6, 175*KWidthCompare6, 48*KHeightCompare6);
                 }
@@ -64,19 +73,19 @@
                 
                 [experienceBtn setTitle:@"立即体验" forState:UIControlStateNormal];
                 
-                [experienceBtn setTitleColor:[UIColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:1.0] forState:UIControlStateNormal];
+                [experienceBtn setTitleColor:[UIColor colorWithRed:6/255.0 green:220/255.0 blue:178/255.0 alpha:1.0] forState:UIControlStateNormal];
                 
                 [experienceBtn.layer setMasksToBounds:YES];
                 
-                experienceBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+                experienceBtn.titleLabel.font = [UIFont systemFontOfSize:22];
                 
-                [experienceBtn.layer setCornerRadius:5.0]; //设置矩圆角半径
+                [experienceBtn.layer setCornerRadius:42*KHeightCompare6/2]; //设置矩圆角半径
                 
                 [experienceBtn.layer setBorderWidth:1.0]; //边框宽度
                 
                 CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
                 
-                CGColorRef colorref = CGColorCreate(colorSpace,(CGFloat[]){ 255/255.0, 255/255.0, 255/255.0, 1.0});
+                CGColorRef colorref = CGColorCreate(colorSpace,(CGFloat[]){ 6/255.0, 220/255.0, 178/255.0, 1.0});
                 
                 [experienceBtn.layer setBorderColor:colorref];//边框颜色
                 [experienceBtn addTarget:self action:@selector(enterAction) forControlEvents:UIControlEventTouchUpInside];
@@ -90,26 +99,25 @@
         // Pager
         curPage = 0;
         if (!isRetina) {
-            pagerView = [[MCPagerView alloc] initWithFrame:CGRectMake((KDeviceWidth-45)/2, srView.frame.size.height - 15 - 15, 45, 15)];
-        }
-        else if(IPHONE5){
-            pagerView = [[MCPagerView alloc] initWithFrame:CGRectMake((KDeviceWidth-45)/2, srView.frame.size.height - 10 - 15, 45, 15)];
+            pagerView = [[MCPagerView alloc] initWithFrame:CGRectMake((KDeviceWidth-9*4-9*KWidthCompare6*3)/2, srView.frame.size.height - 35*KWidthCompare6 - 9, 9*7, 9)];
         }
         else
         {
-            pagerView = [[MCPagerView alloc] initWithFrame:CGRectMake((KDeviceWidth-45)/2, srView.frame.size.height - 10 - 15, 45, 15)];
+
+        pagerView = [[MCPagerView alloc] initWithFrame:CGRectMake((KDeviceWidth-9*4-9*KWidthCompare6*3)/2, srView.frame.size.height - 10 - 15,9*7, 9)];
+
         }
         [pagerView setImage:[UIImage imageNamed:@"guidePageCtr-default.png"]
-           highlightedImage:[UIImage imageNamed:@"guidePageCtr-1.png"]
+           highlightedImage:[UIImage imageNamed:@"guidePageCtr.png"]
                      forKey:@"1"];
         [pagerView setImage:[UIImage imageNamed:@"guidePageCtr-default.png"]
-           highlightedImage:[UIImage imageNamed:@"guidePageCtr-2.png"]
+           highlightedImage:[UIImage imageNamed:@"guidePageCtr.png"]
                      forKey:@"2"];
         [pagerView setImage:[UIImage imageNamed:@"guidePageCtr-default.png"]
-           highlightedImage:[UIImage imageNamed:@"guidePageCtr-3.png"]
+           highlightedImage:[UIImage imageNamed:@"guidePageCtr.png"]
                      forKey:@"3"];
         [pagerView setImage:[UIImage imageNamed:@"guidePageCtr-default.png"]
-           highlightedImage:[UIImage imageNamed:@"guidePageCtr-4.png"]
+           highlightedImage:[UIImage imageNamed:@"guidePageCtr.png"]
                      forKey:@"4"];
         [pagerView setPattern:@"1234"];
         pagerView.delegate = self;

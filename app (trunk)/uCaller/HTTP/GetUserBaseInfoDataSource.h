@@ -31,5 +31,9 @@
 @property(nonatomic,strong)NSString *interest;//兴趣爱好
 @property(nonatomic,strong)NSString *self_tags;//自标签
 
+@property(nonatomic,strong)NSString *state;
+@property(nonatomic,strong)NSString *userState;
+@property(nonatomic,strong)NSString *recommended;
+
 
 @end

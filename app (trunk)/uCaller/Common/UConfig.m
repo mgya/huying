@@ -12,7 +12,16 @@
 #import "UAdditions.h"
 #import "UCore.h"
 
+
+@implementation startAdInfo
+
+
+
+@end
+
+
 @implementation UConfig
+
 
 +(void)setTrainTickets:(BOOL)isShow
 {
@@ -1874,6 +1883,29 @@
     }
     return [[NSUserDefaults standardUserDefaults] boolForKey:KSignType];
 }
++(void)setMyTimeAdsType:(BOOL)type{
+    [[NSUserDefaults standardUserDefaults] setBool:type forKey:MyTimeAdsType];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)getMyTimeAdsType{
+    if ([UConfig getVersionReview]) {
+        return NO;
+    }
+    return [[NSUserDefaults standardUserDefaults] boolForKey:MyTimeAdsType];
+}
+
++(void)setTimeAdsType:(BOOL)type{
+    [[NSUserDefaults standardUserDefaults] setBool:type forKey:KTimeAdsType];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
++(BOOL)getTimeAdsType{
+    if ([UConfig getVersionReview]) {
+        return NO;
+    }
+    return [[NSUserDefaults standardUserDefaults] boolForKey:KTimeAdsType];
+
+}
 +(void)setHuyingType:(BOOL)type{
     [[NSUserDefaults standardUserDefaults] setBool:type forKey:KHuYingType];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -1885,4 +1917,59 @@
     }
     return [[NSUserDefaults standardUserDefaults] boolForKey:KHuYingType];
 }
+
+
++(startAdInfo*)getStartAdInfo{
+    startAdInfo * info = [[startAdInfo alloc]init];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *cachesPaths = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *filePaths;
+    filePaths = [cachesPaths stringByAppendingString:@"/Photo/startad"];
+    if ([fileManager fileExistsAtPath:filePaths])
+    {
+        info.img = [UIImage imageWithContentsOfFile:filePaths];
+    }
+    
+    if (info.img == nil) {
+        return nil;
+    }
+    info.showTime = [[NSUserDefaults standardUserDefaults] integerForKey:@"startAdTime"];
+    info.overTime = [[NSUserDefaults standardUserDefaults] doubleForKey:@"startAdOverTime"];
+    info.url = [[NSUserDefaults standardUserDefaults] objectForKey:@"startAdUrl"];
+    return info;
+}
++(void)setStartAdInfo:(startAdInfo*)info{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSURL *url = [NSURL URLWithString:info.imgUrl];
+        NSData *imageData = [NSData dataWithContentsOfURL:url];
+        [fileManager createFileAtPath:[[Util cachePhotoFolder] stringByAppendingString:@"/startad"] contents:imageData attributes:nil];
+    });
+    [[NSUserDefaults standardUserDefaults] setInteger:info.showTime forKey:@"startAdTime"];
+    [[NSUserDefaults standardUserDefaults] setDouble:info.overTime forKey:@"startAdOverTime"];
+    [[NSUserDefaults standardUserDefaults] setObject:info.url forKey:@"startAdUrl"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
+}
+
++(void)setTestVersion:(NSString *)ver
+{
+    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
+    if (!ver) {
+        [userDefault setValue:nil forKey:@"testVer"];
+    }else{
+        ver = [NSString stringWithFormat:@"%@.%@.%@.800",[ver substringWithRange:NSMakeRange(0,1)],[ver substringWithRange:NSMakeRange(1,1)],[ver substringWithRange:NSMakeRange(2,1)]];
+    }
+    [userDefault setValue:ver forKey:@"testVer"];
+    [userDefault synchronize];
+}
+
++(NSString *)getTestVersion
+{
+    NSUserDefaults *userDef = [NSUserDefaults standardUserDefaults];
+    return [userDef objectForKey:@"testVer"];
+}
+
+
+
 @end

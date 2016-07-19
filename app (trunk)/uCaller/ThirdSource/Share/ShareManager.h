@@ -41,7 +41,7 @@
 -(void)tencentDidSendMsg;
 -(void)tencentDidSendMsgQZone;
 -(void)tencentDidSendMsg:(ShareContent *)shareObject;
-
+-(void)tencentDidSendMsgQZone:(ShareContent *)shareObject;
 //qq weibo
 //-(void)QQWeiboOAuth:(ShareContent *)shareObject;
 

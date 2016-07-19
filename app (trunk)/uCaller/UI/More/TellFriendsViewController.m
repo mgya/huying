@@ -135,6 +135,8 @@
     [self resetSearchFiled];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateResearch) name:NUpdateResearch object:nil];
+    
+    [MobClick event:@"e_sms_tell"];
 }
 
 -(void)returnLastPage

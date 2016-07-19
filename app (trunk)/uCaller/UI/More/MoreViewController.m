@@ -215,6 +215,8 @@ typedef enum{
     
     [UConfig setTaskType:YES];
     [UConfig setSignType:YES];
+    [UConfig setTimeAdsType:YES];
+    [UConfig setMyTimeAdsType:YES];
 }
 
 
@@ -250,12 +252,14 @@ typedef enum{
     }
     
     [uApp.rootViewController addPanGes];
+    [MobClick beginLogPageView:@"MoreViewController"];
 }
 
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:YES];
     [self.mainScorllView removeFromSuperview];
     [uApp.rootViewController removePanGes];
+    [MobClick endLogPageView:@"MoreViewController"];
 }
 
 - (void)showAdsContents:(NSArray*)adArray
@@ -417,7 +421,7 @@ typedef enum{
     NSInteger ivr = ivrArray.count;
     
     if (isReview) {
-        return 3+changeArr.count+ivr;
+        return 4+changeArr.count+ivr;
     }else{
         return 4+changeArr.count+ivr;
     }
@@ -501,8 +505,23 @@ typedef enum{
             }
         }
         
-        
         if (indexPath.section == (ivrArray.count + 2)) {
+            UIImage *img = [UIImage imageNamed:@"didi"];
+            [cell setIcon:img
+                    Title:@"滴滴出行"
+              Description:@""
+                StatusImg:@"" HotImage:nil Point:nil];
+        }else{
+            if (ivrArray.count > 0 && indexPath.section >= 2) {
+                UIImage *img = [ivrArray[indexPath.section - 2] objectForKey:@"img"];
+                [cell setIcon:img
+                        Title:[ivrArray[indexPath.section - 2] objectForKey:@"ivrTitle"]
+                  Description:[ivrArray[indexPath.section - 2] objectForKey:@"ivrDesc"]
+                    StatusImg:@"" HotImage:nil Point:nil];
+            }
+        }
+        
+        if (indexPath.section == (ivrArray.count + 3)) {
             UIImage *img = [UIImage imageNamed:@"setting"];
             [cell setIcon:img
                     Title:@"设置"
@@ -633,7 +652,17 @@ typedef enum{
             
             
         }else{
+            
             if (indexPath.section == 2) {
+                [DIOpenSDK registerApp:@"didi644344644F69736F6A326976526355" secret:@"f0045afac660f5d2c6ff955bf7b0bb92"];
+                
+                [DIOpenSDK showDDPage:self animated:YES params:nil delegate:self];
+                return;
+            }
+
+            
+            
+            if (indexPath.section == 3) {
                 [self settingFunction];
             }
         }
@@ -748,14 +777,14 @@ typedef enum{
     }else{
         WebViewController *webVC = [[WebViewController alloc]init];
         webVC.webUrl = urlStr;
+        
+        
+        [MobClick event:@"test_id_1"];
+
+        
         [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
 
     }
-    
-    
-    
-
-    
     
 }
 

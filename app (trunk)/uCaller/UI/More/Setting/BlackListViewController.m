@@ -99,7 +99,7 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+    YMBLOG("黑名单页面");
     //注册通知
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tongzhi:) name:@"tongzhi" object:nil];
     [self refreshView];
@@ -110,6 +110,21 @@
         [tableBlackList scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionBottom animated:animated];
     }
 }
+
+
+
+
+
+-(void)viewDidAppear:(BOOL)animated{
+    YMELOG("黑名单页面");
+    [super viewDidAppear:animated];
+}
+
+
+
+
+
+
 - (void)tongzhi:(NSNotification *)text{
     NSMutableArray *ab = [[NSMutableArray alloc]init];
     ab = [text.userInfo objectForKey:@"textOne"];

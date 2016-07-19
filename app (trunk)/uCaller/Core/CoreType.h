@@ -97,6 +97,7 @@ typedef enum
     ,U_GET_MEDIAMSG_PICBIG=422//获取多媒体文件－原图
     ,U_GET_BACKGROUND_MSGDETAIL = 423//获取后台消息详情
     ,U_REQUEST_SHARED = 424//获取分享内容
+    ,U_REQUEST_GETMEDIATIPS = 425//获取开机广告
 }CoreTask;
 
 //被动事件

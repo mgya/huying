@@ -11,12 +11,17 @@
 #import "UIUtil.h"
 #import "UDefine.h"
 #import "Util.h"
+#import "UCore.h"
+#import "RequestgetSafeStateDatasource.h"
+#import "WebViewController.h"
+
 
 #define WIFI_CALL  4001
 #define E3G_CALL  4002
 #define SET_KEY_VIBRATION 55015
 #define SET_KEY_SOUND 55016
 #define SET_CALL_VIBRATION 55017
+#define SAFE_CALL 6601
 
 #define TableView_Header_Top_Margins 22
 
@@ -34,6 +39,12 @@
     BOOL isCallVibration;
     
     UITableView *tableCallerType;
+    
+    HTTPManager *updateSafeStateHttp;
+    HTTPManager *getSafeStateHttp;
+    UCore *uCore;
+    UISwitch *switchView;
+
 }
 @end
 
@@ -44,6 +55,14 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        
+        updateSafeStateHttp = [[HTTPManager alloc]init];
+        updateSafeStateHttp.delegate = self;
+        
+        getSafeStateHttp = [[HTTPManager alloc]init];
+        getSafeStateHttp.delegate = self;
+        
+        uCore = [UCore sharedInstance];
     }
     return self;
 }
@@ -52,7 +71,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
+    [MobClick event:@"e_callout_set_page"];
     self.navTitleLabel.text = @"拨打设置";
     self.view.backgroundColor = PAGE_BACKGROUND_COLOR;
 
@@ -104,13 +123,20 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    YMBLOG("拨打设置页面");
+    [getSafeStateHttp getSafeState:[UConfig getUID]];
     
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
+    YMELOG("拨打设置页面");
     [super viewWillDisappear:animated];
+
 }
+
+
+
 
 
 -(void)returnLastPage:(UISwipeGestureRecognizer * )swipeGesture{
@@ -211,22 +237,78 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 3;
+    if ([UConfig getVersionReview]) {
+        if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+            return 3;
+        }else{
+            return 2;
+        }
+    }
+    else {
+        if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+            return 4;
+        }else{
+            return 3;
+        }
+    }
+    
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    switch (section) {
-        case 0:
-            return 2;//wifi下使用回拨  2g/3g/4g下使用回拨
-        case 1:
-            return 1;//默认区号
-        case 2:
-            return 3;//拨号按键震动  拨号按键声音  接通震动提示
-        default:
-            return 0;
+    if ([UConfig getVersionReview]) {
+        if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+            switch (section) {
+                case 0:
+                    return 1;
+                case 1:
+                    return 3;
+                case 2:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }else{
+            switch (section) {
+                case 0:
+                    return 1;
+                case 1:
+                    return 3;
+                default:
+                    return 0;
+            }
+        }
+    }else{
+        if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+            switch (section) {
+                case 0:
+                    return 2;//wifi下使用回拨  2g/3g/4g下使用回拨
+                case 1:
+                    return 1;//默认区号
+                case 2:
+                    return 3;//拨号按键震动  拨号按键声音  接通震动提示
+                case 3:
+                    return 1;
+                default:
+                    return 0;
+            }
+
+        }else{
+            switch (section) {
+                case 0:
+                    return 2;
+                case 1:
+                    return 1;
+                case 2:
+                    return 3;
+                default:
+                    return 0;
+            }
+            
+        }
+        
     }
-    return 0;
+        return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -245,154 +327,557 @@
     cell.textLabel.font = [UIFont systemFontOfSize:TITLE_FONTSIZE];
     cell.textLabel.textColor = TITLE_COLOR;
     
-    if (indexPath.section==0)
-    {
-        if (indexPath.row==0) {
-            cell.textLabel.text = @"Wi-Fi下使用回拨";
-            
-            UISwitch *switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
-            if(!iOS7)
+    if ([UConfig getVersionReview]) {
+        if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+            if (indexPath.section ==0)
             {
-                switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                cell.textLabel.text = @"默认区号";
+                
+                UILabel *contentLabel = [[UILabel alloc]init];
+                contentLabel.backgroundColor = [UIColor clearColor];
+                contentLabel.textColor = [UIColor grayColor];
+                contentLabel.font = [UIFont systemFontOfSize:TEXT_FONTSIZE];
+                
+                NSString *contentStr;
+                if ([UConfig getAreaCode]) {
+                    contentStr = [UConfig getAreaCode];
+                }
+                
+                CGSize sizeDes;
+                if (![Util isEmpty:contentStr]) {
+                    sizeDes = [contentStr sizeWithFont:contentLabel.font];
+                }
+                else {
+                    sizeDes = CGSizeMake(0,0);
+                }
+                contentLabel.text = contentStr;
+                
+                contentLabel.frame = CGRectMake(KDeviceWidth-30.0-sizeDes.width,
+                                                (45.0-sizeDes.height)/2,
+                                                sizeDes.width,
+                                                sizeDes.height);
+                
+                
+                [cell.contentView addSubview:contentLabel];
             }
-            [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
-            if(eWifiType == ECallerType_Wifi_Callback)
+            else if (indexPath.section == 1){
+                if (indexPath.row ==0) {
+                    cell.textLabel.text = @"拨号按键震动";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeyVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                else if (indexPath.row ==1)
+                {
+                    cell.textLabel.text = @"拨号按键声音";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeySound;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_SOUND;
+                    [cell.contentView addSubview:switchView];
+                }
+                else
+                {
+                    cell.textLabel.text = @"接通震动提示";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isCallVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_CALL_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                
+            }
+            else if(indexPath.section == 2)
             {
-                switchView.on = YES;
+                if (indexPath.row ==0) {
+                    cell.textLabel.text = @"开启安全通话";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    
+                    
+                        if([[UCore sharedInstance].safeState isEqualToString:@"1"])
+                        {
+                            switchView.on = YES;
+                        }
+                        else
+                        {
+                            switchView.on = NO;
+                        }
+                        
+                        if ([Util systemBeforeFive] == NO)
+                        {
+                            switchView.onTintColor = SWITCH_ON_COLOR;
+                        }
+                        switchView.tag = SAFE_CALL;
+                        [cell.contentView addSubview:switchView];
+                    }
             }
-            else
+
+        }else{
+            if (indexPath.section ==0)
             {
-                switchView.on = NO;
+                cell.textLabel.text = @"默认区号";
+                
+                UILabel *contentLabel = [[UILabel alloc]init];
+                contentLabel.backgroundColor = [UIColor clearColor];
+                contentLabel.textColor = [UIColor grayColor];
+                contentLabel.font = [UIFont systemFontOfSize:TEXT_FONTSIZE];
+                
+                NSString *contentStr;
+                if ([UConfig getAreaCode]) {
+                    contentStr = [UConfig getAreaCode];
+                }
+                
+                CGSize sizeDes;
+                if (![Util isEmpty:contentStr]) {
+                    sizeDes = [contentStr sizeWithFont:contentLabel.font];
+                }
+                else {
+                    sizeDes = CGSizeMake(0,0);
+                }
+                contentLabel.text = contentStr;
+                
+                contentLabel.frame = CGRectMake(KDeviceWidth-30.0-sizeDes.width,
+                                                (45.0-sizeDes.height)/2,
+                                                sizeDes.width,
+                                                sizeDes.height);
+                
+                
+                [cell.contentView addSubview:contentLabel];
             }
-            if ([Util systemBeforeFive] == NO)
-            {
-                switchView.onTintColor = SWITCH_ON_COLOR;
+            else if (indexPath.section == 1){
+                if (indexPath.row ==0) {
+                    cell.textLabel.text = @"拨号按键震动";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeyVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                else if (indexPath.row ==1)
+                {
+                    cell.textLabel.text = @"拨号按键声音";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeySound;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_SOUND;
+                    [cell.contentView addSubview:switchView];
+                }
+                else
+                {
+                    cell.textLabel.text = @"接通震动提示";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isCallVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_CALL_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                
             }
-            switchView.tag = WIFI_CALL;
-            [cell.contentView addSubview:switchView];
+
         }
-        else
-        {
-            cell.textLabel.text = @"2G/3G/4G下使用回拨";
-            
-            UISwitch *switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
-            if(!iOS7)
-            {
-                switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
-            }
-            [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
-            if(e3gType == ECallerType_3G_Callback)
-            {
-                switchView.on = YES;
-            }
-            else
-            {
-                switchView.on = NO;
-            }
-            if ([Util systemBeforeFive] == NO)
-            {
-                switchView.onTintColor = SWITCH_ON_COLOR;
-            }
-            switchView.tag = E3G_CALL;
-            [cell.contentView addSubview:switchView];
-        }
+        
     }
-    else if (indexPath.section ==1)
-    {
-        cell.textLabel.text = @"默认区号";
-        
-        UILabel *contentLabel = [[UILabel alloc]init];
-        contentLabel.backgroundColor = [UIColor clearColor];
-        contentLabel.textColor = [UIColor grayColor];
-        contentLabel.font = [UIFont systemFontOfSize:TEXT_FONTSIZE];
-        
-        NSString *contentStr;
-        if ([UConfig getAreaCode]) {
-            contentStr = [UConfig getAreaCode];
+    else {
+        if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+            if (indexPath.section==0)
+            {
+                if (indexPath.row==0) {
+                    cell.textLabel.text = @"Wi-Fi下使用回拨";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    if(eWifiType == ECallerType_Wifi_Callback)
+                    {
+                        switchView.on = YES;
+                    }
+                    else
+                    {
+                        switchView.on = NO;
+                    }
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = WIFI_CALL;
+                    [cell.contentView addSubview:switchView];
+                }
+                else
+                {
+                    cell.textLabel.text = @"2G/3G/4G下使用回拨";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    if(e3gType == ECallerType_3G_Callback)
+                    {
+                        switchView.on = YES;
+                    }
+                    else
+                    {
+                        switchView.on = NO;
+                    }
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = E3G_CALL;
+                    [cell.contentView addSubview:switchView];
+                }
+            }
+            else if (indexPath.section ==1)
+            {
+                cell.textLabel.text = @"默认区号";
+                
+                UILabel *contentLabel = [[UILabel alloc]init];
+                contentLabel.backgroundColor = [UIColor clearColor];
+                contentLabel.textColor = [UIColor grayColor];
+                contentLabel.font = [UIFont systemFontOfSize:TEXT_FONTSIZE];
+                
+                NSString *contentStr;
+                if ([UConfig getAreaCode]) {
+                    contentStr = [UConfig getAreaCode];
+                }
+                
+                CGSize sizeDes;
+                if (![Util isEmpty:contentStr]) {
+                    sizeDes = [contentStr sizeWithFont:contentLabel.font];
+                }
+                else {
+                    sizeDes = CGSizeMake(0,0);
+                }
+                contentLabel.text = contentStr;
+                
+                contentLabel.frame = CGRectMake(KDeviceWidth-30.0-sizeDes.width,
+                                                (45.0-sizeDes.height)/2,
+                                                sizeDes.width,
+                                                sizeDes.height);
+                
+                
+                [cell.contentView addSubview:contentLabel];
+            }
+            else if (indexPath.section == 2){
+                if (indexPath.row ==0) {
+                    cell.textLabel.text = @"拨号按键震动";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeyVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                else if (indexPath.row ==1)
+                {
+                    cell.textLabel.text = @"拨号按键声音";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeySound;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_SOUND;
+                    [cell.contentView addSubview:switchView];
+                }
+                else
+                {
+                    cell.textLabel.text = @"接通震动提示";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isCallVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_CALL_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                
+            }
+            else if(indexPath.section == 3)
+            {
+                if (indexPath.row ==0) {
+                    cell.textLabel.text = @"开启安全通话";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    
+                    
+                    if([[UCore sharedInstance].safeState isEqualToString:@"1"])
+                    {
+                        switchView.on = YES;
+                    }
+                    else
+                    {
+                        switchView.on = NO;
+                    }
+                    
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SAFE_CALL;
+                    [cell.contentView addSubview:switchView];
+                }
+            }
+
+        }else{
+            if (indexPath.section==0)
+            {
+                if (indexPath.row==0) {
+                    cell.textLabel.text = @"Wi-Fi下使用回拨";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    if(eWifiType == ECallerType_Wifi_Callback)
+                    {
+                        switchView.on = YES;
+                    }
+                    else
+                    {
+                        switchView.on = NO;
+                    }
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = WIFI_CALL;
+                    [cell.contentView addSubview:switchView];
+                }
+                else
+                {
+                    cell.textLabel.text = @"2G/3G/4G下使用回拨";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    if(e3gType == ECallerType_3G_Callback)
+                    {
+                        switchView.on = YES;
+                    }
+                    else
+                    {
+                        switchView.on = NO;
+                    }
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = E3G_CALL;
+                    [cell.contentView addSubview:switchView];
+                }
+            }
+            else if (indexPath.section ==1)
+            {
+                cell.textLabel.text = @"默认区号";
+                
+                UILabel *contentLabel = [[UILabel alloc]init];
+                contentLabel.backgroundColor = [UIColor clearColor];
+                contentLabel.textColor = [UIColor grayColor];
+                contentLabel.font = [UIFont systemFontOfSize:TEXT_FONTSIZE];
+                
+                NSString *contentStr;
+                if ([UConfig getAreaCode]) {
+                    contentStr = [UConfig getAreaCode];
+                }
+                
+                CGSize sizeDes;
+                if (![Util isEmpty:contentStr]) {
+                    sizeDes = [contentStr sizeWithFont:contentLabel.font];
+                }
+                else {
+                    sizeDes = CGSizeMake(0,0);
+                }
+                contentLabel.text = contentStr;
+                
+                contentLabel.frame = CGRectMake(KDeviceWidth-30.0-sizeDes.width,
+                                                (45.0-sizeDes.height)/2,
+                                                sizeDes.width,
+                                                sizeDes.height);
+                
+                
+                [cell.contentView addSubview:contentLabel];
+            }
+            else if (indexPath.section == 2){
+                if (indexPath.row ==0) {
+                    cell.textLabel.text = @"拨号按键震动";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeyVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                else if (indexPath.row ==1)
+                {
+                    cell.textLabel.text = @"拨号按键声音";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isKeySound;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_KEY_SOUND;
+                    [cell.contentView addSubview:switchView];
+                }
+                else
+                {
+                    cell.textLabel.text = @"接通震动提示";
+                    
+                    switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
+                    
+                    if(!iOS7)
+                    {
+                        switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
+                    }
+                    [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
+                    switchView.on = isCallVibration;
+                    if ([Util systemBeforeFive] == NO)
+                    {
+                        switchView.onTintColor = SWITCH_ON_COLOR;
+                    }
+                    switchView.tag = SET_CALL_VIBRATION;
+                    [cell.contentView addSubview:switchView];
+                }
+                
+            }
+
         }
-        
-        CGSize sizeDes;
-        if (![Util isEmpty:contentStr]) {
-            sizeDes = [contentStr sizeWithFont:contentLabel.font];
-        }
-        else {
-            sizeDes = CGSizeMake(0,0);
-        }
-        contentLabel.text = contentStr;
-        
-        contentLabel.frame = CGRectMake(KDeviceWidth-30.0-sizeDes.width,
-                                            (45.0-sizeDes.height)/2,
-                                            sizeDes.width,
-                                            sizeDes.height);
-        
-        
-        [cell.contentView addSubview:contentLabel];
+    
     }
-    else
-    {
-        if (indexPath.row ==0) {
-            cell.textLabel.text = @"拨号按键震动";
-            
-            UISwitch *switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
-            if(!iOS7)
-            {
-                switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
-            }
-            [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
-            switchView.on = isKeyVibration;
-            if ([Util systemBeforeFive] == NO)
-            {
-                switchView.onTintColor = SWITCH_ON_COLOR;
-            }
-            switchView.tag = SET_KEY_VIBRATION;
-            [cell.contentView addSubview:switchView];
-        }
-        else if (indexPath.row ==1)
-        {
-            cell.textLabel.text = @"拨号按键声音";
-            
-            UISwitch *switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
-            
-            if(!iOS7)
-            {
-                switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
-            }
-            [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
-            switchView.on = isKeySound;
-            if ([Util systemBeforeFive] == NO)
-            {
-                switchView.onTintColor = SWITCH_ON_COLOR;
-            }
-            switchView.tag = SET_KEY_SOUND;
-            [cell.contentView addSubview:switchView];
-        }
-        else
-        {
-            cell.textLabel.text = @"接通震动提示";
-            
-            UISwitch *switchView = [[UISwitch alloc] initWithFrame:CGRectMake(KDeviceWidth-80, 6, 50, 30)];
-            
-            if(!iOS7)
-            {
-                switchView.frame = CGRectMake(switchView.frame.origin.x-20, switchView.frame.origin.y, switchView.frame.size.width, switchView.frame.size.height);
-            }
-            [switchView addTarget:self action:@selector(switchFlipped:) forControlEvents:UIControlEventValueChanged];
-            switchView.on = isCallVibration;
-            if ([Util systemBeforeFive] == NO)
-            {
-                switchView.onTintColor = SWITCH_ON_COLOR;
-            }
-            switchView.tag = SET_CALL_VIBRATION;
-            [cell.contentView addSubview:switchView];
-        }
-    }
+
     
     UIImage *image = [UIImage imageNamed:@"msg_accview"];
     UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
     imageView.frame = CGRectMake(0, 0, image.size.width, image.size.height);
-    if (indexPath.section == 1) {
-        cell.accessoryView = imageView;
+    if ([UConfig getVersionReview]) {
+        if (indexPath.section == 0) {
+            cell.accessoryView = imageView;
+        }
+    }else{
+        if (indexPath.section == 1) {
+            cell.accessoryView = imageView;
+        }
     }
+   
     
     cell.selectionStyle=UITableViewCellSelectionStyleNone;
     cell.selectedBackgroundView = [UIUtil CellSelectedView];
@@ -402,11 +887,20 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if(indexPath.section == 1){
-        AreaCodeViewController *areaCodeVC = [[AreaCodeViewController alloc]init];
-        areaCodeVC.delegate = self;
-        [self.navigationController pushViewController:areaCodeVC animated:YES];
+    if ([UConfig getVersionReview]) {
+        if(indexPath.section == 0){
+            AreaCodeViewController *areaCodeVC = [[AreaCodeViewController alloc]init];
+            areaCodeVC.delegate = self;
+            [self.navigationController pushViewController:areaCodeVC animated:YES];
+        }
+    }else{
+        if(indexPath.section == 1){
+            AreaCodeViewController *areaCodeVC = [[AreaCodeViewController alloc]init];
+            areaCodeVC.delegate = self;
+            [self.navigationController pushViewController:areaCodeVC animated:YES];
+        }
     }
+    
     
 }
 
@@ -474,6 +968,27 @@
         {
             isCallVibration = NO;
         }
+    }else if (sender.tag == SAFE_CALL){
+        if (sender.on) {
+            if ([uCore.safeState isEqualToString:@"0"]) {
+                WebViewController *webVC = [[WebViewController alloc]init];
+                webVC.webUrl =  uCore.buySafeUrl;
+                [self.navigationController pushViewController:webVC animated:YES];
+                switchView.on = NO;
+
+            }else{
+                [updateSafeStateHttp updateSafeState:[UConfig getUID] andSafeState:@"1"];
+                uCore.safeState = @"1";
+
+            }
+
+        }else{
+            
+            [updateSafeStateHttp updateSafeState:[UConfig getUID] andSafeState:@"0"];
+            switchView.on = NO;
+            uCore.safeState = @"2";
+
+            }
     }
     
 }
@@ -494,6 +1009,31 @@
 {
     //为了及时更新区号显示
     [tableCallerType reloadData];
+}
+
+
+#pragma mark HTTPManagerDelegate
+
+-(void)dataManager:(HTTPManager *)dataManager dataCallBack:(HTTPDataSource*)theDataSource type:(RequestType)eType bResult:(BOOL)bResult{
+
+    if(theDataSource.bParseSuccessed)
+    {
+        if (eType == RequestgetSafeState){
+            RequestgetSafeStateDatasource *safeStateDataSource = (RequestgetSafeStateDatasource*)theDataSource;
+            if ([safeStateDataSource.safeState isEqualToString:@"3"]) {
+                safeStateDataSource.safeState = @"0";
+            }
+            uCore.safeState = safeStateDataSource.safeState;
+            [tableCallerType reloadData];
+            
+            uCore.buySafeUrl = safeStateDataSource.safeBuyUrl;
+        }else if(eType == RequestupdateSafeState){
+            
+            
+            
+        }
+        
+    }
 }
 
 @end

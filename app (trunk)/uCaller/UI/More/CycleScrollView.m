@@ -183,11 +183,8 @@
 {
     CGPoint newOffset = CGPointMake(self.scrollView.contentOffset.x + CGRectGetWidth(self.scrollView.frame), self.scrollView.contentOffset.y);
     [self.scrollView setContentOffset:newOffset animated:YES];
-    NSLog(@"%f-+-%f",newOffset.x,newOffset.y);
     self.pageControl.currentPage = self.currentPageIndex;
-    
-    NSLog(@"time");
-   
+
 }
 
 - (void)contentViewTapAction:(UITapGestureRecognizer *)tap

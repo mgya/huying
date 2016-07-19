@@ -123,7 +123,7 @@
     [titleLabel addSubview:miniLabel];
     
     
-    textLabel = [[UILabel alloc]initWithFrame:CGRectMake(miniLabel.frame.origin.x + miniLabel.frame.size.width + 7, 15, 32, 16)];
+    textLabel = [[UILabel alloc]initWithFrame:CGRectMake(miniLabel.frame.origin.x + miniLabel.frame.size.width + 7, 15, 48, 16)];
     textLabel.text = @"商品";
     textLabel.textColor = [UIColor colorWithRed:0x40/255.0 green:0x40/255.0 blue:0x40/255.0 alpha:1.0];
     textLabel.font = [UIFont systemFontOfSize:16];
@@ -302,6 +302,18 @@
     return self;
     
 }
+
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    YMBLOG("购买商品页面");
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    YMELOG("购买商品页面");
+    [super viewDidAppear:animated];
+}
+
 
 -(void)returnLastPage:(UISwipeGestureRecognizer * )swipeGesture{
     if ([swipeGesture locationInView:self.view].x < 100 && bSwipeGesture) {

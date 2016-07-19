@@ -48,6 +48,7 @@
 @synthesize voipDelegate;
 @synthesize isOnline;
 //@synthesize isCalling;
+@synthesize isIPV6;
 
 static HYVoIPCore *sharedInstance = nil;
 
@@ -220,6 +221,14 @@ static HYVoIPCore *sharedInstance = nil;
     //            [webrtc addServer:serverIP clear:NO];
     //        }
     //    }
+    
+    
+    struct hostent *ipV6Hostent = gethostbyname2("www.baidu.com",AF_INET6);
+    if (ipV6Hostent) {
+        isIPV6 = YES;
+    }else{
+        isIPV6 = NO;
+    }
     
     NSLog(@"domainUrls.count = %ld", aDomainURLs.count);
     for (NSString *domainUrl in domainUrls) {

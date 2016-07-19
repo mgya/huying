@@ -15,6 +15,7 @@
 @synthesize inviteCode;
 @synthesize atoken;
 
+
 -(id)init
 {
     if (self = [super init])
@@ -82,6 +83,7 @@
         return ;
     }
     self.atoken = atElement.stringValue;
+    
 }
 
 

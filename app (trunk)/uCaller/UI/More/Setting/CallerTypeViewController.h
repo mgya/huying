@@ -10,6 +10,6 @@
 #import "AreaCodeViewController.h"
 
 
-@interface CallerTypeViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,AreaCodeDelegate,UIGestureRecognizerDelegate>
+@interface CallerTypeViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,AreaCodeDelegate,UIGestureRecognizerDelegate,HTTPManagerControllerDelegate>
 
 @end

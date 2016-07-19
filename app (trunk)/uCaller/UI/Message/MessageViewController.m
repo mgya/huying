@@ -118,6 +118,10 @@
                                                  selector:@selector(onBeginBackGroundTaskEvent:)
                                                      name: NBeginBackGroundTaskEvent
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(hideKeyBoard)
+                                                     name:HIDEKEYBOARD
+                                                   object:nil];
     }
     return self;
 }
@@ -138,6 +142,9 @@
                                                   object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:NBeginBackGroundTaskEvent
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:HIDEKEYBOARD
                                                   object:nil];
 }
 
@@ -271,6 +278,9 @@
     if (!bInSearch) {
         [uApp.rootViewController addPanGes];
     }
+    
+    
+    [MobClick beginLogPageView:@"MessageViewController"];
     
 }
 
@@ -478,6 +488,8 @@
                                                   object:nil];
     
     [uApp.rootViewController removePanGes];
+
+    [MobClick endLogPageView:@"MessageViewController"];
 }
 
 -(void)refreshView
@@ -1125,5 +1137,11 @@
     [notifyInfo setValue:nil forKey:KData];
     [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadWithName:NContactEvent object:nil userInfo:notifyInfo];
 }
+
+-(void)hideKeyBoard
+{
+    [msgSearchBar resignFirstResponder];
+}
+
 
 @end

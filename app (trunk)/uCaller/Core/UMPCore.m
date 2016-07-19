@@ -48,6 +48,11 @@ static UMPCore *sharedInstance = nil;
     return voipCore.isOnline;
 }
 
+-(BOOL)isIPV6{
+    return voipCore.isIPV6;
+}
+
+
 -(void)start
 {
     if (voipCore == nil) {

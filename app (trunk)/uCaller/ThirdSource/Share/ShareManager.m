@@ -8,7 +8,7 @@
 
 #import "ShareManager.h"
 #import "UDefine.h"
-#import "QQApi.h"
+//#import "QQApi.h"
 #import "QQApiInterfaceObject.h"
 #import "TencentMessageObject.h"
 #import "WXApi.h"
@@ -86,7 +86,7 @@ static ShareManager* sharedInstance;
         if (!shareArray) {
             shareArray = [NSKeyedUnarchiver unarchiveObjectWithFile:KShareContentsPath];
         }
-        
+        [MobClick event:@"e_sina_share"];
         sharedType = SinaWbShared;
         [UAppDelegate uApp].thirdAppType = EThirdAppCallbackType_Share_SinaWeibo;
         ShareContent* content = [shareArray objectForKey:[NSString stringWithFormat:@"%d", sharedType]];
@@ -415,7 +415,7 @@ static ShareManager* sharedInstance;
 {
     NSLog(@"退出登录成功");
 }
-
+//分享到QQ
 -(void)tencentDidSendMsg
 {
     if (!shareArray) {
@@ -427,6 +427,7 @@ static ShareManager* sharedInstance;
     //2.分享一个有图片，有文本的内容
     ShareContent *QQContent = [shareArray objectForKey:[NSString stringWithFormat:@"%d", QQMsg]];
     NSString *description = [NSString stringWithFormat:@"%@邀请码[%@]",QQContent.msg,[UConfig getInviteCode]];
+    [MobClick event:@"e_qq_share"];
     
     QQApiNewsObject *newsObj = [QQApiNewsObject
                                 objectWithURL:[NSURL URLWithString:QQContent.hideUrl]
@@ -437,8 +438,28 @@ static ShareManager* sharedInstance;
         //将内容分享到qq
         SendMessageToQQReq* req = [SendMessageToQQReq reqWithContent:newsObj];
         [QQApiInterface sendReq:req];
-        //将内容分享到qzone
-        [QQApiInterface SendReqToQZone:req];
+    }
+    else {
+        //没有安装腾讯QQ客户端
+        [[[iToast makeText:@"尚未安装腾讯QQ客户端"] setGravity:iToastGravityCenter] show];
+    }
+}
+-(void)tencentDidSendMsg:(ShareContent *)shareObject
+{
+    sharedType = QQMsg;
+    [UAppDelegate uApp].thirdAppType = EThirdAppCallbackType_Share_QQMsg;
+    QQApiNewsObject *newsObj = [QQApiNewsObject
+                                objectWithURL:[NSURL URLWithString:shareObject.hideUrl]
+                                title:shareObject.title
+                                description:shareObject.msg
+                                previewImageURL:[NSURL URLWithString:shareObject.imgUrls.lastObject]];
+    
+    
+    
+    if ([QQApiInterface isQQInstalled]) {
+        //将内容分享到qq
+        SendMessageToQQReq* req = [SendMessageToQQReq reqWithContent:newsObj];
+        [QQApiInterface sendReq:req];
     }
     else {
         //没有安装腾讯QQ客户端
@@ -446,6 +467,7 @@ static ShareManager* sharedInstance;
     }
 }
 
+//分享到QQ空间
 -(void)tencentDidSendMsgQZone
 {
     if (!shareArray) {
@@ -457,6 +479,8 @@ static ShareManager* sharedInstance;
     //2.分享一个有图片，有文本的内容
     ShareContent *QQContent = [shareArray objectForKey:[NSString stringWithFormat:@"%d", QQMsg]];
     NSString *description = [NSString stringWithFormat:@"%@邀请码[%@]",QQContent.msg,[UConfig getInviteCode]];
+    
+    [MobClick event:@"e_qq_zone_share"];
     
     QQApiNewsObject *newsObj = [QQApiNewsObject
                                 objectWithURL:[NSURL URLWithString:QQContent.hideUrl]
@@ -475,11 +499,9 @@ static ShareManager* sharedInstance;
         [[[iToast makeText:@"尚未安装腾讯QQ客户端"] setGravity:iToastGravityCenter] show];
     }
 }
-
-
--(void)tencentDidSendMsg:(ShareContent *)shareObject
+- (void)tencentDidSendMsgQZone:(ShareContent*)shareObject
 {
-    sharedType = QQMsg;
+    sharedType = QQZone;
     [UAppDelegate uApp].thirdAppType = EThirdAppCallbackType_Share_QQMsg;
     QQApiNewsObject *newsObj = [QQApiNewsObject
                                 objectWithURL:[NSURL URLWithString:shareObject.hideUrl]
@@ -487,17 +509,20 @@ static ShareManager* sharedInstance;
                                 description:shareObject.msg
                                 previewImageURL:[NSURL URLWithString:shareObject.imgUrls.lastObject]];
     
+    
+    
     if ([QQApiInterface isQQInstalled]) {
         //将内容分享到qq
         SendMessageToQQReq* req = [SendMessageToQQReq reqWithContent:newsObj];
-        [QQApiInterface sendReq:req];
         [QQApiInterface SendReqToQZone:req];
     }
     else {
         //没有安装腾讯QQ客户端
         [[[iToast makeText:@"尚未安装腾讯QQ客户端"] setGravity:iToastGravityCenter] show];
     }
+
 }
+
 
 - (void)onResp:(QQBaseResp *)resp
 {
@@ -514,6 +539,8 @@ static ShareManager* sharedInstance;
 #pragma mark-----------微信好友-----------
 -(void)weChatSceneSession
 {
+    [MobClick event:@"e_wx_fri_share"];
+
     sharedType = WXShared;
     [UAppDelegate uApp].thirdAppType = EThirdAppCallbackType_Share_Weixin;
     [self weChatSendMsg:WXSceneSession];
@@ -550,6 +577,7 @@ static ShareManager* sharedInstance;
 #pragma mark-----------微信朋友圈-----------
 -(void)weChatSceneTimeline
 {
+    [MobClick event:@"e_wx_circle_share"];
     sharedType = WXCircleShared;
     [UAppDelegate uApp].thirdAppType = EThirdAppCallbackType_Share_Weixin;
     [self weChatSendMsg:WXSceneTimeline];

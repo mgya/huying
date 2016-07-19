@@ -32,6 +32,11 @@
 #import "GetAvatarDetailDataSource.h"
 #import "GetAdsContentDataSource.h"
 #import "UCore.h"
+#import "getmediatipsDataSource.h"
+
+
+
+
 
 
 #define PHOTOSELF     @"PHOTOSELF"     //个人头像
@@ -75,6 +80,9 @@
     HTTPManager *getreserveaddressManager;
     HTTPManager *getSharedInfoHttp;
     
+    
+    HTTPManager *httpGetMediatips;
+    
     NSMutableArray *imgDetailArr;
     UCore *uCore;
 }
@@ -106,6 +114,8 @@ static DataCore *sharedInstance = nil;
         
         imgDetailArr = [[NSMutableArray alloc]init];
         _httpFinish = YES;
+        
+        
     }
     return self;
 }
@@ -369,6 +379,9 @@ static DataCore *sharedInstance = nil;
             break;
         case U_REQUEST_SHARED:
             [self perform:@selector(getShareMsg)];
+            break;
+        case U_REQUEST_GETMEDIATIPS:
+            [self perform:@selector(getmediatips)];
             break;
         default:
             break;
@@ -1172,6 +1185,22 @@ static DataCore *sharedInstance = nil;
                     httpBindAccounts.delegate = self;
                 }
                 [httpBindAccounts getBindAccounts];
+                if ([userInfo.state isEqualToString:@"1"]) {
+                    [UCore sharedInstance].state = @"1";
+                    if ([userInfo.userState isEqualToString:@"1"]) {
+                        [UCore sharedInstance].safeState = @"1";
+                    }else{
+                        [UCore sharedInstance].safeState = @"0";
+                    }
+                }else{
+                    [UCore sharedInstance].state = @"0";
+                    [UCore sharedInstance].safeState = @"0";
+                }
+                if ([userInfo.recommended isEqualToString:@"1"]) {
+                    [UCore sharedInstance].recommended = @"1";
+                }else{
+                    [UCore sharedInstance].recommended = @"0";
+                }
             }
         }
             break;
@@ -2341,6 +2370,15 @@ static DataCore *sharedInstance = nil;
         getreserveaddressManager.delegate = self;
     }
     [getreserveaddressManager getreserveaddress];
+}
+
+
+-(void)getmediatips{
+    if (httpGetMediatips == nil) {
+        httpGetMediatips = [[HTTPManager alloc]init];
+        httpGetMediatips.delegate = self;
+    }
+    [httpGetMediatips getMediatips];
 }
 
 @end

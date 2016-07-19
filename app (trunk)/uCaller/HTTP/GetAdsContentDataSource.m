@@ -66,6 +66,9 @@ static GetAdsContentDataSource * sharedInstance = nil;
     NSMutableArray *signCenterArray = [[NSMutableArray alloc]init];
     NSMutableArray *hotArry = [[NSMutableArray alloc]init];
     NSMutableArray *msgArray = [[NSMutableArray alloc]init];
+    NSMutableArray *safeArray = [[NSMutableArray alloc]init];
+    
+    
     
 
     DDXMLElement *itemsElement = [rspElement elementForName:@"items"];
@@ -89,6 +92,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
             //侧边栏，广告位
             _imgUrlLeftBar = [itemsObj elementForName:@"imgurl"].stringValue;
             _urlLeftBar    = [itemsObj elementForName:@"url"].stringValue;
+
         }
         else if([typeName isEqualToString:@"session"] &&
                 [subtypeName isEqualToString:@"top"]){
@@ -157,6 +161,35 @@ static GetAdsContentDataSource * sharedInstance = nil;
                     [subtypeName isEqualToString:@"center"]){
             _urlCallrelease = [itemsObj elementForName:@"imgurl"].stringValue;
             _imgUrlCallrelease    = [itemsObj elementForName:@"url"].stringValue;
+            
+        } else  if([typeName isEqualToString:@"start"] &&
+                          [subtypeName isEqualToString:@"start"]){
+
+            startAdInfo *info = [[startAdInfo alloc]init];
+            info.showTime = [itemsObj elementForName:@"imgurl"].stringValueAsInt;
+            info.overTime = [itemsObj elementForName:@"imgurl"].stringValueAsDouble;
+          //  info.url = [itemsObj elementForName:@"imgurl"].stringValue;
+            info.url = @"http://download.yxhuying.com/bannernew/20151123/rong360/xinyongka/750250.jpg";
+            
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSURL *url = [NSURL URLWithString:info.url];
+                NSData *imageData = [NSData dataWithContentsOfURL:url];
+                [fileManager createFileAtPath:[[Util cachePhotoFolder] stringByAppendingString:@"/startad"] contents:imageData attributes:nil];
+            });
+            
+            [UConfig setStartAdInfo:info];
+
+        
+        }else if([typeName isEqualToString:@"account"] &&
+                 [subtypeName isEqualToString:@"bottom"]){
+            
+            NSString *adsImgUrl = [itemsObj elementForName:@"imgurl"].stringValue;
+            NSString *adsUrl    = [itemsObj elementForName:@"url"].stringValue;
+            NSString *jumptype = [itemsObj elementForName:@"jumptype"].stringValue;
+            NSMutableDictionary *adsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:adsImgUrl,@"ImageUrl",adsUrl,@"Url", jumptype,@"jumptype",nil];
+            [safeArray addObject:adsDict];
+            
         }
     }
     
@@ -167,6 +200,7 @@ static GetAdsContentDataSource * sharedInstance = nil;
     _signCenterArray = signCenterArray;
     _hotArray = hotArry;
     _msgArray = msgArray;
+    _safeArray = safeArray;
 
     
 }

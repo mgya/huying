@@ -10,6 +10,7 @@
 #import "SideMenuViewController.h"
 #import "OpenAppView.h"
 
+
 @protocol MainViewDelegate <NSObject>
 
 -(void)initZoom;
@@ -22,7 +23,7 @@
 @end
 
 
-@interface MainViewController : BaseViewController<UIGestureRecognizerDelegate,SideMenuDelegate,MainViewDelegate,OpenAppViewDelegate>
+@interface MainViewController : BaseViewController<UIGestureRecognizerDelegate,SideMenuDelegate,MainViewDelegate,OpenAppViewDelegate,HTTPManagerControllerDelegate>
 
 @property(nonatomic,strong)TabBarViewController *tabBarViewController;
 

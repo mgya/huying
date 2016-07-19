@@ -84,6 +84,13 @@
 {
     [super viewWillAppear:animated];
     [self tableRefresh];
+    [MobClick beginLogPageView:@"SettingViewController"];
+
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [MobClick endLogPageView:@"SettingViewController"];
 }
 
 -(void)returnLastPage
@@ -168,12 +175,9 @@
 {
     switch (section) {
         case 0:
-            if ([UConfig getVersionReview]) {
-                return 1;
-            }
-            else {
-                return 2;
-            }
+           
+            return 2;
+            
             break;
         case 1:
             return 1;
@@ -211,16 +215,6 @@
     switch (indexPath.section) {
         case 0:
         {
-            if ([UConfig getVersionReview]) {
-                if ( 0 == indexPath.row) {
-                    BOOL aPoint = [UConfig getCalleeSettingPoint];
-                    NSString *desStr = [self calleeNoticeText];
-                    
-                    cell.cellType = leftStyle;
-                    [cell setTitle:@"来电设置" StatusImg:NO Description:desStr Point:!aPoint ImageView:NO];
-                }
-            }
-            else {
                 if ( 0 == indexPath.row) {
                     BOOL aPoint = [UConfig getCalleeSettingPoint];
                     NSString *desStr = [self calleeNoticeText];
@@ -237,7 +231,6 @@
                     [cell setTitle:@"拨打设置" StatusImg:NO Description:nil Point:!aPoint ImageView:NO];
                 }
 
-            }
         }
             break;
         case 1:
@@ -302,13 +295,7 @@
         switch (indexPath.section) {
             case 0:
             {
-                if ([UConfig getVersionReview]) {
-                    if ( 0 == indexPath.row) {
-                        //来电设置
-                        [self calleeFunction];
-                    }
-                }
-                else {
+               
                     if ( 0 == indexPath.row) {
                         //来电设置
                         [self calleeFunction];
@@ -317,7 +304,7 @@
                         //拨打设置
                         [self callTypeFunction];
                     }
-                }
+                
             }
                 break;
             case 1:

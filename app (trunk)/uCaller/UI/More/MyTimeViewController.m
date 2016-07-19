@@ -35,6 +35,10 @@
 
 #import "TimeBiViewController.h"
 
+#import "CycleScrollView.h"
+#import "XAlertView.h"
+
+
 
 
 //#import "PhotoGuideView.h"
@@ -67,9 +71,22 @@
     
     UIImageView *backBtnView;
     
+    UIButton * buttonPackage;
+    
     UIView *moneyView;
     NSArray * hotArry;
+    
+    //新的广告位
+    UIButton *closeBtn;
+    UIView *adView;//包含了mainScorllView 或者 adButton 的uicontrol
+    UIButton *adButton;//广告位数量为1的时候的uicontrol
+    NSString *bannerUrl;
+    NSString *otherUrl;
+
 }
+@property (nonatomic, retain) CycleScrollView *mainScorllView;//广告位数量大于1的uicontrol
+@property (nonatomic, retain) NSMutableArray *adImgArr;//广告轮播picture的array
+@property (nonatomic, retain) NSMutableArray *adUrlArr;//广告轮播的url的array
 @end
 
 @implementation MyTimeViewController
@@ -258,7 +275,7 @@
         bestView.backgroundColor = [UIColor whiteColor];
         [self.view addSubview:bestView];
         UIImageView *bestImageView = [[UIImageView alloc]initWithFrame:CGRectMake(12, 9,27, 27)];
-        bestImageView.image = [UIImage imageNamed:@"BestPackage"];
+        bestImageView.image = [UIImage imageNamed:@"Package"];
         [bestView addSubview:bestImageView];
         UILabel * bearText = [[UILabel alloc]initWithFrame:CGRectMake(49, 0, 100, 45)];
         bearText.text = @"精选优惠";
@@ -297,8 +314,34 @@
     [moneyView addSubview:grayMLineView];
     
     
-    //套餐按钮
-    UIButton * buttonPackage = [[UIButton alloc]initWithFrame:CGRectMake(0, backImgView.frame.size.height+45+127*KWidthCompare6, KDeviceWidth, 45)];
+    //轮播广告
+    adView = [[UIView alloc]init];
+    adView.backgroundColor = PAGE_BACKGROUND_COLOR;
+    adView.frame = CGRectMake((KDeviceWidth-702/2*KWidthCompare6)/2,moneyView.frame.origin.y+moneyView.frame.size.height+10*KWidthCompare6, 702/2*KWidthCompare6,64*KWidthCompare6);
+    adView.backgroundColor = [UIColor clearColor];
+    
+    closeBtn = [[UIButton alloc] initWithFrame:CGRectMake(adView.frame.size.width-30,0,25,25)];
+    [closeBtn addTarget:self action:@selector(didClose) forControlEvents:UIControlEventTouchUpInside];
+    closeBtn.backgroundColor = [UIColor clearColor];
+    [closeBtn setImage:[UIImage imageNamed:@"adsClose.png"] forState:UIControlStateNormal];
+    
+    if ([UConfig getMyTimeAdsType]&&!isReview) {
+        adButton = [[UIButton alloc]initWithFrame:CGRectMake(0,0, 702/2*KWidthCompare6,64*KWidthCompare6)];
+        adButton.backgroundColor = [UIColor clearColor];
+        adButton.hidden = YES;
+        adButton.layer.cornerRadius = 8;
+        [adView addSubview:adButton];
+        [self showSignAdsContents:[GetAdsContentDataSource sharedInstance].safeArray];
+        //套餐按钮
+        buttonPackage = [[UIButton alloc]initWithFrame:CGRectMake(0,adView.frame.origin.y+adView.frame.size.height+10*KWidthCompare6, KDeviceWidth, 45)];
+    }else{
+        adView.hidden = YES;
+        //套餐按钮
+        buttonPackage = [[UIButton alloc]initWithFrame:CGRectMake(0,moneyView.frame.origin.y+moneyView.frame.size.height+10*KWidthCompare6,KDeviceWidth, 45)];
+    }
+    adView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:adView];
+    
     
     if (hotArry.count != 3) {
         [buttonPackage setFrame:CGRectMake(0, backImgView.frame.size.height, KDeviceWidth, 45)];
@@ -310,7 +353,7 @@
 #ifdef HOLIDAY
     imageViewPackage.image = [UIImage imageNamed:@"Package11"];
 #else
-    imageViewPackage.image = [UIImage imageNamed:@"Package"];
+    imageViewPackage.image = [UIImage imageNamed:@"BestPackage"];
 #endif
     
     [buttonPackage addSubview:imageViewPackage];
@@ -353,14 +396,15 @@
     [self.view addSubview:buttonPackage];
     
     
+    
     //没有套餐的时候
-    UIImage * noPackageImage = [UIImage imageNamed:@"nopackage"];
-    
-    noPackage = [[UIImageView alloc]initWithFrame:CGRectMake((KDeviceWidth - noPackageImage.size.width)/2,buttonPackage.frame.origin.y+buttonPackage.frame.size.height+(KDeviceHeight - (buttonPackage.frame.origin.y+buttonPackage.frame.size.height)-noPackageImage.size.height)/2, noPackageImage.size.width, noPackageImage.size.height)];
-    noPackage.image = noPackageImage;
-    [self.view addSubview:noPackage];
-    
-    noPackage.hidden = NO;
+//    UIImage * noPackageImage = [UIImage imageNamed:@"nopackage"];
+//    
+//    noPackage = [[UIImageView alloc]initWithFrame:CGRectMake((KDeviceWidth - noPackageImage.size.width)/2,buttonPackage.frame.size.height+buttonPackage.frame.origin.y, noPackageImage.size.width, noPackageImage.size.height)];
+//    noPackage.image = noPackageImage;
+//    [self.view addSubview:noPackage];
+//    
+//    noPackage.hidden = NO;
     
     
     
@@ -375,7 +419,153 @@
     
     
     //添加右滑返回
-    [UIUtil addBackGesture:self andSel:@selector(returnLastPage:)];}
+    [UIUtil addBackGesture:self andSel:@selector(returnLastPage:)];
+}
+- (void)showSignAdsContents:(NSArray*)adArray
+{
+    if (adArray == nil||adArray.count == 0)
+        return;
+    
+    if (adArray.count == 1) {
+        
+        self.adUrlArr = [[NSMutableArray alloc]init];
+        
+        NSURL *url = [NSURL URLWithString:[adArray[0] objectForKey:@"ImageUrl"]];
+        NSData *imageData = [NSData dataWithContentsOfURL:url];
+        UIImage *image = [UIImage imageWithData:imageData];
+        
+        if(image == nil || ![image isKindOfClass:[UIImage class]])
+            return ;
+        [self.adUrlArr addObject:[adArray[0] objectForKey:@"Url"]];
+        [adButton setBackgroundImage:image forState:UIControlStateNormal];
+        [adButton addTarget:self action:@selector(doAdsButton) forControlEvents:(UIControlEventTouchUpInside)];
+        adButton.hidden = NO;
+    }
+    else if (adArray.count >1){
+        NSMutableArray *newAdsArr = [[NSMutableArray alloc]initWithArray:adArray];
+        if (newAdsArr.count > 1) {
+            [newAdsArr removeObject:newAdsArr[adArray.count-1]];
+            [newAdsArr insertObject:adArray[adArray.count-1] atIndex:0];
+        }
+        if (self.adImgArr.count == 0) {
+            self.adImgArr = [[NSMutableArray alloc]init];
+            self.adUrlArr = [[NSMutableArray alloc]init];
+            for (int i = 0; i<newAdsArr.count; i++) {
+                NSURL *url = [NSURL URLWithString:[newAdsArr[i] objectForKey:@"ImageUrl"]];
+                
+                NSData *imageData = [NSData dataWithContentsOfURL:url];
+                
+                UIImage *image = [UIImage imageWithData:imageData];
+                
+                if (image != nil) {
+                    [self.adImgArr addObject:image];
+                    [self.adUrlArr addObject:[newAdsArr[i] objectForKey:@"Url"]];
+                }
+            }
+        }
+        if (!self.mainScorllView) {
+            self.mainScorllView = [[CycleScrollView alloc] initWithFrame:CGRectMake(0, 0, 702/2*KWidthCompare6,64*KWidthCompare6) animationDuration:3];
+            self.mainScorllView.layer.cornerRadius = 8;
+        }
+        
+        self.mainScorllView.backgroundColor = [UIColor clearColor];
+        [adView addSubview:self.mainScorllView];
+        
+        NSMutableArray *viewsArray = [@[] mutableCopy];
+        self.mainScorllView.hidden = NO;
+        if(iOS7){
+            self.automaticallyAdjustsScrollViewInsets = NO;//解决scrollView不从左上角显示
+        }
+        for (int i = 0; i < self.adImgArr.count; ++i) {
+            UIImageView *tempImgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0,702/2*KWidthCompare6,64*KWidthCompare6)];
+            tempImgView.layer.cornerRadius = 8;
+            tempImgView.image = (UIImage *)[self.adImgArr objectAtIndex:i];
+            [viewsArray addObject:tempImgView];
+        }
+        self.mainScorllView.fetchContentViewAtIndex = ^UIView *(NSInteger pageIndex){
+            return viewsArray[pageIndex];
+        };
+        
+        __weak typeof(self)weakSelf = self;
+        self.mainScorllView.totalPagesCount = ^NSInteger(void){
+            return weakSelf.adImgArr.count;
+        };
+        self.mainScorllView.TapActionBlock = ^(NSInteger pageIndex){
+            [weakSelf setAd:pageIndex];
+        };
+        [adView addSubview:self.mainScorllView];
+    }
+    [adView addSubview:closeBtn];
+}
+- (void)didClose{
+
+    adView.hidden = YES;
+    [UConfig setMyTimeAdsType:NO];
+    [UIView animateWithDuration:1 animations:^{
+        buttonPackage.frame = CGRectMake(0,moneyView.frame.origin.y+moneyView.frame.size.height+10*KWidthCompare6,KDeviceWidth, 45);
+        mTableView.frame = CGRectMake(0, buttonPackage.frame.size.height+buttonPackage.frame.origin.y, KDeviceWidth, KDeviceHeight);
+    }
+     ];
+}
+#pragma mark ------web动作-----
+- (void)setAd:(NSInteger)indexUrl{
+    if (indexUrl >= self.adUrlArr.count) {
+        return;
+    }
+    
+    [self touchWebAction:self.adUrlArr[indexUrl]];
+}
+
+-(void)doAdsButton
+{
+    if (self.adUrlArr.count == 0) {
+        return ;
+    }
+    
+    [self touchWebAction:self.adUrlArr[0]];
+}
+
+//adsWeb
+-(void)touchWebAction:(NSString *)aUrl
+{
+    if ([self.adUrlArr[0] isEqual: @""] || self.adUrlArr[0] == nil) {
+        return;
+    }
+    
+    if ([UConfig hasUserInfo]) {
+        
+        
+        [self webFunction:aUrl];
+        
+    }
+    else{
+        //未登录
+        XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"提示" message:@"尊敬的用户，您需要注册/登录后才能使用应用的全部功能。" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"注册/登录", nil];
+        alertView.tag = 11;
+        [alertView show];
+    }
+}
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if(alertView.tag == 11)
+    {
+        if (buttonIndex == 1) {
+            [self gotoLogin];
+        }
+    }
+}
+//登录注册
+-(void)gotoLogin
+{
+    [uApp showLoginView:YES];
+}
+-(void)webFunction:(NSString *)urlStr
+{
+    WebViewController *webVC = [[WebViewController alloc]init];
+    webVC.webUrl = urlStr;
+    [uApp.rootViewController.navigationController pushViewController:webVC animated:YES];
+}
+
 
 -(void)DragExit{
     backBtnView.image = [UIImage imageNamed:@"moreBack_nor"];
@@ -410,6 +600,15 @@
     getWareManager.delegate = self;
     [getWareManager getUsablebizDetail:@"p"];
     
+    
+    [MobClick beginLogPageView:@"MyTimeViewController"];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [MobClick endLogPageView:@"MyTimeViewController"];
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -492,6 +691,7 @@
 -(void)exchangeFunction
 {
     
+    [MobClick event:@"e_exchange_code"];
     ExchangeViewController  *exchangeViewController = [[ExchangeViewController alloc]init];
     [self.navigationController pushViewController:exchangeViewController animated:YES];
 }

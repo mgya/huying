@@ -45,7 +45,6 @@
     UIButton *adButton;//广告位数量为1的时候的uicontrol
     NSString *bannerUrl;
     NSString *otherUrl;
-    
     UIButton *closeBtn;
     
 }
@@ -308,6 +307,8 @@ typedef enum{
         }
         isShowDailyMsg = NO;
     }
+    
+    [MobClick event:@"e_sign"];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {

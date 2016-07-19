@@ -14,6 +14,13 @@
 
 @property (nonatomic,assign) BOOL isOnline;
 @property (nonatomic,assign) BOOL backGround;
+@property (nonatomic,assign) BOOL startAd;
+@property (nonatomic,strong) NSString *state;
+@property (nonatomic,strong) NSString *safeState;
+@property (nonatomic,strong) NSString *buySafeUrl;
+@property (nonatomic,strong) NSString *recommended;
+@property (nonatomic,assign) BOOL isIPV6;
+
 
 +(UCore *)sharedInstance;
 

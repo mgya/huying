@@ -316,6 +316,11 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
                                                      name:UpdataCellPicture
                                                    object:nil];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(hideKeyBoard)
+                                                     name:HIDEKEYBOARD
+                                                   object:nil];
+        
         
         
         
@@ -411,6 +416,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     
     tapgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapPress:)];
 
+    [MobClick beginLogPageView:@"ChatViewController"];
     
 }
 //第一条加好友之后的信息下面的广告
@@ -475,8 +481,7 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     infoBtn.hidden = YES;
     callBtn.hidden = YES;
     [chatBar.inputTextView resignFirstResponder];
-    
-    
+    [MobClick endLogPageView:@"ChatViewController"];
 }
 
 - (void)callBarButtonNow{
@@ -1370,8 +1375,10 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
                 chatCell.msgLog = msg;
                 cell = chatCell;
                 
-                
-
+            }
+            else{
+                cell = [[UITableViewCell alloc]init];
+                NSLog(@"不支持的类型!!!");
             }
             
         }
@@ -3525,6 +3532,8 @@ NSString *const MJTableViewCellIdentifier = @"ChatCell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:KAdsContent object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UpdataBigPicture object:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UpdataCellPicture object:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HIDEKEYBOARD object:self];
+
 }
 
 #pragma mark---HttpManagerDelegate---

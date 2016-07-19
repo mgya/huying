@@ -5,6 +5,7 @@
 //
 
 #import <Availability.h>
+#import "UMMobClick/MobClick.h"
 
 #ifndef __IPHONE_3_0
 #warning "This project uses features only available in iOS SDK 3.0 and later."
@@ -17,6 +18,10 @@
 
 #endif
 
+//友盟页面开始
+#define YMBLOG(type)   [MobClick beginLogPageView:@type]
+//友盟页面跳出
+#define YMELOG(type)   [MobClick endLogPageView:@type]
 
 //#define HOLIDAY
 

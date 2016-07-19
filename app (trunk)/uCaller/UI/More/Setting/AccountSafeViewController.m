@@ -45,6 +45,19 @@
     [UIUtil addBackGesture:self andSel:@selector(returnLastPage:)];
 }
 
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    YMBLOG("账号和安全页面");
+}
+
+
+
+-(void)viewDidAppear:(BOOL)animated{
+    YMELOG("账号和安全页面");
+    [super viewDidAppear:animated];
+}
+
 -(void)returnLastPage
 {
     [self.navigationController popViewControllerAnimated:YES];

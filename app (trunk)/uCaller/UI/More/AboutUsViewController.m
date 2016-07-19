@@ -101,6 +101,17 @@
     // Dispose of any resources that can be recreated.
 }
 
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    YMBLOG("关于我们页面");
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    YMELOG("关于我们页面");
+    [super viewDidAppear:animated];
+}
+
 -(void)returnLastPage
 {
     [self.navigationController popViewControllerAnimated:YES];

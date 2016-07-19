@@ -8,7 +8,8 @@
 
 #import "BaseViewController.h"
 #import "HTTPManager.h"
+#import "openappview.h"
 
-@interface BeginViewController : BaseViewController<HTTPManagerControllerDelegate>
+@interface BeginViewController : BaseViewController<HTTPManagerControllerDelegate,OpenAppViewDelegate>
 
 @end

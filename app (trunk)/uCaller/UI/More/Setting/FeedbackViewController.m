@@ -118,6 +118,17 @@
     [UIUtil addBackGesture:self andSel:@selector(returnLastPage)];
 }
 
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    YMBLOG("意见反馈页面");
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    YMELOG("意见反馈页面");
+    [super viewDidAppear:animated];
+}
+
 -(void)returnLastPage
 {
 //    NSLog(@"用户反馈界面销毁");

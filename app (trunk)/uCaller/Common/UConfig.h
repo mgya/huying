@@ -35,6 +35,19 @@ typedef enum{
     RefuseRecomend = 2
 }tFriendRecommend;
 
+@interface startAdInfo :NSObject
+
+@property(nonatomic,assign)NSInteger showTime;
+@property(nonatomic,assign)double overTime;
+@property(nonatomic,strong)NSString *url;
+@property(nonatomic,strong)NSString *imgUrl;
+@property(nonatomic,strong)UIImage *img;
+
+
+@end
+
+
+
 @interface UConfig : NSObject
 
 +(void)setTrainTickets:(BOOL)isShow;
@@ -388,8 +401,24 @@ typedef enum{
 
 +(BOOL)getSignType;
 
++(void)setTimeAdsType:(BOOL)type;
+
++(BOOL)getTimeAdsType;
+
++(void)setMyTimeAdsType:(BOOL)type;
+
++(BOOL)getMyTimeAdsType;
+
 + (void)setHuyingType:(BOOL)type;
 
 +(BOOL)getHuyingType;
+
+//缓存开机广告
++(startAdInfo*)getStartAdInfo;
++(void)setStartAdInfo:(startAdInfo*)info;
+
+//测试版本号
++(void)setTestVersion:(NSString *)ver;
++(NSString *)getTestVersion;
 
 @end

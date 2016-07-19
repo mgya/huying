@@ -25,6 +25,7 @@
 @property (strong, readwrite, nonatomic) UIFont *font;
 @property (strong, readwrite, nonatomic) UIColor *textColor;
 @property (strong, readwrite, nonatomic) UIColor *highlightedTextColor;
+@property (strong, readwrite, nonatomic) UITableView *menuTableView;
 
 @property (assign, readwrite, nonatomic) CGFloat horizontalOffset;
 

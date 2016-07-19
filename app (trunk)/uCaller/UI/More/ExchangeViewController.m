@@ -31,6 +31,7 @@
 
 -(id)init
 {
+    [MobClick event:@"e_exchange_code"];
     if (self = [super init]) {
         exchangeHttpManager = [[HTTPManager alloc] init];
         exchangeHttpManager.delegate = self;
@@ -172,12 +173,14 @@
 {
     [super viewWillAppear:animated];
     recordBtn.hidden = NO;
+    YMBLOG("兑换界面");
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     recordBtn.hidden = YES;
+    YMELOG("兑换界面");
 }
 
 //注册键盘通知

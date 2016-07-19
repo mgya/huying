@@ -100,6 +100,8 @@ typedef enum
 @property (nonatomic,assign) BOOL isOnline;
 //@property (nonatomic,assign) BOOL isCalling;
 
+@property(nonatomic,assign)BOOL isIPV6;
+
 +(HYVoIPCore *)sharedInstance;
 
 -(void)start;

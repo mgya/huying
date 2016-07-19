@@ -11,12 +11,16 @@
 #import "RegisterViewController.h"
 #import "UConfig.h"
 #import "SCGIFImageView.h"
+#import "WebViewController.h"
 
 #define StateBarHeight 20
 
 @implementation BeginViewController
 {
     HTTPManager *httpBeforeLogin;
+    OpenAppView *vc;
+    UITapGestureRecognizer* ad;
+
 }
 
 - (void)viewDidLoad {
@@ -89,6 +93,23 @@
     httpBeforeLogin = [[HTTPManager alloc] init];
     httpBeforeLogin.delegate = self;
     [httpBeforeLogin getBeforeLoginInfo];
+    
+    
+    
+    
+    startAdInfo * adInfo = [UConfig getStartAdInfo];
+    if (adInfo) {
+        vc = [[OpenAppView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+        vc.delegate = self;
+        vc.info = adInfo;
+        vc.isVisible  = YES;
+        ad = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(closeAdView:)];
+        [vc addGestureRecognizer:ad];
+        
+    }
+    [self.view addSubview:vc];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -123,4 +144,30 @@
     }
 }
 
+-(void)closeAdView:(UITapGestureRecognizer*)tap{
+    
+    [vc removeGestureRecognizer:ad];
+
+    if (vc.hidden) {
+        return;
+    }
+    vc.hidden = YES;
+    
+    
+    //    tabBarViewController = [[TabBarViewController alloc] init];
+    //
+    //    tabBarViewController.view.frame = self.view.frame;
+    //    tabBarViewController.delegate = self;
+    //    [self.view addSubview: sideMenuViewController.view];
+    //    [self.view addSubview: tabBarViewController.view];
+    //
+    
+    if (tap) {
+        WebViewController * vc2 = [[WebViewController alloc]init];
+        vc2.webUrl = vc.info.url;
+        [self.navigationController pushViewController:vc2 animated:YES];
+    }
+    
+    
+}
 @end

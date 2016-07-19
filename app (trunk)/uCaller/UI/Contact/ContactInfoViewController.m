@@ -11,6 +11,7 @@
 #import "RemarkViewController.h"
 #import "BlackListOperatorViewController.h"
 #import "AddXMPPViewController.h"
+#import "WebViewController.h"
 
 #import "ContactManager.h"
 #import "MsgLogManager.h"
@@ -43,6 +44,7 @@
 #import "GetAvatarDetailDataSource.h"
 #import "DataCore.h"
 #import "AfterLoginInfoDataSource.h"
+#import "UpdateSafeStateDatasource.h"
 
 
 typedef enum{
@@ -53,6 +55,7 @@ typedef enum{
 #define TAG_ACTIONSHEET_CALLMODE 3001
 #define TAG_ACTIONSHEET_FORBID 3003
 #define TAB_ACTIONSHEET_EDITPHOTO 3004
+
 
 #define TAG_INVITE_SUCCESS 3002
 
@@ -134,6 +137,7 @@ typedef enum{
     UITableView *contactInfoTableView;
     
     LongPressButton *btnSendLeave;
+    LongPressButton *safeCallBtn;
     UIButton *btnSendMsg;
     UIButton *addBtn;
     UIButton *starButton;
@@ -146,6 +150,7 @@ typedef enum{
     HTTPManager *getShareHttp;
     HTTPManager *httpGiveGift;
     HTTPManager *getAfterInfoHttp;
+    HTTPManager *updateSafeState;
     
     BOOL dropHasRemark;
     NSMutableArray *dropNameMarr;
@@ -228,6 +233,9 @@ typedef enum{
         
         getAfterInfoHttp = [[HTTPManager alloc]init];
         getAfterInfoHttp.delegate = self;
+        
+        updateSafeState = [[HTTPManager alloc]init];
+        updateSafeState.delegate = self;
         
         dropHasRemark = NO;
         dropNameMarr = [[NSMutableArray alloc]init];
@@ -404,19 +412,21 @@ typedef enum{
 //	[addView addSubview:btnSendMsg];
 //    btnSendMsg.hidden = YES;
  
-    
-    if (btnSendLeave == nil) {
-        btnSendLeave = [[LongPressButton alloc]initWithFrame:CGRectMake(10,6,KDeviceWidth-20,40*KHeightCompare6)];
+
+    if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+        safeCallBtn = [[LongPressButton alloc]initWithFrame:CGRectMake(10, 6,(KDeviceWidth-30)/2, 40*KHeightCompare6)];
+        safeCallBtn.backgroundColor = [UIColor redColor];
+        [safeCallBtn setImage:[UIImage imageNamed:@"safeCall"] forState:(UIControlStateNormal)];
+        [safeCallBtn setTitle:@"安全通话" forState:(UIControlStateNormal)];
+        [safeCallBtn setImage:[UIImage imageNamed:@"safeCall"] forState:(UIControlStateHighlighted)];
+        [safeCallBtn setTitle:@"安全通话" forState:(UIControlStateHighlighted)];
+        [safeCallBtn addTarget:self action:@selector(toSafeCallInfo) forControlEvents:UIControlEventTouchUpInside];
+        [safeCallBtn setBackgroundColor:[UIColor colorWithRed:1/255.0 green:190/255.0 blue:204/255.0 alpha:1.0]];
+        safeCallBtn.layer.cornerRadius = 8;
+        safeCallBtn.hidden = YES;
+        [addView addSubview:safeCallBtn];
     }
-    [btnSendLeave addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
-    [btnSendLeave addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
-    btnSendLeave.delegate = self;
-
-    [btnSendLeave setBackgroundColor:ColorBlue];
-    btnSendLeave.layer.cornerRadius = 10;
-	[addView addSubview:btnSendLeave];
-
-
+    
     UIView *btnxView = [[UIView alloc]initWithFrame:CGRectMake(0, btnSendMsg.frame.origin.y-0.6, self.view.frame.size.width, 0.6)];
     [btnxView setBackgroundColor:[[UIColor alloc]initWithRed:219.0/255.0 green:219.0/255.0 blue:219.0/255.0 alpha:1.0]];
     [addView addSubview:btnxView];
@@ -453,27 +463,43 @@ typedef enum{
     if (contact.type == CONTACT_MySelf) {
         [addBtn setTitle:@"编辑资料" forState:UIControlStateNormal];
         [addBtn addTarget:self action:@selector(editPersonInfo) forControlEvents:UIControlEventTouchUpInside];
-        btnSendLeave.hidden = YES;
         addBtn.hidden = NO;
      
     }else if (agreeNewContact.status == STATUS_FROM && fromChat == NO){
         [addBtn setTitle:@"同意添加" forState:UIControlStateNormal];
         [addBtn addTarget:self action:@selector(onAgreeNewContact) forControlEvents:UIControlEventTouchUpInside];
-        btnSendLeave.hidden = YES;
         addBtn.hidden = NO;
     }
     else if ((contact.type == CONTACT_Recommend || contact.type == CONTACT_Unknow)&& fromChat == NO ){
         [addBtn setTitle:@"添加好友" forState:UIControlStateNormal];
         [addBtn addTarget:self action:@selector(addXMPPContact) forControlEvents:UIControlEventTouchUpInside];
-        btnSendLeave.hidden = YES;
         addBtn.hidden = NO;
     }
     else{
-        btnSendLeave.hidden = NO;
+        if (contact.type == CONTACT_uCaller && [[UCore sharedInstance].state isEqualToString:@"1"]) {
+            btnSendLeave = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth-30)/2+20, 6,(KDeviceWidth-30)/2, 40*KHeightCompare6)];
+            safeCallBtn.hidden = NO;
+        }else{
+            btnSendLeave = [[LongPressButton alloc]initWithFrame:CGRectMake(10,6,KDeviceWidth-20,40*KHeightCompare6)];
+        }
+        [btnSendLeave setImage:[UIImage imageNamed:@"SendLeave"] forState:(UIControlStateNormal)];
+        [btnSendLeave setTitle:@"按下留言" forState:(UIControlStateNormal)];
+        
+        [btnSendLeave setImage:[UIImage imageNamed:@"SendLeave"] forState:(UIControlStateHighlighted)];
+        [btnSendLeave setTitle:@"按下留言" forState:(UIControlStateHighlighted)];
+        [btnSendLeave addTarget:self action:@selector(startSpeak) forControlEvents:ControlEventTouchLongPress];
+        [btnSendLeave addTarget:self action:@selector(stopSpeak) forControlEvents:ControlEventTouchCancel];
+        btnSendLeave.delegate = self;
+        
+        [btnSendLeave setBackgroundColor:ColorBlue];
+        btnSendLeave.layer.cornerRadius = 8;
+        [addView addSubview:btnSendLeave];
         addBtn.hidden = YES;
     }
 //    btnSendMsg.hidden = NO;
-    
+
+
+
     
     if(contact.type == CONTACT_Recommend || contact.type == CONTACT_MySelf||contact.type == CONTACT_Unknow){
 //        btnSendMsg.hidden = YES;
@@ -530,6 +556,8 @@ typedef enum{
         starButton.hidden = YES;
         rBtn.hidden = YES;
     }
+    
+    [MobClick beginLogPageView:@"contactInfoViewController"];
 
 }
 
@@ -540,6 +568,8 @@ typedef enum{
                                                     name:NContactEvent
                                                   object:nil];
     NSLog(@"contact info view controller dealloc succ!");
+    
+    [MobClick endLogPageView:@"contactInfoViewController"];
 }
 
 -(void)addXMPP{
@@ -971,12 +1001,6 @@ typedef enum{
     
     [self refreshRemark];
     
-    
-    [btnSendLeave setImage:[UIImage imageNamed:@"SendLeave"] forState:(UIControlStateNormal)];
-    [btnSendLeave setTitle:@"按下留言" forState:(UIControlStateNormal)];
-    
-    [btnSendLeave setImage:[UIImage imageNamed:@"SendLeave"] forState:(UIControlStateHighlighted)];
-    [btnSendLeave setTitle:@"按下留言" forState:(UIControlStateHighlighted)];
     
 //    if([contact hasUNumber] || [contact.number startWith:TZ_PREFIX])
 //    {
@@ -1566,7 +1590,7 @@ typedef enum{
                 UIButton *UcallBtn = [[UIButton alloc]initWithFrame:CGRectMake(UmsgBtn.frame.origin.x-38*KWidthCompare6-uContactInfoImg.size.width,(CELL_HEIGHT-uContactInfoImg.size.height)/2, uContactInfoImg.size.width, uContactInfoImg.size.height)];
                 [UcallBtn setImage:[UIImage imageNamed:@"contact_info_call.png"] forState:UIControlStateNormal];
                 [UcallBtn setImage:[UIImage imageNamed:@"contact_info_call_sel.png"] forState:UIControlStateHighlighted];
-                [UcallBtn addTarget:self action:@selector(DidUCall:) forControlEvents:UIControlEventTouchUpInside];
+                [UcallBtn addTarget:self action:@selector(DidUCall) forControlEvents:UIControlEventTouchUpInside];
                 [cell.contentView addSubview:UcallBtn];
                 
                 
@@ -1715,7 +1739,7 @@ typedef enum{
      [contactInfoTableView deselectRowAtIndexPath:indexPath animated:NO];
     
 }
--(void)DidUCall:(UIButton *)sender
+-(void)DidUCall
 {
     if(![Util isEmpty:contact.uNumber])
     {
@@ -1861,6 +1885,7 @@ typedef enum{
    
         }
     }
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -1929,6 +1954,12 @@ typedef enum{
             
             [Util sendInvite:[NSArray arrayWithObject:contact.pNumber] from:self andContent:smsContent];
         }
+        else if (eType == RequestupdateSafeState){
+            UpdateSafeStateDatasource *updateSafeData = (UpdateSafeStateDatasource*)theDataSource;
+            if (updateSafeData.nResultNum == 1){
+                NSLog(@"成功");
+            }
+        }
     }
 }
 
@@ -1957,9 +1988,19 @@ typedef enum{
             isSendLeaveMsgs = YES;
             [self sendAudio];
         }
-        
     }
-
+    if (alertView.tag == 111) {
+        if(buttonIndex == 0){
+          
+            //设置开关为打开
+            [updateSafeState updateSafeState:[UConfig getUID] andSafeState:@"1"];
+            uCore.safeState = @"1";
+            //拨打电话
+            [self DidUCall];
+        }else{
+           
+        }
+    }
 }
 
 - (void)ToSendLeaveMsg{
@@ -2578,6 +2619,26 @@ typedef enum{
     isSpeaking = NO;
     [speakTimer invalidate];
     [self stopRecord];
+    
+}
+- (void)toSafeCallInfo{
+    if ([uCore.safeState isEqualToString:@"0"]) {
+        //订购详情界面
+        WebViewController *webVC = [[WebViewController alloc]init];
+        webVC.webUrl =  uCore.buySafeUrl;
+        [self.navigationController pushViewController:webVC animated:YES];
+        
+    }else{
+        
+        if ([uCore.safeState isEqualToString:@"1"]) {
+            //拨打电话
+            [self DidUCall];
+        }else{
+            XAlertView *safeAlert = [[XAlertView alloc] initWithTitle:@"提示" message:@"系统将为您开启安全通话功能" delegate:self cancelButtonTitle:@"是" otherButtonTitles:@"否", nil];
+            safeAlert.tag = 111;
+            [safeAlert show];
+        }
+    }
     
 }
 

@@ -124,7 +124,15 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    YMBLOG("获得记录页面");
+}
 
+-(void)viewDidAppear:(BOOL)animated{
+    YMELOG("获得记录页面");
+    [super viewDidAppear:animated];
+}
 
 -(void)returnLastPage{
     [self.navigationController popViewControllerAnimated:YES];

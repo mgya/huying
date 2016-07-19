@@ -84,9 +84,23 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+    YMBLOG("新消息提醒页面");
     [self tableRefresh];
 }
+
+
+
+-(void)viewDidAppear:(BOOL)animated{
+    
+    
+    
+    YMELOG("新消息提醒页面");
+    
+    [super viewDidAppear:animated];
+    
+}
+
+
 
 - (void)didReceiveMemoryWarning
 {

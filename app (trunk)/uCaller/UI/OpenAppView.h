@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "uconfig.h"
 
 @protocol OpenAppViewDelegate <NSObject>
 
@@ -21,7 +22,8 @@
 @interface OpenAppView : UIView
 
 
-@property(nonatomic,assign)BOOL isVisible;
+@property(nonatomic,strong)startAdInfo *info;
+@property(nonatomic,assign)BOOL isVisible;//info有效才会展示页面
 
 
 @property (nonatomic, weak) id<OpenAppViewDelegate> delegate;

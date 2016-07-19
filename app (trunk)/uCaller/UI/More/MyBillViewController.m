@@ -159,6 +159,12 @@
 {
     [super viewWillAppear:animated];
     [httpManager getUsablebizDetail:@"d"];
+    YMBLOG("时长详情页面");
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    YMELOG("时长详情页面");
+    [super viewDidAppear:animated];
 }
 
 -(void)reloadView

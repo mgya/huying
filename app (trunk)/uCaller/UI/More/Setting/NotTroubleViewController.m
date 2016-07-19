@@ -116,6 +116,22 @@
     [troubleTableView reloadData];
 }
 
+
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    YMBLOG("免打扰设置");
+}
+
+
+
+-(void)viewDidAppear:(BOOL)animated{
+    
+    YMELOG("免打扰设置");
+    [super viewDidAppear:animated];
+    
+}
+
 #pragma mark ActionSheet Delegate Methods
 - (void) actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {

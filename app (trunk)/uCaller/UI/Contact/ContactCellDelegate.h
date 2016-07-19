@@ -18,6 +18,8 @@
 
 - (void)contactCellClickedAdd;
 
+- (void)toCommondVebView;
+
 -(void)touchesEnded;
 -(void)noSelectFriend:(NSMutableDictionary *)currentArrayMap;
 

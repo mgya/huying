@@ -22,7 +22,9 @@
 #import "DailyAttendanceViewController.h"
 #import "CreateOrderDataSource.h"
 #import "VertifyOrderDataSource.h"
+#import "RequestgetSafeStateDatasource.h"
 #import "XAlert.h"
+#import "UCore.h"
 
 //webview交互接口
 #define GameStatusBack  @"gameStatusCallback"
@@ -30,6 +32,7 @@
 #define WXCIRCLE @"shareToWXCricle"
 #define WXFRIEND @"shareToWXFriend"
 #define QQSHARE @"shareToQQ"
+#define QQZOEN @"shareToQZone"
 #define SINASHARE @"shareToSina"
 #define TENCENTWEIBO @"shareToTencentWeibo"
 #define CONTACTSHARE @"shareToContact"
@@ -77,6 +80,7 @@
     
     WebBackObject *backObj;
     HTTPManager *addStatHttp;//统计接口
+    HTTPManager *getSafeStateHttp;//获取安全通话状态接口
     
     BOOL backLock;//回调json安全锁
     
@@ -95,6 +99,8 @@
     UIButton *closeBtn;
     
     NSInteger index;
+    UCore *uCore;
+
 
 }
 @end
@@ -108,8 +114,11 @@
     if (self = [super init]) {
         addStatHttp = [[HTTPManager alloc]init];
         addStatHttp.delegate = self;
+        getSafeStateHttp = [[HTTPManager alloc]init];
+        getSafeStateHttp.delegate = self;
         index = 0;
         backLock = NO;
+        uCore = [UCore sharedInstance];
     }
     return self;
 }
@@ -148,7 +157,7 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+    YMBLOG("webview页面");
     [self pageRefrash];
 }
 
@@ -161,6 +170,7 @@
     if (iapPayManager) {
         [iapPayManager cancelRequest];
     }
+    YMELOG("webview页面");
     [super viewWillDisappear:animated];
     
 }
@@ -413,6 +423,29 @@
             [[ShareManager SharedInstance] tencentDidSendMsg:shareObject];
             [self notifacationAction];
         }
+        else if ([funcStr isEqualToString:QQZOEN]){
+            ShareContent *shareObject = [[ShareContent alloc]init];
+            
+            shareObject.msg = [arrFucnameAndParameter objectAtIndex:1];
+            shareObject.title = [arrFucnameAndParameter objectAtIndex:2];
+            
+            NSString *imgStr = [arrFucnameAndParameter objectAtIndex:3];
+            NSArray *arr = @[[NSString stringWithFormat:@"%@",imgStr]];
+            shareObject.imgUrls = arr;
+            shareObject.hideUrl = [arrFucnameAndParameter objectAtIndex:4];
+            
+            //QQ空间
+            backObj = [[WebBackObject alloc]init];
+            backObj.isBack = YES;
+            backObj.cmd = ClientCallBack;
+            
+            NSDictionary *srcDic = [NSDictionary dictionaryWithObjectsAndKeys:QQZOEN,@"src", nil];
+            [backObj.paraMarr addObject:srcDic];
+            
+            [[ShareManager SharedInstance] tencentDidSendMsgQZone:shareObject];
+            [self notifacationAction];
+
+        }
         else if ([funcStr isEqualToString:SINASHARE]){
             
             //@param content##@param title##@param imgURL##@param url
@@ -436,10 +469,10 @@
 
             [[ShareManager SharedInstance] SinaWeiboSendMsg:shareObject];
             [self notifacationAction];
-        }
+        }            //@param content##@param title##@param imgURL##@param url
         else if ([funcStr isEqualToString:CONTACTSHARE]){
             
-            //@param content##@param title##@param imgURL##@param url
+
             ShareContent *shareObject = [[ShareContent alloc]init];
                 
             shareObject.msg = [arrFucnameAndParameter objectAtIndex:1];
@@ -939,7 +972,6 @@
         }
     }
     
-    
 }
 
 -(void)jumpAndDownLoadFunction:(NSString *)urlStr IsDownload:(NSString *)isDownload IsJump:(NSString *)isJump UrlSchemes:(NSString *)schemes UrlHost:(NSString *)host
@@ -1049,7 +1081,6 @@
     if (isrefresh) {
         [self backFunction];
     }
-    
 }
 
 
@@ -1089,6 +1120,15 @@
                     paydata = orderSrc.paydata;
                     [self iapPay];
                 }
+            }
+            else if (eType == RequestgetSafeState){
+                RequestgetSafeStateDatasource *safeStateDataSource = (RequestgetSafeStateDatasource*)theDataSource;
+                if ([safeStateDataSource.safeState isEqualToString:@"3"]) {
+                    safeStateDataSource.safeState = @"0";
+                }
+                uCore.safeState = safeStateDataSource.safeState;
+                
+                uCore.buySafeUrl = safeStateDataSource.safeBuyUrl;
             }
             
         }
@@ -1131,6 +1171,7 @@
 -(void)showSuccessBuy
 {
     [XAlert showAlert:nil message:@"充值成功，时长将于2分钟内到账。" buttonText:@"确定"];
+    [getSafeStateHttp getSafeState:[UConfig getUID]];
 }
 
 -(void)showFailBuy

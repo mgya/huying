@@ -162,14 +162,14 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    YMBLOG("个人信息页面");
     [infoTableView reloadData];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
+    YMELOG("个人信息页面");
     [super viewDidAppear:animated];
-    
-    
 }
 
 - (void)didReceiveMemoryWarning

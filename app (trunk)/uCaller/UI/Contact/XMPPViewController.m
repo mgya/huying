@@ -266,10 +266,15 @@
         }
     }
     
+    
+    YMBLOG("呼应好友页面");
+    
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
+    YMELOG("呼应好友页面");
+
     [super viewWillDisappear:animated];
 }
 

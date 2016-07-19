@@ -25,6 +25,12 @@ static UCore *sharedInstance = nil;
 
 @synthesize isOnline;
 @synthesize backGround;
+@synthesize state;
+@synthesize safeState;
+@synthesize buySafeUrl;
+@synthesize recommended;
+@synthesize isIPV6;
+
 
 +(UCore *)sharedInstance
 {
@@ -48,6 +54,11 @@ static UCore *sharedInstance = nil;
         umpCore = [UMPCore sharedInstance];
         dataCore = [DataCore sharedInstance];
         dataCore.delegate = self;
+        _startAd = NO;
+        state = @"0";
+        safeState = @"0";
+        buySafeUrl = @"";
+        recommended = @"0";
     }
     return self;
 }
@@ -55,6 +66,11 @@ static UCore *sharedInstance = nil;
 -(BOOL)isOnline
 {
     return umpCore.isOnline;
+}
+
+-(BOOL)isIPV6
+{
+    return umpCore.isIPV6;
 }
 
 #pragma mark CoreDelegate Methods

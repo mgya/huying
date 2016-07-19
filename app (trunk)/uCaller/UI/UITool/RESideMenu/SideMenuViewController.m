@@ -32,8 +32,6 @@
 @property (strong, readonly, nonatomic) UIImageView * soundButtonImageView;
 @property (strong, readonly, nonatomic) UILabel * soundButtonTitle;
 
-@property (strong,readonly,nonatomic)UITableView *menuTableView;
-
 
 @property (assign, readwrite, nonatomic) CGFloat verticalOffset;
 
@@ -51,7 +49,7 @@
 
 
 @implementation SideMenuViewController
-
+@synthesize menuTableView;
 
 - (id)initWithItems:(NSArray *)items
 {
@@ -111,11 +109,11 @@
     [self setNaviHidden:YES];
     
     //做菜单的位置
-    _menuTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, kKHeightCompare6*68+70+30+KHeightCompare6*55+20, KDeviceWidth, 300*KHeightCompare6)];
-    _menuTableView.delegate = self;
-    _menuTableView.dataSource = self;
-    _menuTableView.backgroundColor = [UIColor clearColor];
-    _menuTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.menuTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, kKHeightCompare6*68+70+30+KHeightCompare6*55+20, KDeviceWidth, 300*KHeightCompare6)];
+    self.menuTableView.delegate = self;
+    self.menuTableView.dataSource = self;
+    self.menuTableView.backgroundColor = [UIColor clearColor];
+    self.menuTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     
     
@@ -186,12 +184,12 @@
         _adButton.hidden = YES;
     }
     
-    [self.view addSubview:_menuTableView];
+    [self.view addSubview:self.menuTableView];
     [self.view addSubview:_adButton];
     [self.view addSubview:_setButton];
     [self.view addSubview:_soundButton];
     
-    _menuTableView.scrollEnabled = YES;
+    self.menuTableView.scrollEnabled = YES;
     
 }
 
@@ -211,7 +209,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if ([UConfig getVersionReview]) {
-        return _items.count - 2;
+        return _items.count - 1;
     }
     return _items.count;
 }
@@ -239,28 +237,87 @@
     RESideMenuItem *item;
     
     if ([UConfig getVersionReview]) {
-        
-        switch (indexPath.row) {
-            case 0:{
-                item = [_items objectAtIndex:indexPath.row];
-                break;
+        if (_items.count == 3) {
+            switch (indexPath.row) {
+                case 0:{
+                    item = [_items objectAtIndex:1];
+                    break;
+                }
+                case 1:{
+                    item = [_items objectAtIndex:2];
+                    break;
+                }
+                default:
+                    
+                    break;
             }
-            case 1:{
-                item = [_items objectAtIndex:2];
-                break;
+        }else if (_items.count == 4){
+            switch (indexPath.row) {
+                case 0:{
+                    item = [_items objectAtIndex:0];
+                    break;
+                }
+                case 1:{
+                    item = [_items objectAtIndex:2];
+                    break;
+                }
+                case 2:{
+                    item = [_items objectAtIndex:3];
+                    
+                    break;
+                }
+                default:
+                    
+                    break;
             }
-            case 2:{
-                item = [_items objectAtIndex:4];
-                
-                break;
-            }
-            default:
-               
-                break;
-        }
 
+        }
+        
     }else{
-       item = [_items objectAtIndex:indexPath.row];
+        if (_items.count == 3) {
+            switch (indexPath.row) {
+                case 0:{
+                    item = [_items objectAtIndex:0];
+                    break;
+                }
+                case 1:{
+                    item = [_items objectAtIndex:1];
+                    break;
+                }
+                case 2:{
+                    item = [_items objectAtIndex:2];
+                    
+                    break;
+                }
+                default:
+                    
+                    break;
+            }
+        }else if (_items.count == 4){
+            switch (indexPath.row) {
+                case 0:{
+                    item = [_items objectAtIndex:0];
+                    break;
+                }
+                case 1:{
+                    item = [_items objectAtIndex:1];
+                    break;
+                }
+                case 2:{
+                    item = [_items objectAtIndex:2];
+                    break;
+                }
+                case 3:{
+                    item = [_items objectAtIndex:3];
+                    
+                    break;
+                }
+                default:
+                    
+                    break;
+            }
+
+        }
 #ifdef HOLIDAY
         if (indexPath.row == 4) {
             cell.rightImage = [UIImage imageNamed:@"doubleGive"];
@@ -282,37 +339,80 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
+    NSInteger temp = 0;
+
     if ([UConfig getVersionReview]) {
-        
-        NSInteger temp = 0;
-        switch (indexPath.row) {
-            case 0:
-                temp = 0;
-                break;
-            case 1:
-                temp = 2;
-                break;
-            case 2:
-                temp = 4;
-                break;
-                
-            default:
-                break;
+        if (_items.count == 3) {
+            switch (indexPath.row) {
+                case 0:
+                    temp = 1;
+                    break;
+                case 1:
+                    temp = 2;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if(_items.count == 4){
+            switch (indexPath.row) {
+                case 0:
+                    temp = 0;
+                    break;
+                case 1:
+                    temp = 2;
+                    break;
+                case 2:
+                    temp = 3;
+                    break;
+                default:
+                    break;
+            }
         }
         
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
-        RESideMenuItem *item = [_items objectAtIndex:temp];
         
-        if (item.action)
-            item.action(nil);
+      
     }else{
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
-        RESideMenuItem *item = [_items objectAtIndex:indexPath.row];
-        
-        if (item.action)
-            item.action(nil);
+        if (_items.count == 3) {
+            switch (indexPath.row) {
+                case 0:
+                    temp = 0;
+                    break;
+                case 1:
+                    temp = 1;
+                    break;
+                case 2:
+                    temp = 2;
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        else if (_items.count == 4){
+            switch (indexPath.row) {
+                case 0:
+                    temp = 0;
+                    break;
+                case 1:
+                    temp = 1;
+                    break;
+                case 2:
+                    temp = 2;
+                    break;
+                case 3:
+                    temp = 3;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    RESideMenuItem *item = [_items objectAtIndex:temp];
+    
+    if (item.action)
+        item.action(nil);
 
 }
 
@@ -403,7 +503,7 @@
         [_reIDinfo initItem];
     }
 
-    [_menuTableView reloadData];
+    [self.menuTableView reloadData];
 
 }
 

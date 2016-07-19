@@ -142,6 +142,14 @@ static CallerManager *sharedInstance = nil;
         }
     }
     
+    if (!([[UCore sharedInstance] isOnline])&&[[UCore sharedInstance] isIPV6]) {
+        XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"提示" message:@"当前网络暂不能进行语音通话，请切换网络" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
+        alertView.tag = callerBackSelf;
+        [alertView show];
+        return;
+    }
+    
+    
     if ([UConfig getVersionReview]) {
         [self versionReview];
         return;

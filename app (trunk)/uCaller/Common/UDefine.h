@@ -84,7 +84,8 @@ typedef enum
     ,USED_INVITE_CODE           = 100414 //已使用过邀请码
 }pesResultError;
 
-#define UCLIENT_APP_VER @"2.3.0"
+
+#define UCLIENT_APP_VER @"2.4.1"
 #define UCLIENT_UPDATE_CHANNEL  @"800"
 #define UCLIENT_VER_CODE 2
 
@@ -393,6 +394,7 @@ typedef enum
 #define KBendiUserSettingsUpdate @"KBendiUserSettingsUpdate"
 #define KAdsContent @"KAdsContent"
 #define UpdataCellPicture  @"UpdataCellPicture"
+#define HIDEKEYBOARD @"hideKeyBoard"
 
 //授权成功的notification name
 #define KSinaWeiboOAuthSuc @"KSinaWeiboOAuthSuc"
@@ -407,6 +409,8 @@ typedef enum
 
 #define KTaskType @"KTaskType"
 #define KSignType @"KSignType"
+#define KTimeAdsType @"KTimeAdsType"
+#define MyTimeAdsType @"MyTimeAdsType"
 #define KHuYingType @"KHuYingType"
 
 

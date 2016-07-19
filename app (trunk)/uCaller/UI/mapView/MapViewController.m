@@ -11,6 +11,7 @@
 
 
 
+
 @interface MapViewController (){
     BMKMapView * _mapView;
     
@@ -86,6 +87,8 @@
     _mapView.showsUserLocation = NO;//先关闭显示的定位图层
     _mapView.userTrackingMode = BMKUserTrackingModeNone;//设置定位的状态
     _geocodesearch.delegate = self; // 此处记得不用的时候需要置nil，否则影响内存的释放
+    
+    [MobClick beginLogPageView:@"MapViewController"];
 
 }
 
@@ -96,6 +99,8 @@
     _mapView.delegate = nil; // 此处记得不用的时候需要置nil，否则影响内存的释放
     _locService.delegate = nil;
     _geocodesearch.delegate = nil; // 不用时，置nil
+    [MobClick endLogPageView:@"MapViewController"];
+
 }
 
 
@@ -195,6 +200,11 @@
 
     [self returnLastPage];
 
+}
+
+
+-(void)test:(NSString*)a{
+    NSLog(@"%@",a);
 }
 
 

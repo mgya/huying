@@ -66,6 +66,8 @@
         httpGetTips.delegate = self;
         //获取页面提示信息
         [httpGetTips getTips];
+        
+        uCore = [UCore sharedInstance];
     }
     return self;
 }
@@ -222,7 +224,7 @@
     [bgScroll addSubview:loginBtn];
 
     //短信验证码登录
-    CGFloat codeBtnWidth = 60;
+    CGFloat codeBtnWidth = 65;
     CGFloat codeBtnWidthMargin = KDeviceWidth - (KDeviceWidth-passwordView.frame.size.width)/2 -codeBtnWidth;
     CGFloat codeBtnHeightMargin = 5.0;
     UIButton *codeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -351,6 +353,7 @@
     
     NSString *md5Password = [[Util md5:password] uppercaseString];
     [getUserInfoHttp getUserInfo:curType andNumper:number andPassWord:md5Password];
+    [MobClick event:@"e_pswd_login"];
 }
 
 
@@ -449,6 +452,7 @@
     phoneNumberViewController.controllerTitle = @"验证码登录";
     phoneNumberViewController.returnDelegate = self;
     [self.navigationController pushViewController:phoneNumberViewController animated:YES];
+
 }
 
 -(void)updateUserInfo:(GetUserInfoDataSource*)dataSource

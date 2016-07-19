@@ -83,7 +83,14 @@
 #import "GetAccountBalanceDataSource.h"
 #import "UserDurationtransDataSource.h"
 #import "GetreserveaddressDataSource.h"
+#import "UpdateSafeStateDatasource.h"
+#import "RequestgetSafeStateDatasource.h"
 #import "MsgLog.h"
+#import "getmediatipsDataSource.h"
+
+
+
+
 
 #define POST_URL @"http://pes.yxhuying.com:9999/httpservice"
 #define TOKEN_URL @"http://redirect.yxhuying.com:780/getlogintoken1"
@@ -190,7 +197,12 @@ static NSString *domainUrl = nil;
     for(NSDictionary *param in params)
     {
         NSString *name = [param objectForKey:@"Name"];
-        NSString *value = [param objectForKey:@"Value"];
+        NSString *value;
+        if (([name isEqualToString:@"v"] || [name isEqualToString:@"version"])&& [UConfig getTestVersion] ) {
+            value = [UConfig getTestVersion];
+        }else{
+            value = [param objectForKey:@"Value"];
+        }
         [paramArray addObject:[NSString stringWithFormat:@"%@%@%@",name,strPwd,value]];
         NSString *ueValue = [HTTPManager urlEncode:value];
         [urlString appendFormat:@"%@=%@&",name,ueValue];
@@ -327,6 +339,7 @@ static NSString *domainUrl = nil;
 //获取验证码
 -(void)getCode:(NSInteger)curType andPhoneNumber:(NSString *)phoneNumber
 {
+    [MobClick event:@"e_req_code"];
     self.dataSource = [[GetCodeDataSource alloc] init];
     _eType = RequestCode;
     
@@ -472,6 +485,32 @@ static NSString *domainUrl = nil;
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"password",@"Name",pwdDes,@"Value",nil]];
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"appid",@"Name",@"5",@"Value",nil]];
     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"v", @"Name", UCLIENT_UPDATE_VER, @"Value", nil]];
+    [self sendHTTPRequest:params : SIGN_KEY_VERSION];
+}
+//安全通话设置按钮是否打开
+-(void)updateSafeState:(NSString*)userUid andSafeState:(NSString*)state{
+    _eType = RequestupdateSafeState;
+    self.dataSource = [[UpdateSafeStateDatasource alloc]init];
+    NSMutableArray *params = [[NSMutableArray alloc] init];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"cmd",@"Name",@"updateSafeState",@"Value",nil]];
+     [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"state",@"Name",state,@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"uid",@"Name",userUid,@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"v", @"Name", UCLIENT_UPDATE_VER, @"Value", nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"at",@"Name",[UConfig getAToken],@"Value",nil]];
+   
+    [self sendHTTPRequest:params : SIGN_KEY_VERSION];
+
+}
+//刷新安全通话状态
+-(void)getSafeState:(NSString*)userUid{
+    _eType = RequestgetSafeState;
+    self.dataSource = [[RequestgetSafeStateDatasource alloc]init];
+    NSMutableArray *params = [[NSMutableArray alloc] init];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"cmd",@"Name",@"getSafeState",@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"at",@"Name",[UConfig getAToken],@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"uid",@"Name",userUid,@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"v", @"Name", UCLIENT_UPDATE_VER, @"Value", nil]];
+
     [self sendHTTPRequest:params : SIGN_KEY_VERSION];
 }
 
@@ -1235,6 +1274,9 @@ static NSString *domainUrl = nil;
 #pragma mark --------- 获取用户基本信息接口 ---------
 -(void)getUserBaseInfo
 {
+    
+    [MobClick event:@"e_client_online"];
+    
     _eType = RequestUserBaseInfo;
     self.dataSource = [[GetUserBaseInfoDataSource alloc] init];
     
@@ -2143,6 +2185,49 @@ static NSString *domainUrl = nil;
     [self sendHTTPRequest:params :SIGN_KEY_VERSION];
 }
 
+
+
+//请求开机广告
+-(void)getMediatips
+{
+    _eType = Requestmediatips;
+    self.dataSource = [[getmediatipsDataSource alloc] init];
+    NSString *uid = [UConfig getUID];
+    NSMutableArray *params = [[NSMutableArray alloc] init];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"cmd",@"Name",@"getmediatips",@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"uid",@"Name",uid,@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"type",@"Name",@"normal",@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"code",@"Name",@"start",@"Value",nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"v", @"Name", UCLIENT_UPDATE_VER, @"Value", nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"os", @"Name", OS_NAME, @"Value", nil]];
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"at",@"Name",[UConfig getAToken],@"Value",nil]];
+    NSString *resolution;
+    if (IPHONE6plus) {
+        resolution = @"ios_big_icon";
+    }
+    else if (IPHONE4||IPHONE5||IPHONE6) {
+        resolution = @"ios_middle_icon";
+    }
+    else if(IPHONE3GS)
+    {
+        resolution = @"ios_little_icon";
+    }
+    else {
+        resolution = @"ios_big_icon";
+    }
+    
+    [params addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"resolution", @"Name", resolution, @"Value", nil]];
+    
+    
+    [self sendHTTPRequest:params : SIGN_KEY_VERSION];
+    
+}
+
+
+
+
+
+
 #pragma mark ------ 获取备选域名接口 ------
 -(void)getreserveaddress
 {
@@ -2354,6 +2439,9 @@ static NSString *domainUrl = nil;
         case RequestGetAccountBalance:
         case RequestCreateOrder:
         case RequestNewSendSms:
+        case Requestmediatips:
+        case RequestupdateSafeState:
+        case RequestgetSafeState:
             
             keyStr = @"1";
             break;

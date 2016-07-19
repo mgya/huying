@@ -76,6 +76,7 @@
     
     HTTPManager *getNoticeHttp;
     HTTPManager *httpWXInfo;
+
     
     BMKMapManager *_mapManager;
 
@@ -186,20 +187,7 @@
     }
     
     [self startup];
-    
-    
 
-    
-//    UIView *ad = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 100, 100)];
-//    
-//    ad.backgroundColor = [UIColor blueColor];
-//    
-//    [self.window addSubview:ad];
-    
-    
-    
-    
-    
     if([UConfig hasUserInfo] && [UConfig getAToken])
     {
         [self showMainView];
@@ -226,6 +214,9 @@
 //        [[UIApplication sharedApplication]registerUserNotificationSettings:setting];
 //    }
     
+    
+    UMConfigInstance.appKey = @"57709092e0f55ab2d7000ba7";
+    [MobClick startWithConfigure:UMConfigInstance];
     
 
     return YES;
@@ -297,6 +288,8 @@
     
     callBackGroundPlayer.currentTime = 0;
     [callBackGroundPlayer stop];
+    
+    [MobClick event:@"e_enter_forground"];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -513,12 +506,16 @@
     
      [uCore newTask:U_GET_SERVERADRESS];
      [uCore newTask:U_REQUEST_SHARED];
+    [uCore newTask:U_REQUEST_GETMEDIATIPS];
     
     _mapManager = [[BMKMapManager alloc]init];
     BOOL ret = [_mapManager start:@"jPRYXYMLXDUX6rsQaGOEhTOD" generalDelegate:self];
     if (!ret) {
         NSLog(@"manager start failed!");
     }
+    
+    
+    
     
   //  +(void)startWithAppID:(NSString*)appId;
    // [NBSAppAgent startWithAppID:@"0205f2248c1b4823be1cf60e945c47db"];
@@ -618,6 +615,7 @@
 //注销登录
 -(void)logout
 {
+    
     [UConfig clearConfigs];
     [uCore newTask:U_LOGOUT];
     
@@ -625,6 +623,7 @@
     rootViewController = nil;
     [self showLoginView:YES];
     
+    uCore.startAd = YES;
     //取消授权
 //    [[ShareManager SharedInstance] SinaWeiboSsoOut];
 //    [[ShareManager SharedInstance] tencentDidSsoout];

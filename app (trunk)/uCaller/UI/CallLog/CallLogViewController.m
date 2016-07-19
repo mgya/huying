@@ -28,6 +28,7 @@
 #import "TaskInfoTimeDataSource.h"
 #import "GiveGiftDataSource.h"
 #import "callLogGuideView.h"
+#import "LongPressButton.h"
 
 
 #define TAG_ALERT_CLEARLOGS 100
@@ -60,6 +61,8 @@
     UIButton *addLocalBtn;
     UIButton *addNewLocalBtn;
     UIButton *callLogBtn;
+    UIButton *callBtn;
+    LongPressButton *safeCallBtn;
     
     BOOL isEdit;
     
@@ -293,9 +296,24 @@
     //呼叫按钮
     UIImage *callImage = nil;
     UIImage *callImageSel = nil;
+    if (IPHONE4) {
+        safeCallBtn = [[LongPressButton alloc]initWithFrame:CGRectMake(240.0/2*KWidthCompare6,phonePad.frame.size.height,KDeviceWidth-481.0/2*KWidthCompare6,84.0/2*KWidthCompare6)];
+       
+    }else{
+        safeCallBtn = [[LongPressButton alloc]initWithFrame:CGRectMake(240.0/2*KWidthCompare6,phonePad.frame.size.height,KDeviceWidth-481.0/2*KWidthCompare6,84.0/2*kKHeightCompare6)];
+    }
+    safeCallBtn.backgroundColor = [UIColor colorWithRed:0/255.0 green:190/255.0 blue:205/255.0 alpha:1.0];
+    safeCallBtn.layer.cornerRadius = safeCallBtn.frame.size.height/2;
+    [safeCallBtn setImage:[UIImage imageNamed:@"safeCallBtn"] forState:(UIControlStateNormal)];
+    [safeCallBtn setTitle:@"安全通话" forState:(UIControlStateNormal)];
+    safeCallBtn.hidden = YES;
+    [safeCallBtn addTarget:self action:@selector(safeCallButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [phonePadView addSubview:safeCallBtn];
+    
+    
     callImage = [UIImage imageNamed:@"call_in_nor"];
     callImageSel = [UIImage imageNamed:@"call_in_sel"];
-    UIButton *callBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    callBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [callBtn setImage:callImage forState:UIControlStateNormal];
     [callBtn setImage:callImageSel forState:UIControlStateHighlighted];
     if (IPHONE4) {
@@ -303,10 +321,12 @@
     }else{
         callBtn.frame = CGRectMake(240.0/2*KWidthCompare6,phonePad.frame.size.height,KDeviceWidth-481.0/2*KWidthCompare6,84.0/2*kKHeightCompare6);
     }
+    callBtn.hidden = YES;
     [callBtn addTarget:self action:@selector(callButtonPressed:andnumber:) forControlEvents:UIControlEventTouchUpInside];
     [phonePadView addSubview:callBtn];
-    
-    
+
+  
+
     //粘贴按钮
     pastButton = [[UIButton alloc]init];
     UIImage *norImage = nil;
@@ -514,7 +534,21 @@
         [UConfig setCallLogMenu:YES];
         [uApp.window addSubview:callLogGuideview];
     }
+    if ([uCore.state isEqualToString:@"1"]) {
+        if ([uCore.safeState isEqualToString:@"1"]) {
+            safeCallBtn.hidden = NO;
+            callBtn.hidden = YES;
+            
+        }else{
+            safeCallBtn.hidden = YES;
+            callBtn.hidden = NO;
+        }
+    }else{
+        safeCallBtn.hidden = YES;
+        callBtn.hidden = NO;
+    }
 
+    
     [self addNaviSubView:titleNumLabel];
     [self addNaviSubView:titleAreaLabel];
     
@@ -539,7 +573,7 @@
         [uApp.rootViewController addPanGes];
     }
     
-
+    [MobClick beginLogPageView:@"CallLogViewController"];
 
 }
 
@@ -552,6 +586,8 @@
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSToCallLogInfo object:nil];
     [uApp.rootViewController removePanGes];
+    
+    [MobClick endLogPageView:@"CallLogViewController"];
 }
 
 
@@ -1079,7 +1115,9 @@
         pastButton.hidden = YES;
     }
 }
-
+- (void)safeCallButtonPressed{
+    [self callButtonPressed:callBtn andnumber:nil];
+}
 //点击呼叫按钮触发
 - (void)callButtonPressed:(UIButton*)button andnumber:(NSString*)callNumber
 {
@@ -1095,11 +1133,39 @@
     {
         if([caller isEqualToString:@"*#06#"])
         {
-            XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"呼应客户端内部版本号" message:UCLIENT_INFO_CLIENT_INSIDE delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
-            [alertView show];
+            
+            
+            if ([UConfig getTestVersion]) {
+                XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"呼应客户端内部版本号" message:[UConfig getTestVersion] delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                [alertView show];
+            }else{
+                XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"呼应客户端内部版本号" message:UCLIENT_INFO_CLIENT_INSIDE delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                [alertView show];
+            }
+            
+            
+
             [self resetNumberLabel:nil];
             return;
         }
+        //*#328xxx,其中xxx为3位版本号，如*#328241,设置版本号为2.4.1  直接输入*#328会还原到最初的版本
+       if( [[caller substringWithRange:NSMakeRange(0, 5)] isEqualToString:@"*#328"])
+       {
+           if (caller.length != 8) {
+               [UConfig setTestVersion:nil];
+               XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"初始化系统版本号" message:@"请重新进入呼应客户端" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+               [alertView show];
+               [self resetNumberLabel:nil];
+               return;
+           }
+           
+           //                                        To commemorate my true lover.2016-7-18
+           XAlertView *alertView = [[XAlertView alloc] initWithTitle:@"❤️🌹🌹❤️" message:@"请重新进入呼应客户端" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+           [alertView show];
+           [UConfig setTestVersion:[caller substringWithRange:NSMakeRange(5, 3)]];
+           [self resetNumberLabel:nil];
+           return;
+       }
         
         if(![UConfig hasUserInfo])
         {
@@ -1141,8 +1207,6 @@
             return;
         }
     }
-    
-
     
 }
 

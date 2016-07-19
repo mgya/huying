@@ -23,6 +23,7 @@
 #import "XMPPViewController.h"
 #import "TabBarViewController.h"
 #import "SearchExtendContactContainer.h"
+#import "WebviewController.h"
 
 
 #define MAIN_VIEW_HEIGHT 345
@@ -87,6 +88,12 @@
                                                  selector:@selector(onBeginBackGroundTaskEvent:)
                                                      name: NBeginBackGroundTaskEvent
                                                    object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(hideKeyBoard)
+                                                     name:HIDEKEYBOARD
+                                                   object:nil];
+
     }
     return self;
 }
@@ -105,6 +112,9 @@
                                                   object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:NUpdateAddressBook
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:HIDEKEYBOARD
                                                   object:nil];
 }
 
@@ -275,6 +285,7 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [allContactTableView reloadData];
     [self addNaviViewGes:tapGes];
     if(bInSearch)
     {
@@ -302,6 +313,8 @@
     //refresh new contact icon
     [allContactContainer refreshNewContact:[UConfig getNewContactCount] > 0 ? YES : NO];
     [uApp.rootViewController addPanGes];
+    
+    [MobClick beginLogPageView:@"ContactViewController"];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
@@ -309,6 +322,8 @@
     [super viewWillDisappear:animated];
 //    [self removeNaviViewGes:tapGes];
     [uApp.rootViewController removePanGes];
+    [MobClick endLogPageView:@"ContactViewController"];
+
 }
 
 -(void)updateResearch
@@ -538,6 +553,12 @@
     XMPPViewController *add = [[XMPPViewController alloc]init];
     [uApp.rootViewController.navigationController pushViewController:add animated:YES];
 }
+- (void)toCommondVebView{
+    WebViewController *webVc = [[WebViewController alloc]init];
+    webVc.webUrl = @"http://www.yxhuying.com/jsp/recommend/share.jsp?uid={uid}&version={version}";
+    [uApp.rootViewController.navigationController pushViewController:webVc animated:YES];
+
+}
 
 -(void)touchesEnded
 {
@@ -662,6 +683,13 @@
 {
     [_searchBar resignFirstResponder];
     [self enableCancelButton];
+}
+
+-(void)hideKeyBoard
+{
+    
+    [contactSearchBar resignFirstResponder];
+    
 }
 
 #pragma mark---BackGroundViewDelegate---

@@ -28,7 +28,7 @@ public:
 	        int bytes_in,
 	        int* bytes_out);
 
-	    // Decrypts the given data. This should reverse the effects of encr ypt().
+	    // Decrypts the given data. This should reverse the effects of encrypt().
 	    //
 	    // Args:
 	    //   channel_no: The channel to decrypt data for.

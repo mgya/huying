@@ -38,6 +38,7 @@
 #import "GetAdsContentDataSource.h"
 #import "WebViewController.h"
 #import "AfterLoginInfoDataSource.h"
+#import "UpdateSafeStateDatasource.h"
 
 #define KDisMissViewTime 1.0
 
@@ -178,7 +179,10 @@ typedef enum ECallbackStep
     UILabel *callBackLabel;
     UIButton *backBtn;
     UILabel *backLabel;
+    UIButton *safeBtn;
+    UILabel *safeLabel;
     UILabel *statusLabel;
+    LongPressButton *safeStatusBUtton;
     
     AVAudioRecorder *audioRecorder;
     AVAudioPlayer *audioPlayer;
@@ -213,6 +217,7 @@ typedef enum ECallbackStep
     HTTPManager* httpTips;
     HTTPManager* httpGiveGift;
     HTTPManager *getShareHttp;
+    HTTPManager *updateSafeStateHttp;
     BOOL isCouldInviteCaller;
     
     //for 拒接 服务器下发短信
@@ -303,7 +308,8 @@ typedef enum ECallbackStep
         getAfterInfoHttp = [[HTTPManager alloc]init];
         getAfterInfoHttp.delegate = self;
         
-        
+        updateSafeStateHttp = [[HTTPManager alloc]init];
+        updateSafeStateHttp.delegate = self;
         
     }
     return self;
@@ -370,6 +376,9 @@ typedef enum ECallbackStep
                highlighted:[UIImage imageNamed:@"speaker_highlighted.png"]
                forPosition:1];
     
+    
+    
+    
     [bgView addSubview:callMenuView];
     
     //4和3gs显示不全的问题
@@ -388,7 +397,14 @@ typedef enum ECallbackStep
     callinBottomBar.hidden = YES;
     [self.view addSubview:callinBottomBar];
     
-    statusLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height+23*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6)];
+    
+    statusLabel = [[UILabel alloc]initWithFrame:CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height-10*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6)];
+    if (IPHONE5) {
+        statusLabel.frame = CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height+10*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6);
+    }
+    if (IPHONE4) {
+        statusLabel.frame = CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height+24*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6);
+    }
     statusLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.1];
     statusLabel.layer.cornerRadius = 160*KWidthCompare6/7;
     statusLabel.clipsToBounds = YES;
@@ -396,6 +412,25 @@ typedef enum ECallbackStep
     statusLabel.textAlignment = NSTextAlignmentCenter;
     statusLabel.hidden = YES;
     [bgView addSubview:statusLabel];
+    
+    if ([uCore.state isEqualToString:@"1"]) {
+        if ([uCore.safeState isEqualToString:@"1"]) {
+            safeStatusBUtton = [[LongPressButton alloc]initWithFrame:CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height-10*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6)];
+            if (IPHONE4) {
+                safeStatusBUtton.frame = CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height+24*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6);
+            }
+            if (IPHONE5) {
+                safeStatusBUtton.frame = CGRectMake((KDeviceWidth - 160*KWidthCompare6)/2, infoView.frame.origin.y+infoView.frame.size.height+10*KWidthCompare6, 160*KWidthCompare6, 42*KWidthCompare6);
+            }
+        }
+    }
+    safeStatusBUtton.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.1];
+    safeStatusBUtton.layer.cornerRadius = 160*KWidthCompare6/7;
+    safeStatusBUtton.clipsToBounds = YES;
+    [safeStatusBUtton setImage:[UIImage imageNamed:@"safeicon"] forState:UIControlStateNormal];
+    [safeStatusBUtton setTitle:@"安全通话" forState:UIControlStateNormal];
+    [bgView addSubview:safeStatusBUtton];
+    
     
     CGFloat menuViewOriginY = KDeviceHeight-downMargin-callEditHeight;
     editMenuView = [[MenuEditView alloc]initWithFrame:CGRectMake(marginLeft, menuViewOriginY, callMVWidth, callEditHeight)];
@@ -450,7 +485,21 @@ typedef enum ECallbackStep
     backLabel.textColor = [UIColor whiteColor];
     [choiceView addSubview:backLabel];
     
-
+    if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+        safeBtn = [[UIButton alloc]init];
+        safeBtn.backgroundColor = [UIColor clearColor];
+        [safeBtn setBackgroundImage:[UIImage imageNamed:@"safeCalloff"] forState:UIControlStateNormal];
+        [safeBtn setBackgroundImage:[UIImage imageNamed:@"safeCallon"] forState:UIControlStateHighlighted];
+        [safeBtn addTarget:self action:@selector(toSafeCall) forControlEvents:UIControlEventTouchUpInside];
+        [choiceView addSubview:safeBtn];
+        safeLabel = [[UILabel alloc]init];
+        safeLabel.backgroundColor = [UIColor clearColor];
+        safeLabel.text = @"安全通话";
+        safeLabel.textAlignment = UITextAlignmentCenter;
+        safeLabel.font = [UIFont systemFontOfSize:16];
+        safeLabel.textColor = [UIColor whiteColor];
+        [choiceView addSubview:safeLabel];
+    }
     
     shadeView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, KDeviceWidth, KDeviceHeight)];
     shadeView.backgroundColor = [UIColor colorWithRed:0/255.0 green:0/255.0 blue:0/255.0 alpha:0.6];
@@ -832,6 +881,28 @@ typedef enum ECallbackStep
 - (void)dismissViewe{
     [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
 }
+- (void)toSafeCall{
+    if ([uCore.safeState isEqualToString:@"0"]) {
+        //订购详情界面
+        WebViewController *webVC = [[WebViewController alloc]init];
+        webVC.fromDismissModal = YES;
+        webVC.webUrl =  uCore.buySafeUrl;
+        [self presentModalViewController:webVC animated:YES];
+        
+    }else{
+        if ([uCore.safeState isEqualToString:@"1"]) {
+            
+            [updateSafeStateHttp updateSafeState:[UConfig getUID] andSafeState:@"1"];
+            //重拨
+            [self callBackPressed];
+
+        }else{
+            XAlertView *safeAlert = [[XAlertView alloc] initWithTitle:@"提示" message:@"系统将为您开启安全通话功能并重拨" delegate:self cancelButtonTitle:@"是" otherButtonTitles:@"否", nil];
+            safeAlert.tag = 110;
+            [safeAlert show];
+        }
+    }    
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -905,9 +976,18 @@ typedef enum ECallbackStep
         infoView.contact = callContact;
         infoView.number = callNumber;
         infoView.status = @"呼叫中";
+        if (IPHONE4) {
+            infoView.status = @"";
+        }
         infoView.special = @"";
         callDuration = @"00:00:00";
-        
+        if ([[callNumber substringToIndex:5] isEqualToString:@"95013"]&& callNumber.length == 14) {
+            safeStatusBUtton.hidden = NO;
+        }else{
+            
+            safeStatusBUtton.hidden = YES;
+
+        }
         if (iOS7) {
             //检测麦克风权限
             [self AudioSessionCheck];
@@ -919,6 +999,8 @@ typedef enum ECallbackStep
         [self performSelector:@selector(onTimeout) withObject:nil afterDelay:40.0];
     }
     else if([manager RequestCallerType] == RequestCallerType_Callback){
+        
+        safeStatusBUtton.hidden = YES;
         
         NSString *strOnlineStatus = [Util getOnLineStyle];
         if ( 0 == [strOnlineStatus compare:@"3G"]) {
@@ -948,11 +1030,15 @@ typedef enum ECallbackStep
         [self performSelector:@selector(onTimeout) withObject:nil afterDelay:40.0];
     }
     
+    [MobClick event:@"e_call_out"];
+    
     [self PreparationInviteCaller];
 }
 
 - (void)callIn:(UContact *)contact number:(NSString *)number
 {
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
     isCallIn = YES;
     
     CallerManager* manager = [CallerManager sharedInstance];
@@ -1028,7 +1114,7 @@ typedef enum ECallbackStep
              callLog.type == CALL_234G_Direct_IN) {
         isDelay = [NSNumber numberWithBool:YES];
     }
-    
+    [MobClick event:@"e_call_end"];
     [uCore newTask:U_UMP_END_CALL data:isDelay];
 }
 
@@ -1432,6 +1518,12 @@ typedef enum ECallbackStep
 
 - (void)updateDuration
 {
+
+    if ([[callNumber substringToIndex:5] isEqualToString:@"95013"]&& callNumber.length == 14) {
+        safeStatusBUtton.hidden = NO;
+    }else{
+        safeStatusBUtton.hidden = YES;
+    }
     callSec++;
     
     if (callSec >= 3600)
@@ -1494,7 +1586,7 @@ typedef enum ECallbackStep
         msg.uNumber = msg.contact.uNumber;
         msg.pNumber = msg.contact.pNumber;
     }
-    
+    safeStatusBUtton.hidden = YES;
     statusLabel.hidden = NO;
     [infoView setStatus:@""];
     if(isCallIn){
@@ -1511,6 +1603,7 @@ typedef enum ECallbackStep
             leaveMsgLabel.hidden = YES;
             callBackBtn.hidden = YES;
             callBackLabel.hidden = YES;
+            //广告遮罩
             BOOL isReview = [UConfig getVersionReview];
             if ([GetAdsContentDataSource sharedInstance].imgCallrelease == nil || isReview) {
                 shadeView.hidden = YES;
@@ -1518,8 +1611,18 @@ typedef enum ECallbackStep
             }else{
                 shadeView.hidden = NO;
             }
-            backBtn.frame = CGRectMake((KDeviceWidth-65*KWidthCompare6)/2,(choiceView.frame.size.height-97*KWidthCompare6)/2, 65*KWidthCompare6, 65*KWidthCompare6);
-            backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6, 100*KWidthCompare6, 20);
+         
+            if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+                backBtn.frame = CGRectMake((KDeviceWidth-65*KWidthCompare6*2)/3,(choiceView.frame.size.height-97*KWidthCompare6)/2, 65*KWidthCompare6, 65*KWidthCompare6);
+                backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6, 100*KWidthCompare6, 20);
+                safeBtn.frame = CGRectMake(65*KWidthCompare6+(KDeviceWidth-65*KWidthCompare6*2)/3*2, backBtn.frame.origin.y,  65*KWidthCompare6,  65*KWidthCompare6);
+                safeLabel.frame = CGRectMake(safeBtn.frame.origin.x-35/2*KWidthCompare6, backLabel.frame.origin.y,  100*KWidthCompare6, 20);
+            }else{
+                backBtn.frame = CGRectMake(KDeviceWidth-75*KWidthCompare6-65*KWidthCompare6, leaveMsgLabel.frame.origin.y+leaveMsgLabel.frame.size.height+18*KWidthCompare6,  65*KWidthCompare6,  65*KWidthCompare6);
+                backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6,  100*KWidthCompare6, 20);
+            }
+            
+            
             
         }else{
             [uApp stopRing];
@@ -1569,8 +1672,15 @@ typedef enum ECallbackStep
             }else{
                 shadeView.hidden = NO;
             }
-            backBtn.frame = CGRectMake((KDeviceWidth-65*KWidthCompare6)/2,(choiceView.frame.size.height-97*KWidthCompare6)/2, 65*KWidthCompare6, 65*KWidthCompare6);
-            backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6, 100*KWidthCompare6, 20);
+            if ([[UCore sharedInstance].state isEqualToString:@"1"]) {
+                backBtn.frame = CGRectMake((KDeviceWidth-65*KWidthCompare6*2)/3,(choiceView.frame.size.height-97*KWidthCompare6)/2, 65*KWidthCompare6, 65*KWidthCompare6);
+                backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6, 100*KWidthCompare6, 20);
+                safeBtn.frame = CGRectMake(65*KWidthCompare6+(KDeviceWidth-65*KWidthCompare6*2)/3*2, backBtn.frame.origin.y,  65*KWidthCompare6,  65*KWidthCompare6);
+                safeLabel.frame = CGRectMake(safeBtn.frame.origin.x-35/2*KWidthCompare6, backLabel.frame.origin.y,  100*KWidthCompare6, 20);
+            }else{
+                backBtn.frame = CGRectMake(KDeviceWidth-75*KWidthCompare6-65*KWidthCompare6, leaveMsgLabel.frame.origin.y+leaveMsgLabel.frame.size.height+18*KWidthCompare6,  65*KWidthCompare6,  65*KWidthCompare6);
+                backLabel.frame = CGRectMake(backBtn.frame.origin.x-35/2*KWidthCompare6, backBtn.frame.origin.y+backBtn.frame.size.height+12*KWidthCompare6,  100*KWidthCompare6, 20);
+            }
         }else{
             statusLabel.text = @"未接通";
             if (releaseReason.integerValue == RR_BUSY) {
@@ -1911,8 +2021,7 @@ typedef enum ECallbackStep
         isEnd = YES;
         //        [self performSelector:@selector(dismissView) withObject:nil afterDelay:KDisMissViewTime];
     }
-    
-    if (alertView.tag == 55) {
+    else if (alertView.tag == 55) {
         if (buttonIndex == 0) {
             isSendMSgs = NO;
             [self sendAudio];
@@ -1924,6 +2033,22 @@ typedef enum ECallbackStep
         }
         
     }
+    else if (alertView.tag == 110) {
+        if(buttonIndex == 0){
+            
+            //开启设置为安全
+            [updateSafeStateHttp updateSafeState:[UConfig getUID] andSafeState:@"1"];
+            
+            uCore.safeState = @"1";
+
+            //重拨
+            [self callBackPressed];
+            
+        }else{
+            
+        }
+    }
+
 }
 - (void)sendMsg{
     
@@ -2082,6 +2207,13 @@ typedef enum ECallbackStep
         }
         
         [Util sendInvite:[NSArray arrayWithObject:callNumber] from:self andContent:smsContent];
+    }
+    else if (eType == RequestupdateSafeState){
+        UpdateSafeStateDatasource *updateSafeData = (UpdateSafeStateDatasource*)theDataSource;
+        if (updateSafeData.nResultNum == 1){
+            NSLog(@"成功");
+        }
+        
     }
 
 }
@@ -2463,6 +2595,10 @@ typedef enum ECallbackStep
 - (void)callButtonPressed:(UIButton*)button
 {
     
+    [self callBackPressed];
+    
+}
+- (void)callBackPressed{
     [self hideCallView];
     [uApp.rootViewController addPanGes];
     
@@ -2475,7 +2611,6 @@ typedef enum ECallbackStep
     CallerManager* manager = [CallerManager sharedInstance];
     
     [manager Caller:callNumber Contact:callLog.contact ParentView:self Forced:RequestCallerType_Unknow];
-    
 }
 - (void)closeAd{
     phonePadView.hidden = YES;

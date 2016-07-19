@@ -28,6 +28,8 @@
 
 #import "TabBarViewController.h"
 
+#import "UCore.h"
+
 
 
 #define ALPHA	@"ABCDEFGHIJKLMNOPQRSTUVWXYZ#"
@@ -49,6 +51,8 @@
     UIImageView *newCountView;
     
     UITableViewCell *newContactCell;
+    
+    UCore *uCore;
     
 }
 
@@ -216,6 +220,7 @@
 
 {
     
+    
     if(isHasNewContact)
         
     {
@@ -239,6 +244,7 @@
 -(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
 
 {
+    uCore = [UCore sharedInstance];
     
     NSMutableArray *indices = [NSMutableArray arrayWithObject:UITableViewIndexSearch];
     
@@ -312,7 +318,9 @@
             if ([UConfig hasUserInfo]) {
                 
                 
-                
+                if ([uCore.recommended isEqualToString:@"1"]) {
+                    return 3;
+                }
                 return 2;//新的朋友，呼应好友
                 
                 
@@ -323,12 +331,17 @@
                 
                 if ([UConfig getTrainTickets]) {
                     
+                    if ([uCore.recommended isEqualToString:@"1"]) {
+                        return 4;
+                    }
                     return 3;//新的朋友,免费订票
                     
                 }
                 
                 else {
-                    
+                    if ([uCore.recommended isEqualToString:@"1"]) {
+                        return 3;
+                    }
                     return 2;//新的朋友
                     
                 }
@@ -614,51 +627,99 @@
             if ([UConfig hasUserInfo] ) {
                 
                 if ([UConfig getTrainTickets]) {
-                    
-                    if(indexPath.row == 0){
+                    if ([uCore.recommended isEqualToString:@"1"]) {
+                        if(indexPath.row == 0){
+                            
+                            UITableViewCell *cell = [self drawOneKeyBookCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 1){
+                            
+                            UITableViewCell *cell = [self drawCommondCell:tableView];
+                            
+                            return cell;
+                            
+                        }
                         
-                        UITableViewCell *cell = [self drawOneKeyBookCell:tableView];
-                        
-                        return cell;
-                        
+                        else if(indexPath.row == 2){
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 3){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+                     }else{
+                        if(indexPath.row == 0){
+                            
+                            UITableViewCell *cell = [self drawOneKeyBookCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 1){
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 2){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
                     }
-                    
-                    else if(indexPath.row == 1){
-                        
-                        UITableViewCell *cell = [self drawNewContactCell:tableView];
-                        
-                        return cell;
-                        
-                    }else if(indexPath.row == 2){
-                        
-                        UITableViewCell *cell = [self drawUContactCell:tableView];
-                        
-                        return cell;
-                        
-                    }
-                    
                 }
                 
                 else {
-                    
-                    if(indexPath.row == 0){
-                        
-                        UITableViewCell *cell = [self drawNewContactCell:tableView];
-                        
-                        return cell;
-                        
-                    }else if(indexPath.row == 1){
-                        
-                        UITableViewCell *cell = [self drawUContactCell:tableView];
-                        
-                        return cell;
-                        
+                    if ([uCore.recommended isEqualToString:@"1"]) {
+                        if(indexPath.row == 0){
+                            
+                            UITableViewCell *cell = [self drawCommondCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+                        else if(indexPath.row == 1){
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 2){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+
+                       }else{
+                         if(indexPath.row == 0){
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                         }else if(indexPath.row == 1){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+
                     }
                     
+                    
                 }
-                
-                
-                
             }
             
             else {
@@ -666,43 +727,100 @@
                 if([UConfig getTrainTickets])
                     
                 {
-                    
-                    if (indexPath.row == 0) {
+                    if ([uCore.recommended isEqualToString:@"1"]) {
                         
-                        UITableViewCell *cell = [self drawOneKeyBookCell:tableView];
+                        if (indexPath.row == 0) {
+                            
+                            UITableViewCell *cell = [self drawOneKeyBookCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+                        else if (indexPath.row ==1){
+                            
+                            UITableViewCell *cell = [self drawCommondCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+                        else if (indexPath.row ==2){
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 3){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+
+                    }else{
                         
-                        return cell;
-                        
-                    }else if (indexPath.row ==1){
-                        
-                        UITableViewCell *cell = [self drawNewContactCell:tableView];
-                        
-                        return cell;
-                        
-                    }else if(indexPath.row == 2){
-                        
-                        UITableViewCell *cell = [self drawUContactCell:tableView];
-                        
-                        return cell;
-                        
+                        if (indexPath.row == 0) {
+                            
+                            UITableViewCell *cell = [self drawOneKeyBookCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if (indexPath.row ==1){
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 2){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+
                     }
                     
                 }
                 
                 else {
-                    
-                    if (indexPath.row == 0) {
+                    if ([uCore.recommended isEqualToString:@"1"])
+                    {
+                        if (indexPath.row == 0) {
+                            
+                            UITableViewCell *cell = [self drawCommondCell:tableView];
+                            
+                            return cell;
+                            
+                        }
+                        else if (indexPath.row == 1) {
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 2){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
                         
-                        UITableViewCell *cell = [self drawNewContactCell:tableView];
-                        
-                        return cell;
-                        
-                    }else if(indexPath.row == 1){
-                        
-                        UITableViewCell *cell = [self drawUContactCell:tableView];
-                        
-                        return cell;
-                        
+                    }else{
+                        if (indexPath.row == 0) {
+                            
+                            UITableViewCell *cell = [self drawNewContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }else if(indexPath.row == 1){
+                            
+                            UITableViewCell *cell = [self drawUContactCell:tableView];
+                            
+                            return cell;
+                            
+                        }
                     }
                     
                 }
@@ -913,81 +1031,186 @@
         if ([UConfig hasUserInfo]) {
             
             if ([UConfig getTrainTickets]) {
-                
-                if (indexPath.row == 0){
+                if ([uCore.recommended isEqualToString:@"1"]) {
                     
-                    //一键买票
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellclickedTicket:)])
+                    if (indexPath.row == 0){
                         
-                    {
+                        //一键买票
                         
-                        [contactDelegate contactCellclickedTicket:nil];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellclickedTicket:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellclickedTicket:nil];
+                            
+                        }
+                        
+                    }
+                    else if(indexPath.row ==1){
+                        
+                        //推荐有奖
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(toCommondVebView)])
+                            
+                        {
+                            
+                            [contactDelegate toCommondVebView];
+                            
+                        }
+                        
+                    }
+                    else if(indexPath.row ==2){
+                        
+                        //新的朋友
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
                         
                     }
                     
-                }
-                
-                else if(indexPath.row ==1){
-                    
-                    //新的朋友
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                    else if(indexPath.row ==3){
                         
-                    {
+                        //通讯录
                         
-                        [contactDelegate contactCellClicked:contact];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
+                        
+                    }
+
+                }else{
+                    
+                    if (indexPath.row == 0){
+                        
+                        //一键买票
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellclickedTicket:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellclickedTicket:nil];
+                            
+                        }
                         
                     }
                     
-                }
-                
-                else if(indexPath.row ==2){
-                    
-                    //通讯录
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                    else if(indexPath.row ==1){
                         
-                    {
+                        //新的朋友
                         
-                        [contactDelegate contactCellClickedAdd];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
                         
                     }
                     
+                    else if(indexPath.row ==2){
+                        
+                        //通讯录
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
+                        
+                    }
+
                 }
                 
             }
             
             else {
-                
-                if(indexPath.row ==0){
-                    
-                    //新的朋友
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                if ([uCore.recommended isEqualToString:@"1"]) {
+                    if(indexPath.row ==0){
                         
-                    {
+                        //推荐有奖
                         
-                        [contactDelegate contactCellClicked:contact];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(toCommondVebView)])
+                            
+                        {
+                            
+                            [contactDelegate toCommondVebView];
+                            
+                        }
+                        
+                    }
+
+                    else if(indexPath.row ==1){
+                        
+                        //新的朋友
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
                         
                     }
                     
-                }
-                
-                else if(indexPath.row ==1){
-                    
-                    //通讯录
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                    else if(indexPath.row ==2){
                         
-                    {
+                        //通讯录
                         
-                        [contactDelegate contactCellClickedAdd];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
                         
                     }
                     
+
+                }else{
+                    if(indexPath.row ==0){
+                        
+                        //新的朋友
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
+                        
+                    }
+                    
+                    else if(indexPath.row ==1){
+                        
+                        //通讯录
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
+                        
+                    }
+                    
+                    
                 }
-                
                 
                 
             }
@@ -997,87 +1220,191 @@
         else{
             
             if ([UConfig getTrainTickets]) {
-                
-                if (indexPath.row == 0) {
-                    
-                    //一键买票
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellclickedTicket:)])
+                if ([uCore.recommended isEqualToString:@"1"]) {
+                    if (indexPath.row == 0) {
                         
-                    {
+                        //一键买票
                         
-                        [contactDelegate contactCellclickedTicket:nil];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(toCommondVebView)])
+                            
+                        {
+                            
+                            [contactDelegate toCommondVebView];
+                            
+                        }
+                        
+                    }
+
+                    else if (indexPath.row == 1) {
+                        
+                        //一键买票
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellclickedTicket:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellclickedTicket:nil];
+                            
+                        }
+                        
+                        
                         
                     }
                     
-                    
-                    
-                }
-                
-                else if (indexPath.row == 1){
-                    
-                    //新的朋友
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                    else if (indexPath.row == 1){
                         
-                    {
+                        //新的朋友
                         
-                        [contactDelegate contactCellClicked:contact];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
                         
                     }
                     
+                    else if(indexPath.row ==2){
+                        
+                        //通讯录
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
+                        
+                    }
+
                 }
-                
-                else if(indexPath.row ==2){
-                    
-                    //通讯录
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                else{
+                    if (indexPath.row == 0) {
                         
-                    {
+                        //一键买票
                         
-                        [contactDelegate contactCellClickedAdd];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellclickedTicket:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellclickedTicket:nil];
+                            
+                        }
+                        
+                        
                         
                     }
                     
+                    else if (indexPath.row == 1){
+                        
+                        //新的朋友
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
+                        
+                    }
+                    
+                    else if(indexPath.row ==2){
+                        
+                        //通讯录
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
+                        
+                    }
+
                 }
-                
-                
                 
             }
             
             else {
-                
-                //新的朋友
-                
-                if (indexPath.row==0) {
+                if ([uCore.recommended isEqualToString:@"1"]) {
                     
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                    if (indexPath.row==0) {
                         
-                    {
-                        
-                        [contactDelegate contactCellClicked:contact];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(toCommondVebView)])
+                            
+                        {
+                            
+                            [contactDelegate toCommondVebView];
+                            
+                        }
                         
                     }
                     
-                }
-                
-                else if (indexPath.row==1)
+                    //新的朋友
                     
-                {
-                    
-                    if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                   else if (indexPath.row==1) {
                         
-                    {
-                        
-                        [contactDelegate contactCellClickedAdd];
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
                         
                     }
                     
+                    else if (indexPath.row==1)
+                        
+                    {
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
+                        
+                    }
+
                 }
-                
-                
-                
+                else{
+                    //新的朋友
+                    
+                    if (indexPath.row==0) {
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClicked:)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClicked:contact];
+                            
+                        }
+                        
+                    }
+                    
+                    else if (indexPath.row==1)
+                        
+                    {
+                        
+                        if (contactDelegate && [contactDelegate respondsToSelector:@selector(contactCellClickedAdd)])
+                            
+                        {
+                            
+                            [contactDelegate contactCellClickedAdd];
+                            
+                        }
+                        
+                    }
+
+                    
+                }
+
             }
             
         }
@@ -1157,8 +1484,6 @@
     if (cell == nil) {
         
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellName];
-        
-        
         
         UILabel *MyHuyingLabel = [[UILabel alloc] initWithFrame:CGRectMake(13, 9, Label_HuyingNumber, 38)];
         
@@ -1312,7 +1637,83 @@
     
 }
 
+-(UITableViewCell *)drawCommondCell:(UITableView *)tableView
 
+{
+    
+    static NSString *cellName = @"CommondCell";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName];
+    
+    if(cell == nil) {
+        
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellName];
+        
+        
+        
+        UIImageView *photoImgView = [[UIImageView alloc] initWithFrame:CGRectMake(12,10, 34, 34)];
+        
+        photoImgView.image = [UIImage imageNamed:@"commendContacts"];
+        
+        [cell.contentView addSubview:photoImgView];
+        
+        cell.imageView.image = [UIImage imageNamed:@""];
+        
+        
+        
+        UILabel *newLabel = [[UILabel alloc] initWithFrame:CGRectMake(photoImgView.frame.origin.x+photoImgView.frame.size.width+14, photoImgView.frame.origin.y,KDeviceWidth-100, 38)];
+        
+        newLabel.backgroundColor = [UIColor clearColor];
+        
+        newLabel.text = @"推荐呼应给好友获取免费时长";
+        
+        newLabel.textAlignment = NSTextAlignmentLeft;
+        
+        newLabel.font = [UIFont systemFontOfSize:16];
+        
+        [cell.contentView addSubview:newLabel];
+        
+        
+        
+        
+        
+        newContactCell = cell;
+        
+        [newContactCell.contentView addSubview:newCountView];
+        
+        
+        
+        cell.selectedBackgroundView = [UIUtil CellSelectedView];
+        
+        
+        
+        UILabel* dividingLine = [[UILabel alloc] init];
+        
+        dividingLine.backgroundColor = [[UIColor alloc] initWithRed:235/255.0 green:235/255.0 blue:235/255.0 alpha:1.0];
+        
+        if (iOS7) {
+            
+            dividingLine.frame = CGRectMake(12, 54.5, KDeviceWidth-10, 0.5);
+            
+        }else{
+            
+            dividingLine.frame = CGRectMake(12, 54.5, KDeviceWidth-10, 1.5);
+            
+        }
+        
+        
+        
+        [cell addSubview:dividingLine];
+        
+    }
+    
+    
+    
+    
+    
+    return cell;
+    
+}
 
 -(UITableViewCell *)drawNewContactCell:(UITableView *)tableView
 

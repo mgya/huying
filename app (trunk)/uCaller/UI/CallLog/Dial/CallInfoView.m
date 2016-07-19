@@ -59,7 +59,7 @@
     if (self)
     {
         curFrame = frame;
-        self.backgroundColor = [UIColor clearColor];
+        self.backgroundColor = [UIColor redColor];
         
         UIImage *photoBgImg = [UIImage imageNamed:@"photo_bg"];
         photoBgView = [[UIImageView alloc]init];
@@ -73,7 +73,8 @@
         [photoBgView addSubview:photoImgView];
         
         
-        CGRect labelFrame = CGRectMake(0, photoBgView.frame.origin.y + photoBgView.frame.size.height + 2.0, KDeviceWidth, 20);
+        
+        CGRect labelFrame = CGRectMake(0, photoBgView.frame.origin.y + photoBgView.frame.size.height+2, KDeviceWidth, 20);
         nameLabel = [CallInfoView createLabel:labelFrame font:[UIFont systemFontOfSize:16.0f]];
         nameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         [self addSubview:nameLabel];
@@ -90,12 +91,15 @@
         labelFrame.origin.y += (labelFrame.size.height);
         if(IPHONE5)
         {
-            labelFrame.origin.y += 10;
+            labelFrame.origin.y -= 8;
         }
         
         if(IPHONE6)
         {
-            labelFrame.origin.y += 20;
+            labelFrame.origin.y -= 3;
+        }
+        if (IPHONE6plus) {
+            labelFrame.origin.y += 12;
         }
         labelFrame.size.height += labelFrame.size.height;
         statusLabel = [CallInfoView createLabel:labelFrame font:[UIFont systemFontOfSize:13.0f]];
